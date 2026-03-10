@@ -1,10 +1,13 @@
+![Banner](./assets/banner.png)
+
 ##  Contributors
 
 <table>
   <tr>
-    <th>GitHub Pic</th>
+    <th>GitHub Profile</th>
     <th>Full Name</th>
     <th>GitHub Username</th>
+    <th>Link</th>
   </tr>
 
   <tr>
@@ -13,6 +16,7 @@
     </td>
     <td><b>Bhuvnesh Verma</b></td>
     <td><code>MasterBhuvnesh</code></td>
+    <td>https://github.com/MasterBhuvnesh</td>
   </tr>
 
 
