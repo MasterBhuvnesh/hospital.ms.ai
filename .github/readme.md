@@ -43,7 +43,21 @@
 </td>
   </tr>
 
-
+<tr>
+    <td>
+      <img src="https://github.com/Aarsh-37.png" width="40" height="40" style="border-radius:50%" />
+    </td>
+    <td><b>Aarsh Vaidya</b></td>
+    <td><code>Aarsh-37</code></td>
+<td>
+  <ul>
+    <li>
+      <a href="https://github.com/Aarsh-37" target="_blank">GitHub</a>
+    </li>
+   
+  </ul>
+</td>
+  </tr>
 
 
 </table>
