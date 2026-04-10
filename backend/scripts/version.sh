@@ -22,7 +22,7 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-# ── Valid Services ────────────────────────────────────
+# ── Valid Targets ─────────────────────────────────────
 VALID_SERVICES=(
   "analytics-service"
   "api-gateway"
@@ -47,6 +47,11 @@ VALID_SERVICES=(
   "whatsapp-service"
 )
 
+VALID_COMMON=(
+  "logging"
+  "observatory"
+)
+
 # ── Helper Functions ──────────────────────────────────
 
 print_header() {
@@ -57,19 +62,30 @@ print_header() {
   echo ""
 }
 
-print_services() {
+print_available_targets() {
   echo -e "${YELLOW}Available services:${NC}"
-  echo ""
   for svc in "${VALID_SERVICES[@]}"; do
     echo -e "  ${BLUE}•${NC} $svc"
   done
   echo ""
+  echo -e "${YELLOW}Available common packages:${NC}"
+  for pkg in "${VALID_COMMON[@]}"; do
+    echo -e "  ${BLUE}•${NC} $pkg"
+  done
+  echo ""
 }
 
-is_valid_service() {
-  local service=$1
+get_target_type() {
+  local target=$1
   for svc in "${VALID_SERVICES[@]}"; do
-    if [[ "$svc" == "$service" ]]; then
+    if [[ "$svc" == "$target" ]]; then
+      echo "service"
+      return 0
+    fi
+  done
+  for pkg in "${VALID_COMMON[@]}"; do
+    if [[ "$pkg" == "$target" ]]; then
+      echo "common"
       return 0
     fi
   done
@@ -81,23 +97,25 @@ is_valid_service() {
 print_header
 
 if [ -z "$1" ]; then
-  echo -e "${RED}Error: Service name is required.${NC}"
+  echo -e "${RED}Error: Target name (service or common package) is required.${NC}"
   echo ""
-  echo -e "${YELLOW}Usage:${NC} $0 ${BLUE}<service-name>${NC} ${BLUE}[patch|minor|major]${NC}"
+  echo -e "${YELLOW}Usage:${NC} $0 ${BLUE}<name>${NC} ${BLUE}[patch|minor|major]${NC}"
   echo -e "${YELLOW}Example:${NC} $0 doctor-service minor"
+  echo -e "${YELLOW}Example:${NC} $0 logging patch"
   echo ""
-  print_services
+  print_available_targets
   exit 1
 fi
 
-SERVICE_NAME=$1
+TARGET_NAME=$1
 VERSION_TYPE=${2:-patch}
 
-# Validate service name
-if ! is_valid_service "$SERVICE_NAME"; then
-  echo -e "${RED}Error: Invalid service name '${SERVICE_NAME}'.${NC}"
+# Validate target type
+TARGET_TYPE=$(get_target_type "$TARGET_NAME")
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Error: Invalid target name '${TARGET_NAME}'.${NC}"
   echo ""
-  print_services
+  print_available_targets
   exit 1
 fi
 
@@ -112,29 +130,37 @@ fi
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 ROOT_DIR=$(cd "$SCRIPT_DIR/.." && pwd)
-SERVICE_DIR="$ROOT_DIR/packages/services/$SERVICE_NAME"
 
-if [ ! -d "$SERVICE_DIR" ]; then
-  echo -e "${RED}Error: Service directory not found at $SERVICE_DIR${NC}"
+if [[ "$TARGET_TYPE" == "service" ]]; then
+  TARGET_DIR="$ROOT_DIR/packages/services/$TARGET_NAME"
+else
+  TARGET_DIR="$ROOT_DIR/packages/common/$TARGET_NAME"
+fi
+
+if [ ! -d "$TARGET_DIR" ]; then
+  echo -e "${RED}Error: Target directory not found at $TARGET_DIR${NC}"
   exit 1
 fi
 
-if [ ! -f "$SERVICE_DIR/package.json" ]; then
-  echo -e "${RED}Error: package.json not found in $SERVICE_DIR${NC}"
+if [ ! -f "$TARGET_DIR/package.json" ]; then
+  echo -e "${RED}Error: package.json not found in $TARGET_DIR${NC}"
   exit 1
 fi
 
 # ── Get Current Version ──────────────────────────────
 
-CURRENT_VERSION=$(grep -oP '"version": "\K[^"]+' "$SERVICE_DIR/package.json")
-echo -e "${BLUE}Service:${NC}         $SERVICE_NAME"
+CURRENT_VERSION=$(grep -oP '"version": "\K[^"]+' "$TARGET_DIR/package.json")
+echo -e "${BLUE}Target:${NC}          $TARGET_NAME ($TARGET_TYPE)"
 echo -e "${BLUE}Current version:${NC} v$CURRENT_VERSION"
 echo -e "${BLUE}Bump type:${NC}       $VERSION_TYPE"
 echo ""
 
 # ── Confirmation ──────────────────────────────────────
 
-echo -e "${YELLOW}This will bump the ${BOLD}${VERSION_TYPE}${NC}${YELLOW} version for ${BOLD}${SERVICE_NAME}${NC}"
+echo -e "${YELLOW}This will bump the ${BOLD}${VERSION_TYPE}${NC}${YELLOW} version for ${BOLD}${TARGET_NAME}${NC}"
+if [[ "$TARGET_TYPE" == "common" ]]; then
+  echo -e "${RED}${BOLD}WARNING: Updating a common package will trigger a rebuild of ALL services.${NC}"
+fi
 read -p "Proceed? (y/n): " -n 1 -r
 echo ""
 
@@ -147,7 +173,7 @@ echo ""
 
 # ── Bump Version ─────────────────────────────────────
 
-cd "$SERVICE_DIR" || exit 1
+cd "$TARGET_DIR" || exit 1
 
 echo -e "${YELLOW}⬆ Bumping version...${NC}"
 npm version "$VERSION_TYPE" --no-git-tag-version > /dev/null 2>&1
@@ -155,27 +181,27 @@ npm version "$VERSION_TYPE" --no-git-tag-version > /dev/null 2>&1
 NEW_VERSION=$(grep -oP '"version": "\K[^"]+' package.json)
 echo -e "${GREEN}✓ Version bumped: v${CURRENT_VERSION} → v${NEW_VERSION}${NC}"
 
-# ── Update service-info.json if it exists ─────────────
-
-if [ -f "src/info/requests.ts" ]; then
-  echo -e "${YELLOW}⬆ Version in requests.ts is loaded from package.json at runtime — no update needed.${NC}"
-fi
-
 # ── Stage Changes ─────────────────────────────────────
 
 cd "$ROOT_DIR" || exit 1
 
 echo -e "${YELLOW}📦 Staging changes...${NC}"
-git add "$SERVICE_DIR/package.json"
-if [ -f "$SERVICE_DIR/package-lock.json" ]; then
-  git add "$SERVICE_DIR/package-lock.json"
+git add "$TARGET_DIR/package.json"
+if [ -f "$TARGET_DIR/package-lock.json" ]; then
+  git add "$TARGET_DIR/package-lock.json"
 fi
 
 echo -e "${GREEN}✓ Changes staged${NC}"
 
 # ── Print Final Commands ──────────────────────────────
 
-TAG_NAME="${SERVICE_NAME}-v${NEW_VERSION}"
+if [[ "$TARGET_TYPE" == "service" ]]; then
+  TAG_NAME="${TARGET_NAME}-v${NEW_VERSION}"
+  COMMIT_MSG="chore(${TARGET_NAME}): bump version to v${NEW_VERSION}"
+else
+  TAG_NAME="common-${TARGET_NAME}-v${NEW_VERSION}"
+  COMMIT_MSG="chore(common-${TARGET_NAME}): bump version to v${NEW_VERSION}"
+fi
 
 echo ""
 echo -e "${CYAN}${BOLD}──────────────────────────────────────────${NC}"
@@ -184,8 +210,8 @@ echo -e "${CYAN}${BOLD}───────────────────
 echo ""
 echo -e "${YELLOW}Run the following commands to commit, tag, and push:${NC}"
 echo ""
-echo -e "${GREEN}git commit -m \"chore(${SERVICE_NAME}): bump version to v${NEW_VERSION}\"${NC}"
-echo -e "${GREEN}git tag -a \"${TAG_NAME}\" -m \"Release ${SERVICE_NAME} v${NEW_VERSION}\"${NC}"
+echo -e "${GREEN}git commit -m \"${COMMIT_MSG}\"${NC}"
+echo -e "${GREEN}git tag -a \"${TAG_NAME}\" -m \"Release ${TARGET_NAME} v${NEW_VERSION}\"${NC}"
 echo -e "${GREEN}git push origin HEAD --tags${NC}"
 echo ""
 echo -e "${BLUE}Tag:${NC}   ${TAG_NAME}"

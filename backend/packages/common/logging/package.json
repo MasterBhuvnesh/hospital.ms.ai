@@ -22,7 +22,10 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
-    "checklog": "tsx src/checklog.ts"
+    "checklog": "tsx src/checklog.ts",
+    "release": "bash ../../../scripts/version.sh logging patch",
+    "release:minor": "bash ../../../scripts/version.sh logging minor",
+    "release:major": "bash ../../../scripts/version.sh logging major"
   },
   "dependencies": {
     "winston": "^3.11.0",

@@ -19,11 +19,31 @@ chmod +x scripts/version.sh
 
 ## Usage
 
+### Direct Script
+
 ```bash
-./scripts/version.sh <service-name> [patch|minor|major]
+./scripts/version.sh <name> [patch|minor|major]
 ```
 
-- **service-name** — required, one of the 21 HMS services
+### via pnpm (Recommended)
+
+You can run the release scripts from any directory using `pnpm --filter`:
+
+```bash
+# Services
+pnpm --filter @hms/doctor-service release        # patch
+pnpm --filter @hms/doctor-service release:minor  # minor
+pnpm --filter @hms/doctor-service release:major  # major
+
+# Common Packages
+pnpm --filter @hms/common-logging release
+```
+
+---
+
+## Options
+
+- **name** — required, one of the HMS services or common packages
 - **bump type** — optional, defaults to `patch`
 
 | Bump Type | When to Use                          | Example            |
@@ -36,35 +56,30 @@ chmod +x scripts/version.sh
 
 ## Examples
 
-### Patch bump (default)
+### Service bump
 
 ```bash
-./scripts/version.sh doctor-service
+./scripts/version.sh doctor-service patch
 ```
 
-### Minor bump
+### Common package bump
 
 ```bash
-./scripts/version.sh identity-service minor
+./scripts/version.sh logging minor
 ```
 
-### Major bump
-
-```bash
-./scripts/version.sh api-gateway major
-```
+> [!IMPORTANT]
+> Bumping a **common package** (like `logging`) will trigger a GitHub Action that rebuilds **ALL** 21 services to ensure they use the updated code.
 
 ---
 
 ## What the Script Does
 
-1. Validates the service name and bump type
+1. Validates the target name and bump type
 2. Shows current version and asks for confirmation
-3. Bumps the version in `packages/services/<service>/package.json`
+3. Bumps the version in the target's `package.json`
 4. Stages the changed `package.json` in Git
-5. Prints the exact commands to:
-   - **Commit & tag** the version bump
-   - **Build & push** the Docker image with the new version tag
+5. Prints the exact commands to commit and tag the version bump
 
 ---
 
@@ -75,8 +90,8 @@ chmod +x scripts/version.sh
 ./scripts/version.sh doctor-service minor
 
 # 2. The script will print commands like:
-git commit -m "chore(doctor-service): bump version to v1.1.0" && \
-git tag -a "doctor-service-v1.1.0" -m "Release doctor-service v1.1.0" && \
+git commit -m "chore(doctor-service): bump version to v1.1.0"
+git tag -a "doctor-service-v1.1.0" -m "Release doctor-service v1.1.0"
 git push origin HEAD --tags
 ```
 
@@ -84,19 +99,14 @@ git push origin HEAD --tags
 
 ## Git Tag Format
 
-Tags follow the pattern: `<service-name>-v<version>`
-
-Examples:
-
-```
-doctor-service-v1.1.0
-identity-service-v2.0.0
-api-gateway-v1.0.3
-```
+- **Services**: `<service-name>-v<version>` (e.g., `doctor-service-v1.1.0`)
+- **Common Packages**: `common-<package-name>-v<version>` (e.g., `common-logging-v1.1.0`)
 
 ---
 
-## Available Services
+## Available Targets
+
+### Services
 
 | Service                  | Directory                                    |
 | ------------------------ | -------------------------------------------- |
@@ -121,3 +131,10 @@ api-gateway-v1.0.3
 | `realtime-service`       | `packages/services/realtime-service`         |
 | `search-service`         | `packages/services/search-service`           |
 | `whatsapp-service`       | `packages/services/whatsapp-service`         |
+
+### Common Packages
+
+| Package      | Directory                    |
+| ------------ | ---------------------------- |
+| `logging`    | `packages/common/logging`    |
+| `observatory`| `packages/common/observatory`|
