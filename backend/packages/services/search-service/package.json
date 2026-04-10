@@ -9,7 +9,10 @@
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "release": "bash ../../../scripts/version.sh search-service patch",
+    "release:minor": "bash ../../../scripts/version.sh search-service minor",
+    "release:major": "bash ../../../scripts/version.sh search-service major"
   },
   "dependencies": {
     "@hms/common-logging": "workspace:*",
