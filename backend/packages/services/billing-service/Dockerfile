@@ -14,6 +14,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Copy package.json for all needed workspace packages
 COPY packages/common/logging/package.json ./packages/common/logging/
+COPY packages/common/pdf/package.json ./packages/common/pdf/
 COPY packages/services/billing-service/package.json ./packages/services/billing-service/
 
 # Install all dependencies (dev included for build step)
@@ -22,17 +23,22 @@ RUN pnpm install --frozen-lockfile
 # ── Builder ───────────────────────────────────────────
 FROM deps AS builder
 
-# Copy only source & config — preserves node_modules symlinks from deps stage
+# Copy common-logging source
 COPY packages/common/logging/src ./packages/common/logging/src
 COPY packages/common/logging/tsconfig.json ./packages/common/logging/tsconfig.json
 
+# Copy common-pdf source + fonts
+COPY packages/common/pdf/src ./packages/common/pdf/src
+COPY packages/common/pdf/tsconfig.json ./packages/common/pdf/tsconfig.json
+
+# Copy service source
 COPY packages/services/billing-service/src ./packages/services/billing-service/src
 COPY packages/services/billing-service/tsconfig.json ./packages/services/billing-service/tsconfig.json
+COPY packages/services/billing-service/prisma ./packages/services/billing-service/prisma
 
-# Build common-logging first (dependency)
+# Build dependencies first, then service
 RUN pnpm --filter @hms/common-logging build
-
-# Build billing-service
+RUN pnpm --filter @hms/common-pdf build
 RUN pnpm --filter @hms/billing-service build
 
 # ── Production ────────────────────────────────────────
@@ -41,8 +47,7 @@ FROM node:22-alpine AS production
 RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
 
 # Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nodeuser
+RUN addgroup --system --gid 1001 nodejs &&     adduser --system --uid 1001 nodeuser
 
 WORKDIR /app
 
@@ -51,6 +56,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Copy package.json for needed packages
 COPY packages/common/logging/package.json ./packages/common/logging/
+COPY packages/common/pdf/package.json ./packages/common/pdf/
 COPY packages/services/billing-service/package.json ./packages/services/billing-service/
 
 # Install production dependencies only
@@ -58,6 +64,7 @@ RUN pnpm install --frozen-lockfile --prod
 
 # Copy built artifacts from builder
 COPY --from=builder /app/packages/common/logging/dist ./packages/common/logging/dist
+COPY --from=builder /app/packages/common/pdf/dist ./packages/common/pdf/dist
 COPY --from=builder /app/packages/services/billing-service/dist ./packages/services/billing-service/dist
 
 # Change ownership to non-root

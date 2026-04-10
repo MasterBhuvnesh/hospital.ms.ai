@@ -50,6 +50,7 @@ VALID_SERVICES=(
 VALID_COMMON=(
   "logging"
   "observatory"
+  "pdf"
 )
 
 # ── Helper Functions ──────────────────────────────────
