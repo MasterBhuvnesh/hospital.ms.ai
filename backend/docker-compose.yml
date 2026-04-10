@@ -1,0 +1,289 @@
+# ──────────────────────────────────────────────────────
+# HMS — Docker Compose
+# ──────────────────────────────────────────────────────
+# Usage:
+#   docker compose up -d          Start all services
+#   docker compose up -d <name>   Start a single service
+#   docker compose down           Stop all services
+#   docker compose logs -f        Follow logs
+# ──────────────────────────────────────────────────────
+
+services:
+  # ── API Gateway ───────────────────────────────────
+  api-gateway:
+    image: verma2904/hms-api-gateway:latest
+    container_name: hms-api-gateway
+    ports:
+      - '4000:4000'
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Identity Service ──────────────────────────────
+  identity-service:
+    image: verma2904/hms-identity-service:latest
+    container_name: hms-identity-service
+    ports:
+      - '5001:5001'
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Doctor Service ────────────────────────────────
+  doctor-service:
+    image: verma2904/hms-doctor-service:latest
+    container_name: hms-doctor-service
+    ports:
+      - '5002:5002'
+    environment:
+      - NODE_ENV=production
+      - PORT=5002
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Hospital Service ──────────────────────────────
+  hospital-service:
+    image: verma2904/hms-hospital-service:latest
+    container_name: hms-hospital-service
+    ports:
+      - '5003:5003'
+    environment:
+      - NODE_ENV=production
+      - PORT=5003
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Search Service ────────────────────────────────
+  search-service:
+    image: verma2904/hms-search-service:latest
+    container_name: hms-search-service
+    ports:
+      - '5004:5004'
+    environment:
+      - NODE_ENV=production
+      - PORT=5004
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Appointment Service ───────────────────────────
+  appointment-service:
+    image: verma2904/hms-appointment-service:latest
+    container_name: hms-appointment-service
+    ports:
+      - '5005:5005'
+    environment:
+      - NODE_ENV=production
+      - PORT=5005
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Queue Service ─────────────────────────────────
+  queue-service:
+    image: verma2904/hms-queue-service:latest
+    container_name: hms-queue-service
+    ports:
+      - '5006:5006'
+    environment:
+      - NODE_ENV=production
+      - PORT=5006
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Patient Records Service ───────────────────────
+  patient-records-service:
+    image: verma2904/hms-patient-records-service:latest
+    container_name: hms-patient-records-service
+    ports:
+      - '5007:5007'
+    environment:
+      - NODE_ENV=production
+      - PORT=5007
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Consultation Service ──────────────────────────
+  consultation-service:
+    image: verma2904/hms-consultation-service:latest
+    container_name: hms-consultation-service
+    ports:
+      - '5008:5008'
+    environment:
+      - NODE_ENV=production
+      - PORT=5008
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Prescription Service ──────────────────────────
+  prescription-service:
+    image: verma2904/hms-prescription-service:latest
+    container_name: hms-prescription-service
+    ports:
+      - '5009:5009'
+    environment:
+      - NODE_ENV=production
+      - PORT=5009
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Lab Test Service ──────────────────────────────
+  lab-test-service:
+    image: verma2904/hms-lab-test-service:latest
+    container_name: hms-lab-test-service
+    ports:
+      - '5010:5010'
+    environment:
+      - NODE_ENV=production
+      - PORT=5010
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Lab Result Service ────────────────────────────
+  lab-result-service:
+    image: verma2904/hms-lab-result-service:latest
+    container_name: hms-lab-result-service
+    ports:
+      - '5011:5011'
+    environment:
+      - NODE_ENV=production
+      - PORT=5011
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Pharmacy Service ──────────────────────────────
+  pharmacy-service:
+    image: verma2904/hms-pharmacy-service:latest
+    container_name: hms-pharmacy-service
+    ports:
+      - '5012:5012'
+    environment:
+      - NODE_ENV=production
+      - PORT=5012
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Inventory Service ─────────────────────────────
+  inventory-service:
+    image: verma2904/hms-inventory-service:latest
+    container_name: hms-inventory-service
+    ports:
+      - '5013:5013'
+    environment:
+      - NODE_ENV=production
+      - PORT=5013
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Billing Service ───────────────────────────────
+  billing-service:
+    image: verma2904/hms-billing-service:latest
+    container_name: hms-billing-service
+    ports:
+      - '5014:5014'
+    environment:
+      - NODE_ENV=production
+      - PORT=5014
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Notification Service ──────────────────────────
+  notification-service:
+    image: verma2904/hms-notification-service:latest
+    container_name: hms-notification-service
+    ports:
+      - '5015:5015'
+    environment:
+      - NODE_ENV=production
+      - PORT=5015
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Patient Sheet Service ─────────────────────────
+  patient-sheet-service:
+    image: verma2904/hms-patient-sheet-service:latest
+    container_name: hms-patient-sheet-service
+    ports:
+      - '5016:5016'
+    environment:
+      - NODE_ENV=production
+      - PORT=5016
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Realtime Service ──────────────────────────────
+  realtime-service:
+    image: verma2904/hms-realtime-service:latest
+    container_name: hms-realtime-service
+    ports:
+      - '5017:5017'
+    environment:
+      - NODE_ENV=production
+      - PORT=5017
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Analytics Service ─────────────────────────────
+  analytics-service:
+    image: verma2904/hms-analytics-service:latest
+    container_name: hms-analytics-service
+    ports:
+      - '5018:5018'
+    environment:
+      - NODE_ENV=production
+      - PORT=5018
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Calling Service ───────────────────────────────
+  calling-service:
+    image: verma2904/hms-calling-service:latest
+    container_name: hms-calling-service
+    ports:
+      - '5019:5019'
+    environment:
+      - NODE_ENV=production
+      - PORT=5019
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── WhatsApp Service ──────────────────────────────
+  whatsapp-service:
+    image: verma2904/hms-whatsapp-service:latest
+    container_name: hms-whatsapp-service
+    ports:
+      - '5020:5020'
+    environment:
+      - NODE_ENV=production
+      - PORT=5020
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+# ── Network ──────────────────────────────────────────
+networks:
+  hms-network:
+    name: hms-network
+    driver: bridge
