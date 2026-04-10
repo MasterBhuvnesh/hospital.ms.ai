@@ -60,12 +60,8 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
   let { page, y: startY } = addPage(ctx);
   const { bold, regular } = ctx.fonts;
 
-  // 🔥 FIX: avoid header overlap
   let y = startY - 40;
 
-  // ─────────────────────────────
-  // 🧾 TITLE + STATUS
-  // ─────────────────────────────
 
   page.drawText('LABORATORY REPORT', {
     x: MARGINS.left,
@@ -75,7 +71,6 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
     color: colors.primary,
   });
 
-  // RIGHT aligned critical badge
   if (data.isCritical) {
     drawTextRight(page, 'CRITICAL', y, {
       font: bold,
@@ -88,9 +83,6 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
   y = drawDivider(page, y, colors.primary, 1);
   y -= 20;
 
-  // ─────────────────────────────
-  // 📊 TWO COLUMN GRID (FIX)
-  // ─────────────────────────────
 
   const colGap = 40;
   const colWidth = (page.getWidth() - MARGINS.left - MARGINS.right - colGap) / 2;
@@ -100,7 +92,6 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
 
   let rowY = y;
 
-  // Section headers
   page.drawText('Patient Information', {
     x: leftX,
     y: rowY,
@@ -155,9 +146,6 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
 
   y = rowY - 20;
 
-  // ─────────────────────────────
-  // 📦 RESULTS TABLE
-  // ─────────────────────────────
 
   y = drawSectionHeader(page, 'Results', y, bold);
 
@@ -177,7 +165,6 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
     r.isAbnormal ? 'ABNORMAL' : 'Normal',
   ]);
 
-  // 🔥 prevent overflow before drawing table
   if (needsNewPage(y)) {
     ({ page, y } = addPage(ctx));
   }
@@ -191,9 +178,6 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
     regularFont: regular,
   });
 
-  // ─────────────────────────────
-  // 📝 NOTES
-  // ─────────────────────────────
 
   if (data.notes) {
     if (needsNewPage(y)) {
@@ -207,17 +191,12 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
       font: regular,
       size: 9,
       color: colors.gray,
-      maxWidth: page.getWidth() - MARGINS.left - MARGINS.right, // 🔥 wrap fix
-    });
+      maxWidth: page.getWidth() - MARGINS.left - MARGINS.right,    });
   }
 
-  // ─────────────────────────────
-  // ✍ SIGNATURE BLOCK (FIXED)
-  // ─────────────────────────────
 
   const labelX = MARGINS.left;
-  const valueX = MARGINS.left + 120; // fixed spacing (no wrap issue)
-
+  const valueX = MARGINS.left + 120;
   if (data.technician) {
     page.drawText('Lab Technician:', {
       x: labelX,

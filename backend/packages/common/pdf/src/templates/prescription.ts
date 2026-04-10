@@ -1,174 +1,269 @@
-import {
-  createDocument,
-  addPage,
-  renderToBuffer,
-  type HeaderConfig,
-} from '../renderer.js';
-import {
-  MARGINS,
-  CONTENT_WIDTH,
-  drawText,
-  drawKeyValue,
-  drawSectionHeader,
-  drawTable,
-  drawDivider,
-  type TableColumn,
-} from '../layout.js';
 import { colors } from '../colors.js';
+import { CONTENT_WIDTH, MARGINS } from '../layout.js';
+import { addPage, createDocument, renderToBuffer } from '../renderer.js';
 
-export interface PrescriptionMedicine {
-  name: string;
-  dosage: string;
-  frequency: string;
-  duration: string;
-  instructions?: string;
-  quantity: number;
-}
-
-export interface PrescriptionData {
-  prescriptionId: string;
-  date: string;
-  patient: {
-    name: string;
-    id: string;
-    age: number;
-    gender: string;
-  };
-  doctor: {
-    name: string;
-    specialization: string;
-    qualification: string;
-    regNumber?: string;
-  };
-  diagnosis: string;
-  medicines: PrescriptionMedicine[];
-  allergies?: string[];
-  notes?: string;
-  hospital: HeaderConfig;
-}
-
-export async function generatePrescription(data: PrescriptionData): Promise<Uint8Array> {
+export async function generatePrescription(data: any): Promise<Uint8Array> {
   const ctx = await createDocument({
     title: `Prescription - ${data.patient.name}`,
-    subject: 'Medical Prescription',
   });
 
   ctx.header = data.hospital;
-  ctx.footer = {
-    text: 'Valid for 30 days from date of issue unless otherwise specified.',
-    showPageNumbers: true,
-    showGeneratedAt: true,
-  };
 
   const { page, y: startY } = addPage(ctx);
   const { bold, regular } = ctx.fonts;
-  let y = startY;
 
-  // ── Rx Header ──
-  page.drawText('℞', {
+  let y = startY;
+  y -= 15;
+
+  page.drawText('PRESCRIPTION', {
     x: MARGINS.left,
     y,
-    size: 28,
+    size: 20,
     font: bold,
     color: colors.primary,
   });
-  page.drawText('PRESCRIPTION', {
-    x: MARGINS.left + 35,
-    y: y + 2,
-    size: 18,
-    font: bold,
-    color: colors.primary,
+
+  page.drawText(`Rx No: ${data.prescriptionId}`, {
+    x: MARGINS.left + CONTENT_WIDTH - 120,
+    y,
+    size: 9,
+    font: regular,
+    color: colors.gray,
   });
+
   y -= 30;
 
-  // ── Doctor Info (left) ──
-  y = drawSectionHeader(page, 'Prescribing Doctor', y, bold);
-  y = drawKeyValue(page, 'Doctor', `Dr. ${data.doctor.name}`, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Specialization', data.doctor.specialization, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Qualification', data.doctor.qualification, MARGINS.left, y, bold, regular);
+  const leftX = MARGINS.left;
+  const rightX = MARGINS.left + CONTENT_WIDTH / 2 + 20;
+
+  let leftY = y;
+  let rightY = y;
+
+  page.drawText('Prescribing Doctor', {
+    x: leftX,
+    y: leftY,
+    size: 11,
+    font: bold,
+    color: colors.primary,
+  });
+
+  page.drawLine({
+    start: { x: leftX, y: leftY - 2 },
+    end: { x: leftX + CONTENT_WIDTH / 2 - 10, y: leftY - 2 },
+    thickness: 1,
+    color: colors.primary,
+  });
+
+  leftY -= 16;
+
+  page.drawText(`Dr. ${data.doctor.name}`, { x: leftX, y: leftY, size: 10, font: bold });
+  leftY -= 14;
+
+  page.drawText(data.doctor.specialization, { x: leftX, y: leftY, size: 9, font: regular });
+  leftY -= 12;
+
+  page.drawText(data.doctor.qualification, { x: leftX, y: leftY, size: 9, font: regular });
+  leftY -= 12;
+
   if (data.doctor.regNumber) {
-    y = drawKeyValue(page, 'Reg. No', data.doctor.regNumber, MARGINS.left, y, bold, regular);
+    page.drawText(`Reg No: ${data.doctor.regNumber}`, {
+      x: leftX,
+      y: leftY,
+      size: 8,
+      font: regular,
+      color: colors.gray,
+    });
+    leftY -= 12;
   }
-  y -= 6;
 
-  // ── Patient Info ──
-  y = drawSectionHeader(page, 'Patient Information', y, bold);
-  y = drawKeyValue(page, 'Name', data.patient.name, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Patient ID', data.patient.id, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Age / Gender', `${data.patient.age} yrs / ${data.patient.gender}`, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Date', data.date, MARGINS.left, y, bold, regular);
+  page.drawText('Patient Information', {
+    x: rightX,
+    y: rightY,
+    size: 11,
+    font: bold,
+    color: colors.primary,
+  });
 
-  // Allergy warning
-  if (data.allergies && data.allergies.length > 0) {
-    y -= 6;
+  page.drawLine({
+    start: { x: rightX, y: rightY - 2 },
+    end: { x: rightX + CONTENT_WIDTH / 2 - 10, y: rightY - 2 },
+    thickness: 1,
+    color: colors.primary,
+  });
+
+  rightY -= 16;
+
+  page.drawText(data.patient.name, { x: rightX, y: rightY, size: 10, font: bold });
+  rightY -= 14;
+
+  page.drawText(`ID: ${data.patient.id}`, { x: rightX, y: rightY, size: 9, font: regular });
+  rightY -= 12;
+
+  page.drawText(`${data.patient.age} yrs / ${data.patient.gender}`, {
+    x: rightX,
+    y: rightY,
+    size: 9,
+    font: regular,
+  });
+  rightY -= 12;
+
+  page.drawText(`Date: ${data.date}`, {
+    x: rightX,
+    y: rightY,
+    size: 9,
+    font: regular,
+  });
+  rightY -= 12;
+
+  y = Math.min(leftY, rightY) - 20;
+
+  if (data.allergies?.length) {
     page.drawRectangle({
       x: MARGINS.left,
-      y: y - 16,
+      y: y - 18,
       width: CONTENT_WIDTH,
       height: 20,
       color: colors.warning,
       opacity: 0.15,
     });
-    drawText(page, `⚠ ALLERGIES: ${data.allergies.join(', ')}`, MARGINS.left + 4, y - 12, {
-      font: bold,
+
+    page.drawText(`ALLERGIES: ${data.allergies.join(', ')}`, {
+      x: MARGINS.left + 6,
+      y: y - 14,
       size: 9,
+      font: bold,
       color: colors.danger,
     });
-    y -= 28;
+
+    y -= 30;
   }
 
-  y -= 6;
-
-  // ── Diagnosis ──
-  y = drawSectionHeader(page, 'Diagnosis', y, bold);
-  y = drawText(page, data.diagnosis, MARGINS.left, y, { font: regular, size: 10, color: colors.darkGray });
-  y -= 10;
-
-  // ── Medicines Table ──
-  y = drawSectionHeader(page, 'Medicines', y, bold);
-
-  const columns: TableColumn[] = [
-    { header: '#', width: 25 },
-    { header: 'Medicine', width: 150 },
-    { header: 'Dosage', width: 80 },
-    { header: 'Frequency', width: 80 },
-    { header: 'Duration', width: 70 },
-    { header: 'Qty', width: 40, align: 'right' },
-    { header: 'Instructions', width: 50.28 },
-  ];
-
-  const rows = data.medicines.map((m, i) => [
-    String(i + 1),
-    m.name,
-    m.dosage,
-    m.frequency,
-    m.duration,
-    String(m.quantity),
-    m.instructions ?? '-',
-  ]);
-
-  y = drawTable(page, MARGINS.left, y, {
-    columns,
-    rows,
-    boldFont: bold,
-    regularFont: regular,
-    fontSize: 8,
+  y -= 15;
+  page.drawText('Diagnosis', {
+    x: MARGINS.left,
+    y,
+    size: 11,
+    font: bold,
+    color: colors.primary,
   });
 
-  // ── Notes ──
+  y -= 14;
+
+  page.drawText(data.diagnosis, {
+    x: MARGINS.left,
+    y,
+    size: 10,
+    font: regular,
+  });
+
+  y -= 20;
+
+  page.drawText('Medicines', {
+    x: MARGINS.left,
+    y,
+    size: 11,
+    font: bold,
+    color: colors.primary,
+  });
+
+  y -= 14;
+
+  const startX = MARGINS.left;
+
+  const colX = [
+    startX,
+    startX + 30,
+    startX + 160,
+    startX + 230,
+    startX + 320,
+    startX + 390,
+    startX + 440,
+  ];
+
+  const headers = ['#', 'Medicine', 'Dosage', 'Frequency', 'Duration', 'Qty', 'Instructions'];
+
+  headers.forEach((h, i) => {
+    page.drawText(h, {
+      x: colX[i],
+      y,
+      size: 8,
+      font: bold,
+    });
+  });
+
+  y -= 12;
+
+  data.medicines.forEach((m: any, i: number) => {
+    const row = [
+      String(i + 1),
+      m.name,
+      m.dosage,
+      m.frequency,
+      m.duration,
+      String(m.quantity),
+      m.instructions || '-',
+    ];
+
+    row.forEach((cell, j) => {
+      page.drawText(cell, {
+        x: colX[j],
+        y,
+        size: 8,
+        font: regular,
+      });
+    });
+
+    y -= 14;
+  });
+
+  y -= 10;
+
   if (data.notes) {
-    y -= 5;
-    y = drawSectionHeader(page, 'Additional Notes', y, bold);
-    y = drawText(page, data.notes, MARGINS.left, y, { font: regular, size: 9, color: colors.gray });
+    page.drawText('Additional Notes', {
+      x: MARGINS.left,
+      y,
+      size: 11,
+      font: bold,
+      color: colors.primary,
+    });
+
+    y -= 14;
+
+    page.drawText(data.notes, {
+      x: MARGINS.left,
+      y,
+      size: 9,
+      font: regular,
+    });
+
+    y -= 20;
   }
 
-  // ── Signature line ──
-  y -= 40;
-  drawDivider(page, y, colors.darkGray, 0.5);
-  y -= 4;
-  drawText(page, `Dr. ${data.doctor.name}`, MARGINS.left, y, { font: bold, size: 10, color: colors.darkGray });
+  page.drawLine({
+    start: { x: MARGINS.left, y },
+    end: { x: MARGINS.left + 200, y },
+    thickness: 1,
+    color: colors.gray,
+  });
+
   y -= 14;
-  drawText(page, 'Signature / Digital Verification', MARGINS.left, y, { font: regular, size: 8, color: colors.lightGray });
+
+  page.drawText(`Dr. ${data.doctor.name}`, {
+    x: MARGINS.left,
+    y,
+    size: 11,
+    font: bold,
+  });
+
+  y -= 12;
+
+  page.drawText('Signature / Digital Stamp', {
+    x: MARGINS.left,
+    y,
+    size: 8,
+    font: regular,
+    color: colors.gray,
+  });
 
   return renderToBuffer(ctx);
 }

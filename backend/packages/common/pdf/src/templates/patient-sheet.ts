@@ -18,9 +18,6 @@ import {
 
 import { colors } from '../colors.js';
 
-// ─────────────────────────────
-// TYPES
-// ─────────────────────────────
 
 export interface PatientSheetAllergy {
   allergen: string;
@@ -65,9 +62,6 @@ export interface PatientSheetData {
   hospital: HeaderConfig;
 }
 
-// ─────────────────────────────
-// MAIN FUNCTION
-// ─────────────────────────────
 
 export async function generatePatientSheet(data: PatientSheetData): Promise<Uint8Array> {
   const ctx = await createDocument({
@@ -86,12 +80,8 @@ export async function generatePatientSheet(data: PatientSheetData): Promise<Uint
   let { page, y: startY } = addPage(ctx);
   const { bold, regular } = ctx.fonts;
 
-  // ✅ prevent header overlap
   let y = startY - 40;
 
-  // ─────────────────────────────
-  // 🧾 TITLE + TOKEN
-  // ─────────────────────────────
 
   page.drawText('PATIENT SUMMARY SHEET', {
     x: MARGINS.left,
@@ -113,9 +103,6 @@ export async function generatePatientSheet(data: PatientSheetData): Promise<Uint
   y = drawDivider(page, y, colors.primary, 1);
   y -= 20;
 
-  // ─────────────────────────────
-  // 🚨 ALLERGIES (TOP PRIORITY)
-  // ─────────────────────────────
 
   if (data.allergies.length > 0) {
     y = drawSectionHeader(page, '⚠ Allergies', y, bold);
@@ -131,9 +118,6 @@ export async function generatePatientSheet(data: PatientSheetData): Promise<Uint
     y -= 10;
   }
 
-  // ─────────────────────────────
-  // 🧠 CHRONIC CONDITIONS
-  // ─────────────────────────────
 
   if (data.chronicConditions.length > 0) {
     y = drawDivider(page, y, colors.tableBorder, 0.5);
@@ -152,9 +136,6 @@ export async function generatePatientSheet(data: PatientSheetData): Promise<Uint
     y -= 10;
   }
 
-  // ─────────────────────────────
-  // 👤 PATIENT SNAPSHOT (2-COLUMN)
-  // ─────────────────────────────
 
   y = drawDivider(page, y, colors.tableBorder, 0.5);
   y -= 12;
@@ -210,9 +191,6 @@ export async function generatePatientSheet(data: PatientSheetData): Promise<Uint
 
   y = rowY - 15;
 
-  // ─────────────────────────────
-  // 💊 MEDICATIONS
-  // ─────────────────────────────
 
   if (data.currentMedications.length > 0) {
     y = drawDivider(page, y, colors.tableBorder, 0.5);
@@ -242,9 +220,6 @@ export async function generatePatientSheet(data: PatientSheetData): Promise<Uint
     });
   }
 
-  // ─────────────────────────────
-  // 🩺 RECENT VISITS
-  // ─────────────────────────────
 
   if (data.recentVisits.length > 0) {
     y = drawDivider(page, y, colors.tableBorder, 0.5);
@@ -273,9 +248,6 @@ export async function generatePatientSheet(data: PatientSheetData): Promise<Uint
     });
   }
 
-  // ─────────────────────────────
-  // 🧪 LAB RESULTS
-  // ─────────────────────────────
 
   if (data.recentLabResults.length > 0) {
     y = drawDivider(page, y, colors.tableBorder, 0.5);

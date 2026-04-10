@@ -72,12 +72,8 @@ export async function generatePatientRecords(data: PatientRecordsData): Promise<
   let { page, y: startY } = addPage(ctx);
   const { bold, regular } = ctx.fonts;
 
-  // ✅ FIX: prevent header overlap
   let y = startY - 40;
 
-  // ─────────────────────────────
-  // 🧾 TITLE
-  // ─────────────────────────────
 
   page.drawText('PATIENT MEDICAL RECORDS', {
     x: MARGINS.left,
@@ -91,9 +87,6 @@ export async function generatePatientRecords(data: PatientRecordsData): Promise<
   y = drawDivider(page, y, colors.primary, 1);
   y -= 20;
 
-  // ─────────────────────────────
-  // 📊 PERSONAL INFO (2 COLUMN)
-  // ─────────────────────────────
 
   const colGap = 40;
   const colWidth = (page.getWidth() - MARGINS.left - MARGINS.right - colGap) / 2;
@@ -158,9 +151,6 @@ export async function generatePatientRecords(data: PatientRecordsData): Promise<
 
   y = rowY - 20;
 
-  // ─────────────────────────────
-  //  ALLERGIES
-  // ─────────────────────────────
 
   if (data.allergies.length > 0) {
     if (needsNewPage(y)) ({ page, y } = addPage(ctx));
@@ -187,23 +177,16 @@ export async function generatePatientRecords(data: PatientRecordsData): Promise<
     y -= 20;
   }
 
-  // ─────────────────────────────
-  // 🧠 MEDICAL HISTORY
-  // ─────────────────────────────
 
   if (data.medicalHistory.length > 0) {
     if (needsNewPage(y)) ({ page, y } = addPage(ctx));
 
-    // 🔥 extra safety spacing
     y -= 5;
 
-    // Divider to separate sections
     y = drawDivider(page, y, colors.tableBorder, 0.5);
 
-    // Space after divider
     y -= 15;
 
-    // Section header
     y = drawSectionHeader(page, 'Medical History', y, bold);
 
     const columns: TableColumn[] = [
@@ -233,9 +216,6 @@ export async function generatePatientRecords(data: PatientRecordsData): Promise<
     y -= 20;
   }
 
-  // ─────────────────────────────
-  // 💉 IMMUNIZATIONS
-  // ─────────────────────────────
 
   if (data.immunizations.length > 0) {
     if (needsNewPage(y)) ({ page, y } = addPage(ctx));
@@ -269,9 +249,6 @@ export async function generatePatientRecords(data: PatientRecordsData): Promise<
     y -= 20;
   }
 
-  // ─────────────────────────────
-  // 📄 DOCUMENTS
-  // ─────────────────────────────
 
   if (data.documents.length > 0) {
     if (needsNewPage(y)) ({ page, y } = addPage(ctx));
