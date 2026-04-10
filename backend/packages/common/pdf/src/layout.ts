@@ -1,4 +1,4 @@
-import { PDFPage, PDFFont, RGB, rgb } from 'pdf-lib';
+import { PDFFont, PDFPage, RGB, rgb } from 'pdf-lib';
 import { colors } from './colors.js';
 
 /** Standard A4 dimensions in points (72 points = 1 inch) */
@@ -25,7 +25,7 @@ export function drawText(
   text: string,
   x: number,
   y: number,
-  opts: TextOptions,
+  opts: TextOptions
 ): number {
   const size = opts.size ?? 10;
   const color = opts.color ?? colors.darkGray;
@@ -35,12 +35,7 @@ export function drawText(
 }
 
 /** Draw a line of text right-aligned within the content area */
-export function drawTextRight(
-  page: PDFPage,
-  text: string,
-  y: number,
-  opts: TextOptions,
-): number {
+export function drawTextRight(page: PDFPage, text: string, y: number, opts: TextOptions): number {
   const size = opts.size ?? 10;
   const width = opts.font.widthOfTextAtSize(text, size);
   const x = A4.width - MARGINS.right - width;
@@ -56,7 +51,7 @@ export function drawKeyValue(
   y: number,
   boldFont: PDFFont,
   regularFont: PDFFont,
-  size: number = 10,
+  size: number = 10
 ): number {
   const labelWidth = boldFont.widthOfTextAtSize(`${label}: `, size);
 
@@ -86,7 +81,7 @@ export function drawDivider(
   page: PDFPage,
   y: number,
   color: RGB = colors.lightGray,
-  thickness: number = 0.5,
+  thickness: number = 0.5
 ): number {
   page.drawLine({
     start: { x: MARGINS.left, y },
@@ -120,12 +115,7 @@ export interface TableOptions {
  * Draw a table and return the Y position below the last row.
  * Handles header row styling and alternating row backgrounds.
  */
-export function drawTable(
-  page: PDFPage,
-  x: number,
-  y: number,
-  opts: TableOptions,
-): number {
+export function drawTable(page: PDFPage, x: number, y: number, opts: TableOptions): number {
   const fontSize = opts.fontSize ?? 9;
   const rowHeight = opts.rowHeight ?? 22;
   const headerBg = opts.headerBg ?? colors.tableHeader;
@@ -142,9 +132,10 @@ export function drawTable(
 
   let colX = x;
   for (const col of opts.columns) {
-    const textX = col.align === 'right'
-      ? colX + col.width - opts.boldFont.widthOfTextAtSize(col.header, fontSize) - 4
-      : colX + 4;
+    const textX =
+      col.align === 'right'
+        ? colX + col.width - opts.boldFont.widthOfTextAtSize(col.header, fontSize) - 4
+        : colX + 4;
 
     page.drawText(col.header, {
       x: textX,
@@ -178,9 +169,7 @@ export function drawTable(
       const col = opts.columns[colIdx];
       const cellText = row[colIdx] ?? '';
       const textWidth = opts.regularFont.widthOfTextAtSize(cellText, fontSize);
-      const textX = col.align === 'right'
-        ? colX + col.width - textWidth - 4
-        : colX + 4;
+      const textX = col.align === 'right' ? colX + col.width - textWidth - 4 : colX + 4;
 
       page.drawText(cellText, {
         x: textX,
@@ -214,7 +203,7 @@ export function drawSectionHeader(
   title: string,
   y: number,
   boldFont: PDFFont,
-  size: number = 12,
+  size: number = 12
 ): number {
   page.drawText(title, {
     x: MARGINS.left,

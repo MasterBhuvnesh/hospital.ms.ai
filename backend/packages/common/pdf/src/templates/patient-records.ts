@@ -1,19 +1,19 @@
-import {
-  createDocument,
-  addPage,
-  renderToBuffer,
-  needsNewPage,
-  type HeaderConfig,
-} from '../renderer.js';
+import { colors } from '../colors.js';
 import {
   MARGINS,
-  drawText,
-  drawKeyValue,
+  drawDivider,
   drawSectionHeader,
   drawTable,
+  drawText,
   type TableColumn,
 } from '../layout.js';
-import { colors } from '../colors.js';
+import {
+  addPage,
+  createDocument,
+  needsNewPage,
+  renderToBuffer,
+  type HeaderConfig,
+} from '../renderer.js';
 
 export interface MedicalHistoryEntry {
   condition: string;
@@ -62,16 +62,23 @@ export async function generatePatientRecords(data: PatientRecordsData): Promise<
   });
 
   ctx.header = data.hospital;
+
   ctx.footer = {
     text: 'Confidential medical record — authorized access only.',
     showPageNumbers: true,
     showGeneratedAt: true,
   };
 
-  let { page, y } = addPage(ctx);
+  let { page, y: startY } = addPage(ctx);
   const { bold, regular } = ctx.fonts;
 
-  // ── Title ──
+  // ✅ FIX: prevent header overlap
+  let y = startY - 40;
+
+  // ─────────────────────────────
+  // 🧾 TITLE
+  // ─────────────────────────────
+
   page.drawText('PATIENT MEDICAL RECORDS', {
     x: MARGINS.left,
     y,
@@ -79,106 +86,212 @@ export async function generatePatientRecords(data: PatientRecordsData): Promise<
     font: bold,
     color: colors.primary,
   });
-  y -= 28;
 
-  // ── Demographics ──
-  y = drawSectionHeader(page, 'Personal Information', y, bold);
-  y = drawKeyValue(page, 'Name', data.patient.name, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Patient ID', data.patient.id, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Date of Birth', data.patient.dateOfBirth, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Age / Gender', `${data.patient.age} yrs / ${data.patient.gender}`, MARGINS.left, y, bold, regular);
-  if (data.patient.bloodGroup) {
-    y = drawKeyValue(page, 'Blood Group', data.patient.bloodGroup, MARGINS.left, y, bold, regular);
-  }
-  if (data.patient.phone) {
-    y = drawKeyValue(page, 'Phone', data.patient.phone, MARGINS.left, y, bold, regular);
-  }
-  if (data.patient.address) {
-    y = drawKeyValue(page, 'Address', data.patient.address, MARGINS.left, y, bold, regular);
-  }
-  if (data.patient.emergencyContact) {
-    y = drawKeyValue(page, 'Emergency Contact', `${data.patient.emergencyContact} (${data.patient.emergencyPhone ?? 'N/A'})`, MARGINS.left, y, bold, regular);
+  y -= 18;
+  y = drawDivider(page, y, colors.primary, 1);
+  y -= 20;
+
+  // ─────────────────────────────
+  // 📊 PERSONAL INFO (2 COLUMN)
+  // ─────────────────────────────
+
+  const colGap = 40;
+  const colWidth = (page.getWidth() - MARGINS.left - MARGINS.right - colGap) / 2;
+
+  const leftX = MARGINS.left;
+  const rightX = leftX + colWidth + colGap;
+
+  let rowY = y;
+
+  page.drawText('Personal Information', {
+    x: leftX,
+    y: rowY,
+    size: 12,
+    font: bold,
+    color: colors.primary,
+  });
+
+  rowY -= 15;
+
+  const leftData = [
+    ['Name', data.patient.name],
+    ['Patient ID', data.patient.id],
+    ['Date of Birth', data.patient.dateOfBirth],
+    ['Age / Gender', `${data.patient.age} yrs / ${data.patient.gender}`],
+  ];
+
+  const rightData = [
+    ...(data.patient.bloodGroup ? [['Blood Group', data.patient.bloodGroup]] : []),
+    ...(data.patient.phone ? [['Phone', data.patient.phone]] : []),
+    ...(data.patient.address ? [['Address', data.patient.address]] : []),
+    ...(data.patient.emergencyContact
+      ? [
+          [
+            'Emergency Contact',
+            `${data.patient.emergencyContact} (${data.patient.emergencyPhone ?? 'N/A'})`,
+          ],
+        ]
+      : []),
+  ];
+
+  const maxRows = Math.max(leftData.length, rightData.length);
+
+  for (let i = 0; i < maxRows; i++) {
+    if (leftData[i]) {
+      drawText(page, `${leftData[i][0]}: ${leftData[i][1]}`, leftX, rowY, {
+        font: regular,
+        size: 10,
+        maxWidth: colWidth,
+      });
+    }
+
+    if (rightData[i]) {
+      drawText(page, `${rightData[i][0]}: ${rightData[i][1]}`, rightX, rowY, {
+        font: regular,
+        size: 10,
+        maxWidth: colWidth,
+      });
+    }
+
+    rowY -= 14;
   }
 
-  y -= 8;
+  y = rowY - 20;
 
-  // ── Allergies ──
+  // ─────────────────────────────
+  //  ALLERGIES
+  // ─────────────────────────────
+
   if (data.allergies.length > 0) {
+    if (needsNewPage(y)) ({ page, y } = addPage(ctx));
+
     y = drawSectionHeader(page, 'Allergies & Adverse Reactions', y, bold);
-    const allergyColumns: TableColumn[] = [
+
+    const columns: TableColumn[] = [
       { header: 'Allergen', width: 180 },
       { header: 'Severity', width: 100 },
-      { header: 'Reaction', width: 215.28 },
+      { header: 'Reaction', width: 215 },
     ];
-    const allergyRows = data.allergies.map((a) => [a.allergen, a.severity, a.reaction ?? '-']);
+
+    const rows = data.allergies.map((a) => [a.allergen, a.severity, a.reaction ?? '-']);
+
+    y -= 10;
+
     y = drawTable(page, MARGINS.left, y, {
-      columns: allergyColumns,
-      rows: allergyRows,
+      columns,
+      rows,
       boldFont: bold,
       regularFont: regular,
     });
+
+    y -= 20;
   }
 
-  // ── Medical History ──
+  // ─────────────────────────────
+  // 🧠 MEDICAL HISTORY
+  // ─────────────────────────────
+
   if (data.medicalHistory.length > 0) {
-    if (needsNewPage(y)) {
-      ({ page, y } = addPage(ctx));
-    }
+    if (needsNewPage(y)) ({ page, y } = addPage(ctx));
+
+    // 🔥 extra safety spacing
+    y -= 5;
+
+    // Divider to separate sections
+    y = drawDivider(page, y, colors.tableBorder, 0.5);
+
+    // Space after divider
+    y -= 15;
+
+    // Section header
     y = drawSectionHeader(page, 'Medical History', y, bold);
-    const histColumns: TableColumn[] = [
+
+    const columns: TableColumn[] = [
       { header: 'Condition', width: 170 },
       { header: 'Diagnosed', width: 90 },
       { header: 'Status', width: 80 },
-      { header: 'Notes', width: 155.28 },
+      { header: 'Notes', width: 155 },
     ];
-    const histRows = data.medicalHistory.map((h) => [h.condition, h.diagnosedAt, h.status, h.notes ?? '-']);
+
+    const rows = data.medicalHistory.map((h) => [
+      h.condition,
+      h.diagnosedAt,
+      h.status,
+      h.notes ?? '-',
+    ]);
+
+    y -= 10;
+
     y = drawTable(page, MARGINS.left, y, {
-      columns: histColumns,
-      rows: histRows,
+      columns,
+      rows,
       boldFont: bold,
       regularFont: regular,
       fontSize: 8,
     });
+
+    y -= 20;
   }
 
-  // ── Immunizations ──
+  // ─────────────────────────────
+  // 💉 IMMUNIZATIONS
+  // ─────────────────────────────
+
   if (data.immunizations.length > 0) {
-    if (needsNewPage(y)) {
-      ({ page, y } = addPage(ctx));
-    }
+    if (needsNewPage(y)) ({ page, y } = addPage(ctx));
+
     y = drawSectionHeader(page, 'Immunization Records', y, bold);
-    const immColumns: TableColumn[] = [
+
+    const columns: TableColumn[] = [
       { header: 'Vaccine', width: 180 },
       { header: 'Dose', width: 60, align: 'right' },
       { header: 'Date', width: 120 },
-      { header: 'Provider', width: 135.28 },
+      { header: 'Provider', width: 135 },
     ];
-    const immRows = data.immunizations.map((i) => [i.vaccine, String(i.dose), i.date, i.provider ?? '-']);
+
+    const rows = data.immunizations.map((i) => [
+      i.vaccine,
+      String(i.dose),
+      i.date,
+      i.provider ?? '-',
+    ]);
+
+    y -= 10;
+
     y = drawTable(page, MARGINS.left, y, {
-      columns: immColumns,
-      rows: immRows,
+      columns,
+      rows,
       boldFont: bold,
       regularFont: regular,
       fontSize: 8,
     });
+
+    y -= 20;
   }
 
-  // ── Documents List ──
+  // ─────────────────────────────
+  // 📄 DOCUMENTS
+  // ─────────────────────────────
+
   if (data.documents.length > 0) {
-    if (needsNewPage(y)) {
-      ({ page, y } = addPage(ctx));
-    }
+    if (needsNewPage(y)) ({ page, y } = addPage(ctx));
+
     y = drawSectionHeader(page, 'Uploaded Documents', y, bold);
-    const docColumns: TableColumn[] = [
+
+    const columns: TableColumn[] = [
       { header: '#', width: 30 },
       { header: 'Document', width: 220 },
       { header: 'Category', width: 120 },
-      { header: 'Uploaded', width: 125.28 },
+      { header: 'Uploaded', width: 125 },
     ];
-    const docRows = data.documents.map((d, i) => [String(i + 1), d.name, d.category, d.uploadedAt]);
+
+    const rows = data.documents.map((d, i) => [String(i + 1), d.name, d.category, d.uploadedAt]);
+
+    y -= 10;
+
     y = drawTable(page, MARGINS.left, y, {
-      columns: docColumns,
-      rows: docRows,
+      columns,
+      rows,
       boldFont: bold,
       regularFont: regular,
       fontSize: 8,

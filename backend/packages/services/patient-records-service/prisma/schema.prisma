@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("PATIENT_RECORDS_DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 // ── Patient Records ─────────────────────────────────

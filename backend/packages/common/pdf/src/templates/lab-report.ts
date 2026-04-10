@@ -1,18 +1,21 @@
 import {
-  createDocument,
   addPage,
-  renderToBuffer,
+  createDocument,
   needsNewPage,
+  renderToBuffer,
   type HeaderConfig,
 } from '../renderer.js';
+
 import {
   MARGINS,
-  drawKeyValue,
+  drawDivider,
   drawSectionHeader,
   drawTable,
   drawText,
+  drawTextRight,
   type TableColumn,
 } from '../layout.js';
+
 import { colors } from '../colors.js';
 
 export interface LabResultValue {
@@ -22,19 +25,11 @@ export interface LabResultValue {
   normalRange: string;
   isAbnormal: boolean;
 }
-
 export interface LabReportData {
   reportId: string;
   date: string;
-  patient: {
-    name: string;
-    id: string;
-    age: number;
-    gender: string;
-  };
-  doctor?: {
-    name: string;
-  };
+  patient: { name: string; id: string; age: number; gender: string };
+  doctor?: { name: string };
   testName: string;
   testCode: string;
   sampleType: string;
@@ -55,16 +50,23 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
   });
 
   ctx.header = data.hospital;
+
   ctx.footer = {
     text: 'This report is electronically generated and does not require a signature.',
     showPageNumbers: true,
     showGeneratedAt: true,
   };
 
-  let { page, y } = addPage(ctx);
+  let { page, y: startY } = addPage(ctx);
   const { bold, regular } = ctx.fonts;
 
-  // ── Title ──
+  // 🔥 FIX: avoid header overlap
+  let y = startY - 40;
+
+  // ─────────────────────────────
+  // 🧾 TITLE + STATUS
+  // ─────────────────────────────
+
   page.drawText('LABORATORY REPORT', {
     x: MARGINS.left,
     y,
@@ -73,39 +75,90 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
     color: colors.primary,
   });
 
+  // RIGHT aligned critical badge
   if (data.isCritical) {
-    page.drawText('⚠ CRITICAL', {
-      x: MARGINS.left + 220,
-      y,
-      size: 14,
+    drawTextRight(page, 'CRITICAL', y, {
       font: bold,
+      size: 12,
       color: colors.danger,
     });
   }
 
-  y -= 28;
+  y -= 18;
+  y = drawDivider(page, y, colors.primary, 1);
+  y -= 20;
 
-  // ── Patient Info ──
-  y = drawSectionHeader(page, 'Patient Information', y, bold);
-  y = drawKeyValue(page, 'Name', data.patient.name, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Patient ID', data.patient.id, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Age / Gender', `${data.patient.age} yrs / ${data.patient.gender}`, MARGINS.left, y, bold, regular);
-  if (data.doctor) {
-    y = drawKeyValue(page, 'Referred By', `Dr. ${data.doctor.name}`, MARGINS.left, y, bold, regular);
+  // ─────────────────────────────
+  // 📊 TWO COLUMN GRID (FIX)
+  // ─────────────────────────────
+
+  const colGap = 40;
+  const colWidth = (page.getWidth() - MARGINS.left - MARGINS.right - colGap) / 2;
+
+  const leftX = MARGINS.left;
+  const rightX = leftX + colWidth + colGap;
+
+  let rowY = y;
+
+  // Section headers
+  page.drawText('Patient Information', {
+    x: leftX,
+    y: rowY,
+    size: 12,
+    font: bold,
+    color: colors.primary,
+  });
+
+  page.drawText('Test Details', {
+    x: rightX,
+    y: rowY,
+    size: 12,
+    font: bold,
+    color: colors.primary,
+  });
+
+  rowY -= 15;
+
+  const leftData = [
+    ['Name', data.patient.name],
+    ['Patient ID', data.patient.id],
+    ['Age / Gender', `${data.patient.age} yrs / ${data.patient.gender}`],
+    ...(data.doctor ? [['Referred By', `Dr. ${data.doctor.name}`]] : []),
+  ];
+
+  const rightData = [
+    ['Test', `${data.testName} (${data.testCode})`],
+    ['Sample Type', data.sampleType],
+    ['Collected', data.collectedAt],
+    ['Reported', data.reportedAt],
+  ];
+
+  const maxRows = Math.max(leftData.length, rightData.length);
+
+  for (let i = 0; i < maxRows; i++) {
+    if (leftData[i]) {
+      drawText(page, `${leftData[i][0]}: ${leftData[i][1]}`, leftX, rowY, {
+        font: regular,
+        size: 10,
+      });
+    }
+
+    if (rightData[i]) {
+      drawText(page, `${rightData[i][0]}: ${rightData[i][1]}`, rightX, rowY, {
+        font: regular,
+        size: 10,
+      });
+    }
+
+    rowY -= 14;
   }
 
-  y -= 8;
+  y = rowY - 20;
 
-  // ── Test Info ──
-  y = drawSectionHeader(page, 'Test Details', y, bold);
-  y = drawKeyValue(page, 'Test', `${data.testName} (${data.testCode})`, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Sample Type', data.sampleType, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Collected', data.collectedAt, MARGINS.left, y, bold, regular);
-  y = drawKeyValue(page, 'Reported', data.reportedAt, MARGINS.left, y, bold, regular);
+  // ─────────────────────────────
+  // 📦 RESULTS TABLE
+  // ─────────────────────────────
 
-  y -= 8;
-
-  // ── Results Table ──
   y = drawSectionHeader(page, 'Results', y, bold);
 
   const columns: TableColumn[] = [
@@ -113,7 +166,7 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
     { header: 'Value', width: 90, align: 'right' },
     { header: 'Unit', width: 80 },
     { header: 'Normal Range', width: 100 },
-    { header: 'Status', width: 55.28, align: 'right' },
+    { header: 'Status', width: 55, align: 'right' },
   ];
 
   const rows = data.results.map((r) => [
@@ -124,6 +177,13 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
     r.isAbnormal ? 'ABNORMAL' : 'Normal',
   ]);
 
+  // 🔥 prevent overflow before drawing table
+  if (needsNewPage(y)) {
+    ({ page, y } = addPage(ctx));
+  }
+
+  y -= 10;
+
   y = drawTable(page, MARGINS.left, y, {
     columns,
     rows,
@@ -131,24 +191,71 @@ export async function generateLabReport(data: LabReportData): Promise<Uint8Array
     regularFont: regular,
   });
 
-  // ── Notes ──
+  // ─────────────────────────────
+  // 📝 NOTES
+  // ─────────────────────────────
+
   if (data.notes) {
     if (needsNewPage(y)) {
       ({ page, y } = addPage(ctx));
     }
-    y -= 5;
+
+    y -= 10;
     y = drawSectionHeader(page, 'Notes', y, bold);
-    y = drawText(page, data.notes, MARGINS.left, y, { font: regular, size: 9, color: colors.gray });
+
+    y = drawText(page, data.notes, MARGINS.left, y, {
+      font: regular,
+      size: 9,
+      color: colors.gray,
+      maxWidth: page.getWidth() - MARGINS.left - MARGINS.right, // 🔥 wrap fix
+    });
   }
 
-  // ── Signatures ──
-  y -= 20;
+  // ─────────────────────────────
+  // ✍ SIGNATURE BLOCK (FIXED)
+  // ─────────────────────────────
+
+  const labelX = MARGINS.left;
+  const valueX = MARGINS.left + 120; // fixed spacing (no wrap issue)
+
   if (data.technician) {
-    y = drawKeyValue(page, 'Lab Technician', data.technician, MARGINS.left, y, bold, regular, 9);
-  }
-  if (data.verifiedBy) {
-    y = drawKeyValue(page, 'Verified By', data.verifiedBy, MARGINS.left, y, bold, regular, 9);
+    page.drawText('Lab Technician:', {
+      x: labelX,
+      y,
+      font: bold,
+      color: colors.gray,
+      size: 10,
+    });
+
+    page.drawText(data.technician, {
+      x: valueX,
+      y,
+      font: regular,
+      color: colors.gray,
+      size: 10,
+    });
+
+    y -= 14;
   }
 
+  if (data.verifiedBy) {
+    page.drawText('Verified By:', {
+      x: labelX,
+      y,
+      font: bold,
+      color: colors.gray,
+      size: 10,
+    });
+
+    page.drawText(data.verifiedBy, {
+      x: valueX,
+      y,
+      font: regular,
+      color: colors.gray,
+      size: 10,
+    });
+
+    y -= 14;
+  }
   return renderToBuffer(ctx);
 }
