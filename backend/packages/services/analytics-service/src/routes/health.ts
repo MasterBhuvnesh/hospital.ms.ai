@@ -3,8 +3,8 @@
  * @description Express route for service health checks
  */
 
-import { Router, type Request, type Response } from 'express';
 import { createLogger } from '@hms/common-logging';
+import { Router, type Request, type Response } from 'express';
 
 const router: Router = Router();
 const logger = createLogger({
@@ -23,7 +23,7 @@ router.get('/', (_req: Request, res: Response) => {
   });
   const health = {
     status: 'healthy',
-    service: 'analytics-service',
+    service: 'analytics-service-hi',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: {
