@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PHARMACY_DATABASE_URL")
+}
+
+// ── Pharmacy ────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  READY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum DeliveryType {
+  PICKUP
+  HOME_DELIVERY
+}
+
+model PharmacyOrder {
+  id              String       @id @default(uuid()) @db.Uuid
+  patientId       String       @map("patient_id") @db.Uuid
+  prescriptionId  String?      @map("prescription_id") @db.Uuid
+  hospitalId      String?      @map("hospital_id") @db.Uuid
+  status          OrderStatus  @default(PENDING)
+  deliveryType    DeliveryType @default(PICKUP) @map("delivery_type")
+  deliveryAddress String?      @map("delivery_address")
+  subtotal        Decimal      @db.Decimal(10, 2)
+  discount        Decimal      @default(0) @db.Decimal(10, 2)
+  tax             Decimal      @default(0) @db.Decimal(10, 2)
+  totalAmount     Decimal      @map("total_amount") @db.Decimal(10, 2)
+  invoiceId       String?      @map("invoice_id") @db.Uuid
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  items OrderItem[]
+
+  @@index([patientId])
+  @@index([status])
+  @@map("pharmacy_orders")
+}
+
+model OrderItem {
+  id           String  @id @default(uuid()) @db.Uuid
+  orderId      String  @map("order_id") @db.Uuid
+  medicineId   String  @map("medicine_id") @db.Uuid
+  medicineName String  @map("medicine_name")
+  quantity     Int
+  unitPrice    Decimal @map("unit_price") @db.Decimal(10, 2)
+  totalPrice   Decimal @map("total_price") @db.Decimal(10, 2)
+
+  order PharmacyOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}

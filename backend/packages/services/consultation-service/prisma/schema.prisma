@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CONSULTATION_DATABASE_URL")
+}
+
+// ── Consultation ────────────────────────────────────
+
+enum ConsultationStatus {
+  WAITING
+  WITH_DOCTOR
+  COMPLETED
+  CANCELLED
+}
+
+model Consultation {
+  id            String             @id @default(uuid()) @db.Uuid
+  patientId     String             @map("patient_id") @db.Uuid
+  doctorId      String             @map("doctor_id") @db.Uuid
+  appointmentId String?            @map("appointment_id") @db.Uuid
+  hospitalId    String             @map("hospital_id") @db.Uuid
+  status        ConsultationStatus @default(WAITING)
+  checkInAt     DateTime?          @map("check_in_at")
+  checkOutAt    DateTime?          @map("check_out_at")
+  durationMins  Int?               @map("duration_mins")
+  isPriority    Boolean            @default(false) @map("is_priority")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  notes ConsultationNote[]
+  vitals Vital[]
+
+  @@index([doctorId, status])
+  @@index([patientId])
+  @@index([hospitalId, createdAt])
+  @@map("consultations")
+}
+
+model ConsultationNote {
+  id             String   @id @default(uuid()) @db.Uuid
+  consultationId String   @map("consultation_id") @db.Uuid
+  subjective     String?
+  objective      String?
+  assessment     String?
+  plan           String?
+  additionalNotes String? @map("additional_notes")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  consultation Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  @@map("consultation_notes")
+}
+
+model Vital {
+  id             String   @id @default(uuid()) @db.Uuid
+  consultationId String   @map("consultation_id") @db.Uuid
+  temperature    Decimal? @db.Decimal(4, 1)
+  bloodPressureSystolic  Int?  @map("bp_systolic")
+  bloodPressureDiastolic Int?  @map("bp_diastolic")
+  heartRate      Int?     @map("heart_rate")
+  respiratoryRate Int?    @map("respiratory_rate")
+  oxygenSaturation Decimal? @map("oxygen_saturation") @db.Decimal(5, 2)
+  weight         Decimal? @db.Decimal(5, 2)
+  height         Decimal? @db.Decimal(5, 2)
+  recordedAt     DateTime @default(now()) @map("recorded_at")
+
+  consultation Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  @@map("vitals")
+}

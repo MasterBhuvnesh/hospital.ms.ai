@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("INVENTORY_DATABASE_URL")
+}
+
+// ── Inventory Management ────────────────────────────
+
+model Medicine {
+  id                  String   @id @default(uuid()) @db.Uuid
+  name                String
+  genericName         String   @map("generic_name")
+  manufacturer        String
+  category            String
+  description         String?
+  unitPrice           Decimal  @map("unit_price") @db.Decimal(10, 2)
+  requiresPrescription Boolean @default(false) @map("requires_prescription")
+  isActive            Boolean  @default(true) @map("is_active")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  batches StockBatch[]
+
+  @@index([name])
+  @@index([genericName])
+  @@index([category])
+  @@map("medicines")
+}
+
+model StockBatch {
+  id            String   @id @default(uuid()) @db.Uuid
+  medicineId    String   @map("medicine_id") @db.Uuid
+  batchNumber   String   @map("batch_number")
+  quantity      Int
+  reservedQty   Int      @default(0) @map("reserved_qty")
+  costPrice     Decimal  @map("cost_price") @db.Decimal(10, 2)
+  expiryDate    DateTime @map("expiry_date") @db.Date
+  receivedAt    DateTime @default(now()) @map("received_at")
+  vendorId      String?  @map("vendor_id") @db.Uuid
+
+  medicine Medicine @relation(fields: [medicineId], references: [id])
+
+  @@index([medicineId])
+  @@index([expiryDate])
+  @@map("stock_batches")
+}
+
+model Vendor {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  contactName String   @map("contact_name")
+  email       String?
+  phone       String
+  address     String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  purchaseOrders PurchaseOrder[]
+
+  @@map("vendors")
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  SHIPPED
+  RECEIVED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id          String              @id @default(uuid()) @db.Uuid
+  vendorId    String              @map("vendor_id") @db.Uuid
+  status      PurchaseOrderStatus @default(DRAFT)
+  totalAmount Decimal             @map("total_amount") @db.Decimal(10, 2)
+  orderedAt   DateTime?           @map("ordered_at")
+  receivedAt  DateTime?           @map("received_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  vendor Vendor              @relation(fields: [vendorId], references: [id])
+  items  PurchaseOrderItem[]
+
+  @@index([vendorId])
+  @@index([status])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id              String  @id @default(uuid()) @db.Uuid
+  purchaseOrderId String  @map("purchase_order_id") @db.Uuid
+  medicineId      String  @map("medicine_id") @db.Uuid
+  quantity        Int
+  unitPrice       Decimal @map("unit_price") @db.Decimal(10, 2)
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  @@map("purchase_order_items")
+}
+
+model StockAlert {
+  id          String   @id @default(uuid()) @db.Uuid
+  medicineId  String   @map("medicine_id") @db.Uuid
+  alertType   String   @map("alert_type")
+  threshold   Int
+  isResolved  Boolean  @default(false) @map("is_resolved")
+  createdAt   DateTime @default(now()) @map("created_at")
+  resolvedAt  DateTime? @map("resolved_at")
+
+  @@index([medicineId])
+  @@map("stock_alerts")
+}

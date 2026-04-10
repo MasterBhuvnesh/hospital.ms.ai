@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRESCRIPTION_DATABASE_URL")
+}
+
+// ── E-Prescription ──────────────────────────────────
+
+enum PrescriptionStatus {
+  DRAFT
+  SIGNED
+  DISPENSED
+  CANCELLED
+}
+
+model Prescription {
+  id             String             @id @default(uuid()) @db.Uuid
+  patientId      String             @map("patient_id") @db.Uuid
+  doctorId       String             @map("doctor_id") @db.Uuid
+  appointmentId  String?            @map("appointment_id") @db.Uuid
+  consultationId String?            @map("consultation_id") @db.Uuid
+  diagnosis      String
+  notes          String?
+  status         PrescriptionStatus @default(DRAFT)
+  signedAt       DateTime?          @map("signed_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  items PrescriptionItem[]
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@map("prescriptions")
+}
+
+model PrescriptionItem {
+  id             String  @id @default(uuid()) @db.Uuid
+  prescriptionId String  @map("prescription_id") @db.Uuid
+  medicineName   String  @map("medicine_name")
+  medicineId     String? @map("medicine_id") @db.Uuid
+  dosage         String
+  frequency      String
+  duration       String
+  instructions   String?
+  quantity       Int
+  isGeneric      Boolean @default(false) @map("is_generic")
+
+  prescription Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  @@map("prescription_items")
+}
+
+model DrugInteraction {
+  id        String @id @default(uuid()) @db.Uuid
+  drugA     String @map("drug_a")
+  drugB     String @map("drug_b")
+  severity  String
+  description String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([drugA, drugB])
+  @@map("drug_interactions")
+}

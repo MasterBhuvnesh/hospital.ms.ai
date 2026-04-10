@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("APPOINTMENT_DATABASE_URL")
+}
+
+// ── Appointment Scheduling ──────────────────────────
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum AppointmentType {
+  ONLINE
+  WALK_IN
+  FOLLOW_UP
+  EMERGENCY
+}
+
+model Appointment {
+  id              String            @id @default(uuid()) @db.Uuid
+  patientId       String            @map("patient_id") @db.Uuid
+  doctorId        String            @map("doctor_id") @db.Uuid
+  hospitalId      String            @map("hospital_id") @db.Uuid
+  appointmentDate DateTime          @map("appointment_date") @db.Date
+  slotTime        String            @map("slot_time")
+  endTime         String?           @map("end_time")
+  status          AppointmentStatus @default(SCHEDULED)
+  type            AppointmentType   @default(ONLINE)
+  reason          String?
+  notes           String?
+  cancelledAt     DateTime?         @map("cancelled_at")
+  cancelReason    String?           @map("cancel_reason")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@index([patientId])
+  @@index([doctorId, appointmentDate])
+  @@index([hospitalId, appointmentDate])
+  @@index([status])
+  @@map("appointments")
+}
+
+model Waitlist {
+  id         String   @id @default(uuid()) @db.Uuid
+  patientId  String   @map("patient_id") @db.Uuid
+  doctorId   String   @map("doctor_id") @db.Uuid
+  hospitalId String   @map("hospital_id") @db.Uuid
+  date       DateTime @db.Date
+  priority   Int      @default(0)
+  isNotified Boolean  @default(false) @map("is_notified")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([doctorId, date])
+  @@map("waitlists")
+}
