@@ -7,7 +7,9 @@ import { createRequire } from 'module';
 
 import express, { type Express } from 'express';
 import { createLogger } from '@hms/common-logging';
+import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
+import searchRoutes from './routes/search.routes.js';
 import { serviceInfo } from './info/requests.js';
 
 const require = createRequire(import.meta.url);
@@ -25,6 +27,7 @@ const logger = createLogger({
 const app: Express = express();
 
 app.use(express.json());
+app.use(extractUser);
 
 app.use((req, res, next) => {
   const startTime = Date.now();
@@ -49,6 +52,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/health', healthRoute);
+app.use('/search', searchRoutes);
 
 app.get('/', (_req, res) => {
   res.json({
@@ -62,10 +66,7 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({ error: 'Internal Server Error' });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   logger.info('Search service started', {
