@@ -1,0 +1,111 @@
+{
+  "services": [
+    {
+      "name": "api-gateway",
+      "port": 4000,
+      "description": "API Gateway - Single entry point for all client requests"
+    },
+    {
+      "name": "identity-service",
+      "port": 5001,
+      "description": "Identity & Access Management Service - Authentication and authorization"
+    },
+    {
+      "name": "doctor-service",
+      "port": 5002,
+      "description": "Doctor Management Service - Doctor profiles, attendance, and availability"
+    },
+    {
+      "name": "hospital-service",
+      "port": 5003,
+      "description": "Hospital Management Service - Hospital and department data"
+    },
+    {
+      "name": "search-service",
+      "port": 5004,
+      "description": "Search & Discovery Service - Find doctors and hospitals"
+    },
+    {
+      "name": "appointment-service",
+      "port": 5005,
+      "description": "Appointment Scheduling Service - Online booking system"
+    },
+    {
+      "name": "queue-service",
+      "port": 5006,
+      "description": "Hospital Queue Management Service - Physical visit queue system"
+    },
+    {
+      "name": "patient-records-service",
+      "port": 5007,
+      "description": "Patient Records Service - Medical history and documents"
+    },
+    {
+      "name": "consultation-service",
+      "port": 5008,
+      "description": "Consultation Service - Doctor-patient interaction workflow"
+    },
+    {
+      "name": "prescription-service",
+      "port": 5009,
+      "description": "E-Prescription Service - Digital prescriptions"
+    },
+    {
+      "name": "lab-test-service",
+      "port": 5010,
+      "description": "Lab Test Management Service - Diagnostic test workflow"
+    },
+    {
+      "name": "lab-result-service",
+      "port": 5011,
+      "description": "Lab Result Service - Test result processing and delivery"
+    },
+    {
+      "name": "pharmacy-service",
+      "port": 5012,
+      "description": "Pharmacy Service - Medicine ordering and management"
+    },
+    {
+      "name": "inventory-service",
+      "port": 5013,
+      "description": "Inventory Service - Stock management"
+    },
+    {
+      "name": "billing-service",
+      "port": 5014,
+      "description": "Billing & Invoice Service - Payment and invoicing"
+    },
+    {
+      "name": "notification-service",
+      "port": 5015,
+      "description": "Notification Service - Email notifications"
+    },
+    {
+      "name": "patient-sheet-service",
+      "port": 5016,
+      "description": "Patient Sheet Service - Auto-generate doctor summaries"
+    },
+    {
+      "name": "realtime-service",
+      "port": 5017,
+      "description": "Real-Time Service - Live updates via WebSocket"
+    },
+    {
+      "name": "analytics-service",
+      "port": 5018,
+      "description": "Analytics Service - Reports and insights"
+    },
+    {
+      "name": "calling-service",
+      "port": 5019,
+      "description": "Calling Service - Voice calls using elevenlabs"
+    },
+    {
+      "name": "whatsapp-service",
+      "port": 5020,
+      "description": "Whatsapp Service - Whatsapp notifications"
+    }
+  ],
+  "totalServices": 20,
+  "lastUpdated": "2026-04-10"
+}

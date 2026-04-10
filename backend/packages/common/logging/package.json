@@ -1,0 +1,35 @@
+{
+  "name": "@hms/common-logging",
+  "version": "1.0.0",
+  "description": "Common Winston logging configuration for HMS services",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "checklog": "./dist/checklog.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./checklog": {
+      "import": "./dist/checklog.js",
+      "types": "./dist/checklog.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "checklog": "tsx src/checklog.ts"
+  },
+  "dependencies": {
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}
