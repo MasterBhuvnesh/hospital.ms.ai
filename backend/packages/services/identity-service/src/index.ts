@@ -1,13 +1,11 @@
 import 'dotenv/config';
 import { createRequire } from 'module';
-/**
- * @fileoverview Identity Service
- * @description Identity & Access Management Service - Authentication and authorization
- */
 
 import express, { type Express } from 'express';
 import { createLogger } from '@hms/common-logging';
+import { errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
+import authRoutes from './routes/auth.routes.js';
 import { serviceInfo } from './info/requests.js';
 
 const require = createRequire(import.meta.url);
@@ -36,12 +34,11 @@ app.use((req, res, next) => {
   });
 
   res.on('finish', () => {
-    const responseTime = Date.now() - startTime;
     logger.http('Request completed', {
       method: req.method,
       path: req.path,
       statusCode: res.statusCode,
-      responseTime: `${responseTime}ms`,
+      responseTime: `${Date.now() - startTime}ms`,
     });
   });
 
@@ -49,29 +46,19 @@ app.use((req, res, next) => {
 });
 
 app.use('/health', healthRoute);
+app.use('/auth', authRoutes);
 
 app.get('/', (_req, res) => {
-  res.json({
-    ...serviceInfo,
-    version: pkg.version,
-  });
+  res.json({ ...serviceInfo, version: pkg.version });
 });
 
 app.use((_req, res) => {
-  logger.warn('Route not found', { path: _req.path, method: _req.method });
   res.status(404).json({ error: 'Not Found' });
 });
 
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({ error: 'Internal Server Error' });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-  logger.info('Identity service started', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
-  });
   logger.info(`Identity service running on port ${PORT}`, {
     url: `http://localhost:${PORT}`,
     healthCheck: `http://localhost:${PORT}/health`,
