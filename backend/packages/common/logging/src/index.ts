@@ -9,10 +9,10 @@
  * @author Hospital Management System
  */
 
-import winston, { Logger, Logform, format } from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
+import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { mkdirSync, existsSync } from 'fs';
+import winston, { Logger, format } from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 /**
  * Log levels with their severity values
