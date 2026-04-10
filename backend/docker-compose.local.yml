@@ -1,0 +1,333 @@
+# ──────────────────────────────────────────────────────
+# HMS — Docker Compose (Local Build)
+# ──────────────────────────────────────────────────────
+# Usage:
+#   docker compose -f docker-compose.local.yml up -d              Start all services
+#   docker compose -f docker-compose.local.yml up -d <name>       Start a single service
+#   docker compose -f docker-compose.local.yml down                Stop all services
+#   docker compose -f docker-compose.local.yml logs -f             Follow logs
+#   docker compose -f docker-compose.local.yml build               Build all images
+#   docker compose -f docker-compose.local.yml build <name>        Build a single image
+# ──────────────────────────────────────────────────────
+
+services:
+  # ── API Gateway ───────────────────────────────────
+  api-gateway:
+    build:
+      context: .
+      dockerfile: packages/services/api-gateway/Dockerfile
+    container_name: hms-api-gateway
+    ports:
+      - '4000:4000'
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Identity Service ──────────────────────────────
+  identity-service:
+    build:
+      context: .
+      dockerfile: packages/services/identity-service/Dockerfile
+    container_name: hms-identity-service
+    ports:
+      - '5001:5001'
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Doctor Service ────────────────────────────────
+  doctor-service:
+    build:
+      context: .
+      dockerfile: packages/services/doctor-service/Dockerfile
+    container_name: hms-doctor-service
+    ports:
+      - '5002:5002'
+    environment:
+      - NODE_ENV=production
+      - PORT=5002
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Hospital Service ──────────────────────────────
+  hospital-service:
+    build:
+      context: .
+      dockerfile: packages/services/hospital-service/Dockerfile
+    container_name: hms-hospital-service
+    ports:
+      - '5003:5003'
+    environment:
+      - NODE_ENV=production
+      - PORT=5003
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Search Service ────────────────────────────────
+  search-service:
+    build:
+      context: .
+      dockerfile: packages/services/search-service/Dockerfile
+    container_name: hms-search-service
+    ports:
+      - '5004:5004'
+    environment:
+      - NODE_ENV=production
+      - PORT=5004
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Appointment Service ───────────────────────────
+  appointment-service:
+    build:
+      context: .
+      dockerfile: packages/services/appointment-service/Dockerfile
+    container_name: hms-appointment-service
+    ports:
+      - '5005:5005'
+    environment:
+      - NODE_ENV=production
+      - PORT=5005
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Queue Service ─────────────────────────────────
+  queue-service:
+    build:
+      context: .
+      dockerfile: packages/services/queue-service/Dockerfile
+    container_name: hms-queue-service
+    ports:
+      - '5006:5006'
+    environment:
+      - NODE_ENV=production
+      - PORT=5006
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Patient Records Service ───────────────────────
+  patient-records-service:
+    build:
+      context: .
+      dockerfile: packages/services/patient-records-service/Dockerfile
+    container_name: hms-patient-records-service
+    ports:
+      - '5007:5007'
+    environment:
+      - NODE_ENV=production
+      - PORT=5007
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Consultation Service ──────────────────────────
+  consultation-service:
+    build:
+      context: .
+      dockerfile: packages/services/consultation-service/Dockerfile
+    container_name: hms-consultation-service
+    ports:
+      - '5008:5008'
+    environment:
+      - NODE_ENV=production
+      - PORT=5008
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Prescription Service ──────────────────────────
+  prescription-service:
+    build:
+      context: .
+      dockerfile: packages/services/prescription-service/Dockerfile
+    container_name: hms-prescription-service
+    ports:
+      - '5009:5009'
+    environment:
+      - NODE_ENV=production
+      - PORT=5009
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Lab Test Service ──────────────────────────────
+  lab-test-service:
+    build:
+      context: .
+      dockerfile: packages/services/lab-test-service/Dockerfile
+    container_name: hms-lab-test-service
+    ports:
+      - '5010:5010'
+    environment:
+      - NODE_ENV=production
+      - PORT=5010
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Lab Result Service ────────────────────────────
+  lab-result-service:
+    build:
+      context: .
+      dockerfile: packages/services/lab-result-service/Dockerfile
+    container_name: hms-lab-result-service
+    ports:
+      - '5011:5011'
+    environment:
+      - NODE_ENV=production
+      - PORT=5011
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Pharmacy Service ──────────────────────────────
+  pharmacy-service:
+    build:
+      context: .
+      dockerfile: packages/services/pharmacy-service/Dockerfile
+    container_name: hms-pharmacy-service
+    ports:
+      - '5012:5012'
+    environment:
+      - NODE_ENV=production
+      - PORT=5012
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Inventory Service ─────────────────────────────
+  inventory-service:
+    build:
+      context: .
+      dockerfile: packages/services/inventory-service/Dockerfile
+    container_name: hms-inventory-service
+    ports:
+      - '5013:5013'
+    environment:
+      - NODE_ENV=production
+      - PORT=5013
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Billing Service ───────────────────────────────
+  billing-service:
+    build:
+      context: .
+      dockerfile: packages/services/billing-service/Dockerfile
+    container_name: hms-billing-service
+    ports:
+      - '5014:5014'
+    environment:
+      - NODE_ENV=production
+      - PORT=5014
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Notification Service ──────────────────────────
+  notification-service:
+    build:
+      context: .
+      dockerfile: packages/services/notification-service/Dockerfile
+    container_name: hms-notification-service
+    ports:
+      - '5015:5015'
+    environment:
+      - NODE_ENV=production
+      - PORT=5015
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Patient Sheet Service ─────────────────────────
+  patient-sheet-service:
+    build:
+      context: .
+      dockerfile: packages/services/patient-sheet-service/Dockerfile
+    container_name: hms-patient-sheet-service
+    ports:
+      - '5016:5016'
+    environment:
+      - NODE_ENV=production
+      - PORT=5016
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Realtime Service ──────────────────────────────
+  realtime-service:
+    build:
+      context: .
+      dockerfile: packages/services/realtime-service/Dockerfile
+    container_name: hms-realtime-service
+    ports:
+      - '5017:5017'
+    environment:
+      - NODE_ENV=production
+      - PORT=5017
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Analytics Service ─────────────────────────────
+  analytics-service:
+    build:
+      context: .
+      dockerfile: packages/services/analytics-service/Dockerfile
+    container_name: hms-analytics-service
+    ports:
+      - '5018:5018'
+    environment:
+      - NODE_ENV=production
+      - PORT=5018
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── Calling Service ───────────────────────────────
+  calling-service:
+    build:
+      context: .
+      dockerfile: packages/services/calling-service/Dockerfile
+    container_name: hms-calling-service
+    ports:
+      - '5019:5019'
+    environment:
+      - NODE_ENV=production
+      - PORT=5019
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+  # ── WhatsApp Service ──────────────────────────────
+  whatsapp-service:
+    build:
+      context: .
+      dockerfile: packages/services/whatsapp-service/Dockerfile
+    container_name: hms-whatsapp-service
+    ports:
+      - '5020:5020'
+    environment:
+      - NODE_ENV=production
+      - PORT=5020
+    networks:
+      - hms-network
+    restart: unless-stopped
+
+# ── Network ──────────────────────────────────────────
+networks:
+  hms-network:
+    name: hms-network
+    driver: bridge
