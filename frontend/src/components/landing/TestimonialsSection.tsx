@@ -28,7 +28,7 @@ const TestimonialsSection = () => {
   return (
     <section className="py-24 bg-white dark:bg-black overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
+        <motion.div
           className="text-center max-w-3xl mx-auto mb-16"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -45,8 +45,8 @@ const TestimonialsSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((test, idx) => (
-            <motion.div 
-              key={idx} 
+            <motion.div
+              key={idx}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ amount: 0.1 }}
@@ -64,9 +64,9 @@ const TestimonialsSection = () => {
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <img 
-                  src={test.avatar} 
-                  alt={test.author} 
+                <img
+                  src={test.avatar}
+                  alt={test.author}
                   className="w-12 h-12 rounded-full border-2 border-white dark:border-zinc-800"
                   loading="lazy"
                 />
