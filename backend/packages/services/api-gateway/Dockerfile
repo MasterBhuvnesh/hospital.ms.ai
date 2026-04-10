@@ -14,6 +14,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Copy package.json for all needed workspace packages
 COPY packages/common/logging/package.json ./packages/common/logging/
+COPY packages/common/middleware/package.json ./packages/common/middleware/
 COPY packages/services/api-gateway/package.json ./packages/services/api-gateway/
 
 # Install all dependencies (dev included for build step)
@@ -26,11 +27,15 @@ FROM deps AS builder
 COPY packages/common/logging/src ./packages/common/logging/src
 COPY packages/common/logging/tsconfig.json ./packages/common/logging/tsconfig.json
 
+COPY packages/common/middleware/src ./packages/common/middleware/src
+COPY packages/common/middleware/tsconfig.json ./packages/common/middleware/tsconfig.json
+
 COPY packages/services/api-gateway/src ./packages/services/api-gateway/src
 COPY packages/services/api-gateway/tsconfig.json ./packages/services/api-gateway/tsconfig.json
 
 # Build common-logging first (dependency)
 RUN pnpm --filter @hms/common-logging build
+RUN pnpm --filter @hms/common-middleware build
 
 # Build api-gateway
 RUN pnpm --filter @hms/api-gateway build
@@ -51,6 +56,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Copy package.json for needed packages
 COPY packages/common/logging/package.json ./packages/common/logging/
+COPY packages/common/middleware/package.json ./packages/common/middleware/
 COPY packages/services/api-gateway/package.json ./packages/services/api-gateway/
 
 # Install production dependencies only
@@ -58,6 +64,7 @@ RUN pnpm install --frozen-lockfile --prod
 
 # Copy built artifacts from builder
 COPY --from=builder /app/packages/common/logging/dist ./packages/common/logging/dist
+COPY --from=builder /app/packages/common/middleware/dist ./packages/common/middleware/dist
 COPY --from=builder /app/packages/services/api-gateway/dist ./packages/services/api-gateway/dist
 
 # Change ownership to non-root

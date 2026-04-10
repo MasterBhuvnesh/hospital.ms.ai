@@ -14,6 +14,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Copy package.json for all needed workspace packages
 COPY packages/common/logging/package.json ./packages/common/logging/
+COPY packages/common/middleware/package.json ./packages/common/middleware/
 COPY packages/services/lab-test-service/package.json ./packages/services/lab-test-service/
 
 # Install all dependencies (dev included for build step)
@@ -26,11 +27,18 @@ FROM deps AS builder
 COPY packages/common/logging/src ./packages/common/logging/src
 COPY packages/common/logging/tsconfig.json ./packages/common/logging/tsconfig.json
 
+COPY packages/common/middleware/src ./packages/common/middleware/src
+COPY packages/common/middleware/tsconfig.json ./packages/common/middleware/tsconfig.json
+
 COPY packages/services/lab-test-service/src ./packages/services/lab-test-service/src
 COPY packages/services/lab-test-service/tsconfig.json ./packages/services/lab-test-service/tsconfig.json
+COPY packages/services/lab-test-service/prisma ./packages/services/lab-test-service/prisma
+COPY packages/services/lab-test-service/prisma.config.ts ./packages/services/lab-test-service/prisma.config.ts
 
 # Build common-logging first (dependency)
 RUN pnpm --filter @hms/common-logging build
+
+RUN pnpm --filter @hms/common-middleware build
 
 # Build lab-test-service
 RUN pnpm --filter @hms/lab-test-service build
@@ -51,13 +59,20 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Copy package.json for needed packages
 COPY packages/common/logging/package.json ./packages/common/logging/
+COPY packages/common/middleware/package.json ./packages/common/middleware/
 COPY packages/services/lab-test-service/package.json ./packages/services/lab-test-service/
 
 # Install production dependencies only
 RUN pnpm install --frozen-lockfile --prod
 
+# Generate Prisma client for runtime
+COPY packages/services/lab-test-service/prisma ./packages/services/lab-test-service/prisma
+RUN cd packages/services/lab-test-service && \
+    DATABASE_URL="postgresql://dummy@localhost/dummy" npx prisma@6.19.3 generate --schema=prisma/schema.prisma
+
 # Copy built artifacts from builder
 COPY --from=builder /app/packages/common/logging/dist ./packages/common/logging/dist
+COPY --from=builder /app/packages/common/middleware/dist ./packages/common/middleware/dist
 COPY --from=builder /app/packages/services/lab-test-service/dist ./packages/services/lab-test-service/dist
 
 # Change ownership to non-root

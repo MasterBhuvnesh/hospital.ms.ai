@@ -14,6 +14,7 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Copy package.json for all needed workspace packages
 COPY packages/common/logging/package.json ./packages/common/logging/
+COPY packages/common/middleware/package.json ./packages/common/middleware/
 COPY packages/services/consultation-service/package.json ./packages/services/consultation-service/
 
 # Install all dependencies (dev included for build step)
@@ -26,11 +27,18 @@ FROM deps AS builder
 COPY packages/common/logging/src ./packages/common/logging/src
 COPY packages/common/logging/tsconfig.json ./packages/common/logging/tsconfig.json
 
+COPY packages/common/middleware/src ./packages/common/middleware/src
+COPY packages/common/middleware/tsconfig.json ./packages/common/middleware/tsconfig.json
+
 COPY packages/services/consultation-service/src ./packages/services/consultation-service/src
 COPY packages/services/consultation-service/tsconfig.json ./packages/services/consultation-service/tsconfig.json
+COPY packages/services/consultation-service/prisma ./packages/services/consultation-service/prisma
+COPY packages/services/consultation-service/prisma.config.ts ./packages/services/consultation-service/prisma.config.ts
 
 # Build common-logging first (dependency)
 RUN pnpm --filter @hms/common-logging build
+
+RUN pnpm --filter @hms/common-middleware build
 
 # Build consultation-service
 RUN pnpm --filter @hms/consultation-service build
@@ -51,13 +59,20 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 
 # Copy package.json for needed packages
 COPY packages/common/logging/package.json ./packages/common/logging/
+COPY packages/common/middleware/package.json ./packages/common/middleware/
 COPY packages/services/consultation-service/package.json ./packages/services/consultation-service/
 
 # Install production dependencies only
 RUN pnpm install --frozen-lockfile --prod
 
+# Generate Prisma client for runtime
+COPY packages/services/consultation-service/prisma ./packages/services/consultation-service/prisma
+RUN cd packages/services/consultation-service && \
+    DATABASE_URL="postgresql://dummy@localhost/dummy" npx prisma@6.19.3 generate --schema=prisma/schema.prisma
+
 # Copy built artifacts from builder
 COPY --from=builder /app/packages/common/logging/dist ./packages/common/logging/dist
+COPY --from=builder /app/packages/common/middleware/dist ./packages/common/middleware/dist
 COPY --from=builder /app/packages/services/consultation-service/dist ./packages/services/consultation-service/dist
 
 # Change ownership to non-root
