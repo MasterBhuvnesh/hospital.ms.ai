@@ -182,11 +182,11 @@ echo -e "${CYAN}${BOLD}───────────────────
 echo -e "${CYAN}${BOLD}  Ready to release!${NC}"
 echo -e "${CYAN}${BOLD}──────────────────────────────────────────${NC}"
 echo ""
-echo -e "${YELLOW}Run the following to commit, tag, and push:${NC}"
+echo -e "${YELLOW}Run the following commands to commit, tag, and push:${NC}"
 echo ""
-echo -e "${GREEN}git commit -m \"chore(${SERVICE_NAME}): bump version to v${NEW_VERSION}\" && \\
-git tag -a \"${TAG_NAME}\" -m \"Release ${SERVICE_NAME} v${NEW_VERSION}\" && \\
-git push origin HEAD --tags${NC}"
+echo -e "${GREEN}git commit -m \"chore(${SERVICE_NAME}): bump version to v${NEW_VERSION}\"${NC}"
+echo -e "${GREEN}git tag -a \"${TAG_NAME}\" -m \"Release ${SERVICE_NAME} v${NEW_VERSION}\"${NC}"
+echo -e "${GREEN}git push origin HEAD --tags${NC}"
 echo ""
 echo -e "${BLUE}Tag:${NC}   ${TAG_NAME}"
 echo ""
