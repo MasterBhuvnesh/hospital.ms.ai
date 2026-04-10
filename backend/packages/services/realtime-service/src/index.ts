@@ -5,9 +5,13 @@ import { createRequire } from 'module';
  * @description Real-Time Service - Live updates via WebSocket
  */
 
+import { createServer } from 'node:http';
 import express, { type Express } from 'express';
 import { createLogger } from '@hms/common-logging';
+import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
+import realtimeRoutes from './routes/realtime.routes.js';
+import { realtimeService } from './services/realtime.service.js';
 import { serviceInfo } from './info/requests.js';
 
 const require = createRequire(import.meta.url);
@@ -25,6 +29,7 @@ const logger = createLogger({
 const app: Express = express();
 
 app.use(express.json());
+app.use(extractUser);
 
 app.use((req, res, next) => {
   const startTime = Date.now();
@@ -49,6 +54,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/health', healthRoute);
+app.use('/realtime', realtimeRoutes);
 
 app.get('/', (_req, res) => {
   res.json({
@@ -62,12 +68,12 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({ error: 'Internal Server Error' });
-});
+app.use(errorHandler);
 
-app.listen(PORT, () => {
+const server = createServer(app);
+realtimeService.initialize(server);
+
+server.listen(PORT, () => {
   logger.info('Realtime service started', {
     port: PORT,
     environment: process.env.NODE_ENV || 'development',
