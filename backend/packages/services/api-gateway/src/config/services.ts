@@ -1,0 +1,18 @@
+export const SERVICES: Record<string, string> = {
+  identity: process.env.IDENTITY_SERVICE_URL || 'http://localhost:5001',
+  doctor: process.env.DOCTOR_SERVICE_URL || 'http://localhost:5002',
+  hospital: process.env.HOSPITAL_SERVICE_URL || 'http://localhost:5003',
+  search: process.env.SEARCH_SERVICE_URL || 'http://localhost:5004',
+  appointment: process.env.APPOINTMENT_SERVICE_URL || 'http://localhost:5005',
+  queue: process.env.QUEUE_SERVICE_URL || 'http://localhost:5006',
+  patientRecords: process.env.PATIENT_RECORDS_SERVICE_URL || 'http://localhost:5007',
+  consultation: process.env.CONSULTATION_SERVICE_URL || 'http://localhost:5008',
+  prescription: process.env.PRESCRIPTION_SERVICE_URL || 'http://localhost:5009',
+  labTest: process.env.LAB_TEST_SERVICE_URL || 'http://localhost:5010',
+  labResult: process.env.LAB_RESULT_SERVICE_URL || 'http://localhost:5011',
+  pharmacy: process.env.PHARMACY_SERVICE_URL || 'http://localhost:5012',
+  inventory: process.env.INVENTORY_SERVICE_URL || 'http://localhost:5013',
+  billing: process.env.BILLING_SERVICE_URL || 'http://localhost:5014',
+  patientSheet: process.env.PATIENT_SHEET_SERVICE_URL || 'http://localhost:5016',
+  analytics: process.env.ANALYTICS_SERVICE_URL || 'http://localhost:5018',
+};
