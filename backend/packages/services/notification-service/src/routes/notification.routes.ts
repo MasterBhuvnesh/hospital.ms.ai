@@ -39,6 +39,18 @@ const welcomeSchema = z.object({
   name: z.string().min(1),
 });
 
+const emailVerificationSchema = z.object({
+  to: z.string().email(),
+  name: z.string().min(1),
+  verificationUrl: z.string().url(),
+});
+
+const passwordResetSchema = z.object({
+  to: z.string().email(),
+  name: z.string().min(1),
+  resetUrl: z.string().url(),
+});
+
 // ── Routes ─────────────────────────────────────────────
 
 router.post(
@@ -47,6 +59,26 @@ router.post(
   asyncHandler(async (req, res) => {
     const { to, subject, html, text } = req.body;
     const messageId = await emailService.sendEmail(to, subject, html, text);
+    res.status(200).json({ success: true, messageId });
+  }),
+);
+
+router.post(
+  '/email-verification',
+  validate(emailVerificationSchema),
+  asyncHandler(async (req, res) => {
+    const { to, name, verificationUrl } = req.body;
+    const messageId = await emailService.sendEmailVerification(to, name, verificationUrl);
+    res.status(200).json({ success: true, messageId });
+  }),
+);
+
+router.post(
+  '/password-reset',
+  validate(passwordResetSchema),
+  asyncHandler(async (req, res) => {
+    const { to, name, resetUrl } = req.body;
+    const messageId = await emailService.sendPasswordReset(to, name, resetUrl);
     res.status(200).json({ success: true, messageId });
   }),
 );

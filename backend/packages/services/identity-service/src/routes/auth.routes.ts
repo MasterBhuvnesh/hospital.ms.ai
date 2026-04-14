@@ -39,7 +39,29 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(8),
 });
 
-// ── Routes ────────────────────────────────────────
+const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+  callbackUrl: z.string().url('callbackUrl must be a valid URL'),
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
+const verifyEmailSchema = z.object({
+  token: z.string().min(1),
+});
+
+const revokeAllSessionsSchema = z.object({
+  currentRefreshToken: z.string().min(1),
+});
+
+const requestVerificationSchema = z.object({
+  callbackUrl: z.string().url('callbackUrl must be a valid URL'),
+});
+
+// ── Public routes ────────────────────────────────────
 
 router.post(
   '/register',
@@ -81,6 +103,35 @@ router.post(
   }),
 );
 
+router.post(
+  '/forgot-password',
+  validate(forgotPasswordSchema),
+  asyncHandler(async (req, res) => {
+    const result = await authService.forgotPassword(req.body.email, req.body.callbackUrl);
+    res.json({ data: result });
+  }),
+);
+
+router.post(
+  '/reset-password',
+  validate(resetPasswordSchema),
+  asyncHandler(async (req, res) => {
+    const result = await authService.resetPassword(req.body.token, req.body.newPassword);
+    res.json({ data: result });
+  }),
+);
+
+router.post(
+  '/verify-email',
+  validate(verifyEmailSchema),
+  asyncHandler(async (req, res) => {
+    const result = await authService.verifyEmail(req.body.token);
+    res.json({ data: result });
+  }),
+);
+
+// ── Authenticated routes ─────────────────────────────
+
 router.get(
   '/me',
   authenticate,
@@ -107,6 +158,66 @@ router.post(
   asyncHandler(async (req, res) => {
     await authService.changePassword(req.user!.userId, req.body.currentPassword, req.body.newPassword);
     res.json({ message: 'Password changed successfully' });
+  }),
+);
+
+router.post(
+  '/request-verification',
+  authenticate,
+  validate(requestVerificationSchema),
+  asyncHandler(async (req, res) => {
+    const result = await authService.requestVerification(req.user!.userId, req.body.callbackUrl);
+    res.json({ data: result });
+  }),
+);
+
+// ── Session management ───────────────────────────────
+
+router.get(
+  '/sessions',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    const sessions = await authService.listSessions(req.user!.userId);
+    res.json({ data: sessions });
+  }),
+);
+
+router.delete(
+  '/sessions/:id',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    await authService.revokeSession(req.user!.userId, req.params.id);
+    res.json({ message: 'Session revoked' });
+  }),
+);
+
+router.post(
+  '/sessions/revoke-others',
+  authenticate,
+  validate(revokeAllSessionsSchema),
+  asyncHandler(async (req, res) => {
+    await authService.revokeAllOtherSessions(req.user!.userId, req.body.currentRefreshToken);
+    res.json({ message: 'All other sessions revoked' });
+  }),
+);
+
+// ── Device management ────────────────────────────────
+
+router.get(
+  '/devices',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    const devices = await authService.listDevices(req.user!.userId);
+    res.json({ data: devices });
+  }),
+);
+
+router.delete(
+  '/devices/:id',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    await authService.removeDevice(req.user!.userId, req.params.id);
+    res.json({ message: 'Device removed' });
   }),
 );
 

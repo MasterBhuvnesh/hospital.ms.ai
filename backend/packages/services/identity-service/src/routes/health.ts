@@ -1,34 +1,31 @@
-/**
- * @fileoverview Health Check Route
- * @description Express route for service health checks
- */
-
 import { Router, type Request, type Response } from 'express';
-import { createLogger } from '@hms/common-logging';
+import { prisma } from '../lib/prisma.js';
 
 const router: Router = Router();
 
-const logger = createLogger({
-  serviceName: 'identity-service',
-  level: 'info',
-  enableConsole: true,
-  enableFile: false,
-});
-
 /**
  * GET /health
- * Returns service health status
+ * Full health check — tests database connectivity.
+ * Use for Kubernetes readiness probes.
  */
-router.get('/', (_req: Request, res: Response) => {
-  const startTime = Date.now();
+router.get('/', async (_req: Request, res: Response) => {
+  const checks: Record<string, string> = {};
 
-  logger.info('Health check requested', {
-    path: '/health',
-    method: 'GET',
-    timestamp: new Date().toISOString(),
-  });
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    checks.database = 'ok';
+  } catch {
+    checks.database = 'unreachable';
+    res.status(503).json({
+      status: 'unhealthy',
+      service: 'identity-service',
+      timestamp: new Date().toISOString(),
+      checks,
+    });
+    return;
+  }
 
-  const health = {
+  res.json({
     status: 'healthy',
     service: 'identity-service',
     timestamp: new Date().toISOString(),
@@ -37,17 +34,31 @@ router.get('/', (_req: Request, res: Response) => {
       used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
       total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
     },
-  };
-
-  const responseTime = Date.now() - startTime;
-
-  logger.info('Health check completed', {
-    status: health.status,
-    responseTime: `${responseTime}ms`,
-    uptime: health.uptime,
+    checks,
   });
+});
 
-  res.status(200).json(health);
+/**
+ * GET /health/live
+ * Liveness probe — only checks if the process is running.
+ * Use for Kubernetes liveness probes.
+ */
+router.get('/live', (_req: Request, res: Response) => {
+  res.json({ status: 'alive', timestamp: new Date().toISOString() });
+});
+
+/**
+ * GET /health/ready
+ * Readiness probe — checks database connectivity.
+ * Use for Kubernetes readiness probes.
+ */
+router.get('/ready', async (_req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ready', timestamp: new Date().toISOString() });
+  } catch {
+    res.status(503).json({ status: 'not_ready', timestamp: new Date().toISOString() });
+  }
 });
 
 export default router;

@@ -31,6 +31,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5001
+      - NOTIFICATION_SERVICE_URL=http://hms-notification-service:5015
+    depends_on:
+      - notification-service
     networks:
       - hms-network
     restart: unless-stopped

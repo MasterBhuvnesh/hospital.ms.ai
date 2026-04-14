@@ -3,7 +3,7 @@
 # ── Base ──────────────────────────────────────────────
 FROM node:22-alpine AS base
 
-RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.29.3 --activate
 WORKDIR /app
 
 # ── Dependencies ──────────────────────────────────────
@@ -43,7 +43,7 @@ RUN pnpm --filter @hms/notification-service build
 # ── Production ────────────────────────────────────────
 FROM node:22-alpine AS production
 
-RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.29.3 --activate
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
