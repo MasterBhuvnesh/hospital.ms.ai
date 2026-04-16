@@ -5,7 +5,7 @@ import { createRequire } from 'module';
  * @description Analytics Service - Reports and insights
  */
 
-import express, { type Express } from 'express';
+import express, { Router, type Express } from 'express';
 import { createLogger } from '@hms/common-logging';
 import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
@@ -51,18 +51,20 @@ app.use((req, res, next) => {
   next();
 });
 
+// ── Infrastructure routes (no version prefix) ───────
 app.use('/health', healthRoute);
-app.use('/analytics', analyticsRoutes);
 
 app.get('/', (_req, res) => {
-  res.json({
-    ...serviceInfo,
-    version: pkg.version,
-  });
+  res.json({ ...serviceInfo, version: pkg.version });
 });
 
+// ── API v1 ───────────────────────────────────────────
+const v1 = Router();
+v1.use('/analytics', analyticsRoutes);
+app.use('/v1', v1);
+
+// ── 404 & error handler ─────────────────────────────
 app.use((_req, res) => {
-  logger.warn('Route not found', { path: _req.path, method: _req.method });
   res.status(404).json({ error: 'Not Found' });
 });
 
