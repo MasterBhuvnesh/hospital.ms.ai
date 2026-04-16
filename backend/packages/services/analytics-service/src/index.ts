@@ -83,15 +83,33 @@ app.use((_req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  logger.info('Analytics service started', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
-  });
+// ── Start server ────────────────────────────────────
+const server = app.listen(PORT, () => {
   logger.info(`Analytics service running on port ${PORT}`, {
     url: `http://localhost:${PORT}`,
     healthCheck: `http://localhost:${PORT}/health`,
+    api: `http://localhost:${PORT}/v1`,
+    metrics: `http://localhost:${PORT}/metrics`,
   });
 });
+
+// ── Graceful shutdown ───────────────────────────────
+function shutdown(signal: string) {
+  logger.info(`Received ${signal}, shutting down gracefully...`);
+  server.close(async () => {
+    await prisma.$disconnect();
+    logger.info('Server closed');
+    process.exit(0);
+  });
+
+  // Force exit after 10 seconds
+  setTimeout(() => {
+    logger.error('Forced shutdown after timeout');
+    process.exit(1);
+  }, 10_000);
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 export default app;
