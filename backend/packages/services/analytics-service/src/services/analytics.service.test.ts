@@ -192,7 +192,7 @@ describe('analyticsService', () => {
       );
     });
 
-    it('should filter by date range', async () => {
+    it('should filter by startDate only', async () => {
       vi.mocked(prisma.doctorDailyMetric.findMany).mockResolvedValue([]);
       vi.mocked(prisma.doctorDailyMetric.count).mockResolvedValue(0);
 
@@ -201,6 +201,19 @@ describe('analyticsService', () => {
       expect(prisma.doctorDailyMetric.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ date: { gte: expect.any(Date) } }),
+        }),
+      );
+    });
+
+    it('should filter by endDate only', async () => {
+      vi.mocked(prisma.doctorDailyMetric.findMany).mockResolvedValue([]);
+      vi.mocked(prisma.doctorDailyMetric.count).mockResolvedValue(0);
+
+      await analyticsService.getDoctorMetrics({ endDate: '2025-01-31' });
+
+      expect(prisma.doctorDailyMetric.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ date: { lte: expect.any(Date) } }),
         }),
       );
     });
@@ -262,6 +275,21 @@ describe('analyticsService', () => {
       expect(prisma.queueStat.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ hospitalId: 'hosp-1', doctorId: 'doc-1' }),
+        }),
+      );
+    });
+
+    it('should filter by date range', async () => {
+      vi.mocked(prisma.queueStat.findMany).mockResolvedValue([]);
+      vi.mocked(prisma.queueStat.count).mockResolvedValue(0);
+
+      await analyticsService.getQueueStats({ startDate: '2025-01-01', endDate: '2025-01-31' });
+
+      expect(prisma.queueStat.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            date: { gte: expect.any(Date), lte: expect.any(Date) },
+          }),
         }),
       );
     });
