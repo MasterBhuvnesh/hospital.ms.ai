@@ -11,6 +11,8 @@ import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import { serviceInfo } from './info/requests.js';
+import { register, httpRequestDuration, httpRequestTotal } from './lib/metrics.js';
+import { prisma } from './lib/prisma.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -29,8 +31,10 @@ const app: Express = express();
 app.use(express.json());
 app.use(extractUser);
 
+// ── Request logging & metrics ────────────────────────
 app.use((req, res, next) => {
   const startTime = Date.now();
+  const end = httpRequestDuration.startTimer();
 
   logger.http('Incoming request', {
     method: req.method,
@@ -39,12 +43,16 @@ app.use((req, res, next) => {
   });
 
   res.on('finish', () => {
-    const responseTime = Date.now() - startTime;
+    const route = req.route?.path || req.path;
+    const labels = { method: req.method, route, status_code: res.statusCode };
+    end(labels);
+    httpRequestTotal.inc(labels);
+
     logger.http('Request completed', {
       method: req.method,
       path: req.path,
       statusCode: res.statusCode,
-      responseTime: `${responseTime}ms`,
+      responseTime: `${Date.now() - startTime}ms`,
     });
   });
 
@@ -53,6 +61,11 @@ app.use((req, res, next) => {
 
 // ── Infrastructure routes (no version prefix) ───────
 app.use('/health', healthRoute);
+
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 
 app.get('/', (_req, res) => {
   res.json({ ...serviceInfo, version: pkg.version });
