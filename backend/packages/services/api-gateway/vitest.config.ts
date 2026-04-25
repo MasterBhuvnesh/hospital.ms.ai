@@ -14,6 +14,12 @@ export default defineConfig({
         'src/index.ts',
         'src/lib/metrics.ts',
       ],
+      thresholds: {
+        statements: 80,
+        branches: 75,
+        functions: 85,
+        lines: 80,
+      },
     },
     mockReset: true,
   },

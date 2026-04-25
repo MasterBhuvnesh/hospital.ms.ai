@@ -7,7 +7,14 @@ client.collectDefaultMetrics({
   prefix: 'gateway_',
 });
 
-export const httpRequestDuration = new client.Histogram({
+export const httpRequestCounter = new client.Counter({
+  name: 'gateway_http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
+  registers: [register],
+});
+
+export const httpRequestDurationHistogram = new client.Histogram({
   name: 'gateway_http_request_duration_seconds',
   help: 'Duration of HTTP requests in seconds',
   labelNames: ['method', 'route', 'status_code'],
@@ -15,12 +22,4 @@ export const httpRequestDuration = new client.Histogram({
   registers: [register],
 });
 
-export const httpRequestTotal = new client.Counter({
-  name: 'gateway_http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code'],
-  registers: [register],
-});
-
-export { register };
 export default register;
