@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '@hms/common-middleware';
+import { orderCreatedCounter, orderStatusUpdateCounter } from '../lib/metrics.js';
 
 // Valid status transitions for pharmacy orders
 const STATUS_TRANSITIONS: Record<string, string[]> = {
@@ -85,8 +86,8 @@ export const pharmacyService = {
     const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
     const totalAmount = subtotal - discount + tax;
 
-    return prisma.$transaction(async (tx) => {
-      const order = await tx.pharmacyOrder.create({
+    const order = await prisma.$transaction(async (tx) => {
+      return tx.pharmacyOrder.create({
         data: {
           ...orderData,
           subtotal,
@@ -105,9 +106,15 @@ export const pharmacyService = {
         },
         include: { items: true },
       });
-
-      return order;
     });
+
+    // Track metrics
+    orderCreatedCounter.inc({
+      delivery_type: order.deliveryType,
+      status: order.status,
+    });
+
+    return order;
   },
 
   async updateStatus(
@@ -127,14 +134,19 @@ export const pharmacyService = {
       );
     }
 
-    return prisma.pharmacyOrder.update({
+    const updated = await prisma.pharmacyOrder.update({
       where: { id },
       data: { status },
       include: { items: true },
     });
+
+    // Track metrics
+    orderStatusUpdateCounter.inc({ status: updated.status });
+
+    return updated;
   },
 
-  async cancel(id: string, reason?: string) {
+  async cancel(id: string, _reason?: string) {
     const order = await prisma.pharmacyOrder.findUnique({ where: { id } });
     if (!order) {
       throw new AppError('Pharmacy order not found', 404);
@@ -147,20 +159,23 @@ export const pharmacyService = {
       throw new AppError('Order is already cancelled', 400);
     }
 
-    return prisma.pharmacyOrder.update({
+    const cancelled = await prisma.pharmacyOrder.update({
       where: { id },
       data: { status: 'CANCELLED' },
       include: { items: true },
     });
+
+    // Track metrics
+    orderStatusUpdateCounter.inc({ status: 'CANCELLED' });
+
+    return cancelled;
   },
 
   async getByPatient(patientId: string) {
-    const orders = await prisma.pharmacyOrder.findMany({
+    return prisma.pharmacyOrder.findMany({
       where: { patientId },
       include: { items: true },
       orderBy: { createdAt: 'desc' },
     });
-
-    return orders;
   },
 };
