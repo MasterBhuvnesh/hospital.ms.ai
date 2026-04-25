@@ -10,7 +10,7 @@ import { createLogger } from '@hms/common-logging';
 import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
 import inventoryRoutes from './routes/inventory.routes.js';
-import { serviceInfo } from './info/requests.js';
+import register, { httpRequestTotal, httpRequestDuration } from './lib/metrics.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -29,8 +29,10 @@ const app: Express = express();
 app.use(express.json());
 app.use(extractUser);
 
+// ── Request logging & metrics ────────────────────────
 app.use((req, res, next) => {
   const startTime = Date.now();
+  const end = typeof httpRequestDuration.startTimer === 'function' ? httpRequestDuration.startTimer() : null;
 
   logger.http('Incoming request', {
     method: req.method,
@@ -39,16 +41,31 @@ app.use((req, res, next) => {
   });
 
   res.on('finish', () => {
-    const responseTime = Date.now() - startTime;
+    const responseTime = (Date.now() - startTime) / 1000;
+    const route = req.route?.path || req.path;
+    const labels = { method: req.method, route, status_code: res.statusCode };
+
+    if (end) end(labels);
+    httpRequestTotal.inc(labels);
+
     logger.http('Request completed', {
       method: req.method,
       path: req.path,
       statusCode: res.statusCode,
-      responseTime: `${responseTime}ms`,
+      responseTime: `${Math.round(responseTime * 1000)}ms`,
     });
   });
 
   next();
+});
+
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.use('/health', healthRoute);
@@ -68,15 +85,13 @@ app.use((_req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  logger.info('Inventory service started', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    logger.info(`Inventory service running on port ${PORT}`, {
+      url: `http://localhost:${PORT}`,
+      healthCheck: `http://localhost:${PORT}/health`,
+    });
   });
-  logger.info(`Inventory service running on port ${PORT}`, {
-    url: `http://localhost:${PORT}`,
-    healthCheck: `http://localhost:${PORT}/health`,
-  });
-});
+}
 
 export default app;
