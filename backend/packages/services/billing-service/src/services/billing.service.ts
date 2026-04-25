@@ -1,5 +1,10 @@
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '@hms/common-middleware';
+import {
+  invoiceCreatedCounter,
+  paymentProcessedCounter,
+  totalRevenueCounter,
+} from '../lib/metrics.js';
 
 export const billingService = {
   // ── Invoice CRUD ───────────────────────────────────
@@ -69,8 +74,8 @@ export const billingService = {
   }) {
     const invoiceNumber = await generateInvoiceNumber();
 
-    return prisma.$transaction(async (tx) => {
-      const invoice = await tx.invoice.create({
+    const invoice = await prisma.$transaction(async (tx) => {
+      return tx.invoice.create({
         data: {
           invoiceNumber,
           patientId: data.patientId,
@@ -96,9 +101,15 @@ export const billingService = {
         },
         include: { items: true },
       });
-
-      return invoice;
     });
+
+    // Track metric
+    invoiceCreatedCounter.inc({
+      hospital_id: data.hospitalId || 'unknown',
+      status: 'DRAFT',
+    });
+
+    return invoice;
   },
 
   async updateInvoiceStatus(id: string, status: string) {
@@ -107,10 +118,17 @@ export const billingService = {
       throw new AppError('Invoice not found', 404);
     }
 
-    return prisma.invoice.update({
+    const updated = await prisma.invoice.update({
       where: { id },
       data: { status: status as any },
     });
+
+    invoiceCreatedCounter.inc({
+      hospital_id: updated.hospitalId || 'unknown',
+      status: updated.status,
+    });
+
+    return updated;
   },
 
   // ── Payments ───────────────────────────────────────
@@ -129,8 +147,8 @@ export const billingService = {
       throw new AppError('Invoice not found', 404);
     }
 
-    return prisma.$transaction(async (tx) => {
-      const payment = await tx.payment.create({
+    const payment = await prisma.$transaction(async (tx) => {
+      const p = await tx.payment.create({
         data: {
           invoiceId,
           amount: data.amount,
@@ -160,8 +178,21 @@ export const billingService = {
         },
       });
 
-      return payment;
+      return p;
     });
+
+    // Track metrics
+    paymentProcessedCounter.inc({
+      method: data.method,
+      status: 'success',
+    });
+
+    totalRevenueCounter.inc(
+      { hospital_id: invoice.hospitalId || 'unknown' },
+      data.amount,
+    );
+
+    return payment;
   },
 
   async getPayments(invoiceId: string) {
