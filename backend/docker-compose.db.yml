@@ -19,7 +19,7 @@ services:
     image: postgres:16-alpine
     container_name: hms-postgres
     ports:
-      - '5432:5432'
+      - '5434:5432'
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-hms_admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hms_secret}
