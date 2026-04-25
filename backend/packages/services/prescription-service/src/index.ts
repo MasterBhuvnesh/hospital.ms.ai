@@ -1,16 +1,11 @@
-import 'dotenv/config';
-import { createRequire } from 'module';
-/**
- * @fileoverview Prescription Service
- * @description E-Prescription Service - Digital prescriptions
- */
-
 import express, { type Express } from 'express';
 import { createLogger } from '@hms/common-logging';
 import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
 import prescriptionRoutes from './routes/prescription.routes.js';
 import { serviceInfo } from './info/requests.js';
+import register, { httpRequestCounter, httpRequestDurationHistogram } from './lib/metrics.js';
+import { prisma } from './lib/prisma.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -32,23 +27,36 @@ app.use(extractUser);
 app.use((req, res, next) => {
   const startTime = Date.now();
 
-  logger.http('Incoming request', {
-    method: req.method,
-    path: req.path,
-    ip: req.ip,
-  });
-
   res.on('finish', () => {
-    const responseTime = Date.now() - startTime;
-    logger.http('Request completed', {
+    const responseTime = (Date.now() - startTime) / 1000;
+    const route = req.route ? req.route.path : req.path;
+
+    httpRequestCounter.inc({
       method: req.method,
-      path: req.path,
-      statusCode: res.statusCode,
-      responseTime: `${responseTime}ms`,
+      route,
+      status_code: res.statusCode,
     });
+
+    httpRequestDurationHistogram.observe(
+      {
+        method: req.method,
+        route,
+        status_code: res.statusCode,
+      },
+      responseTime,
+    );
   });
 
   next();
+});
+
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.use('/health', healthRoute);
@@ -62,21 +70,40 @@ app.get('/', (_req, res) => {
 });
 
 app.use((_req, res) => {
-  logger.warn('Route not found', { path: _req.path, method: _req.method });
   res.status(404).json({ error: 'Not Found' });
 });
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  logger.info('Prescription service started', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    logger.info('Prescription service started', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+    });
+    logger.info(`Prescription service running on port ${PORT}`, {
+      url: `http://localhost:${PORT}`,
+      healthCheck: `http://localhost:${PORT}/health`,
+    });
   });
-  logger.info(`Prescription service running on port ${PORT}`, {
-    url: `http://localhost:${PORT}`,
-    healthCheck: `http://localhost:${PORT}/health`,
-  });
-});
+
+  // ── Graceful shutdown ───────────────────────────────
+  function shutdown(signal: string) {
+    logger.info(`Received ${signal}, shutting down gracefully...`);
+    server.close(async () => {
+      await prisma.$disconnect();
+      logger.info('Server closed');
+      process.exit(0);
+    });
+
+    setTimeout(() => {
+      logger.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 10_000);
+  }
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+}
 
 export default app;
