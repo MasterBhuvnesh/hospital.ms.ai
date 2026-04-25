@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '@hms/common-middleware';
+import { appointmentCreatedCounter } from '../lib/metrics.js';
 
 export const appointmentService = {
   // ── Appointment CRUD ───────────────────────────────────
@@ -69,7 +70,7 @@ export const appointmentService = {
     reason?: string;
     notes?: string;
   }) {
-    return prisma.appointment.create({
+    const appointment = await prisma.appointment.create({
       data: {
         patientId: data.patientId,
         doctorId: data.doctorId,
@@ -82,6 +83,13 @@ export const appointmentService = {
         notes: data.notes,
       },
     });
+
+    appointmentCreatedCounter.inc({
+      hospital_id: data.hospitalId,
+      status: appointment.status,
+    });
+
+    return appointment;
   },
 
   async updateStatus(id: string, status: string, notes?: string) {
@@ -101,30 +109,21 @@ export const appointmentService = {
       }
     }
 
-    return prisma.appointment.update({
+    const updated = await prisma.appointment.update({
       where: { id },
       data: updateData,
     });
+
+    appointmentCreatedCounter.inc({
+      hospital_id: updated.hospitalId,
+      status: updated.status,
+    });
+
+    return updated;
   },
 
   async cancel(id: string, reason: string) {
-    const appointment = await prisma.appointment.findUnique({ where: { id } });
-    if (!appointment) {
-      throw new AppError('Appointment not found', 404);
-    }
-
-    if (appointment.status === 'CANCELLED') {
-      throw new AppError('Appointment is already cancelled', 400);
-    }
-
-    return prisma.appointment.update({
-      where: { id },
-      data: {
-        status: 'CANCELLED',
-        cancelledAt: new Date(),
-        cancelReason: reason,
-      },
-    });
+    return this.updateStatus(id, 'CANCELLED', reason);
   },
 
   async getByDoctor(doctorId: string, date: string) {
