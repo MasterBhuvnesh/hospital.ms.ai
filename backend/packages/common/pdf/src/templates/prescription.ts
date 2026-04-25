@@ -1,8 +1,39 @@
 import { colors } from '../colors.js';
 import { CONTENT_WIDTH, MARGINS } from '../layout.js';
-import { addPage, createDocument, renderToBuffer } from '../renderer.js';
+import { addPage, createDocument, renderToBuffer, type HeaderConfig } from '../renderer.js';
 
-export async function generatePrescription(data: any): Promise<Uint8Array> {
+export interface PrescriptionMedicine {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  quantity: number;
+  instructions?: string;
+}
+
+export interface PrescriptionData {
+  prescriptionId: string;
+  date: string;
+  hospital: HeaderConfig;
+  doctor: {
+    name: string;
+    specialization: string;
+    qualification: string;
+    regNumber?: string;
+  };
+  patient: {
+    id: string;
+    name: string;
+    age: number;
+    gender: string;
+  };
+  allergies?: string[];
+  diagnosis: string;
+  medicines: PrescriptionMedicine[];
+  notes?: string;
+}
+
+export async function generatePrescription(data: PrescriptionData): Promise<Uint8Array> {
   const ctx = await createDocument({
     title: `Prescription - ${data.patient.name}`,
   });
