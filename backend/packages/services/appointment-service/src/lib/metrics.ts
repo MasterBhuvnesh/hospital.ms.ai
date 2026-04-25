@@ -7,14 +7,14 @@ client.collectDefaultMetrics({
   prefix: 'appointment_',
 });
 
-export const httpRequestCounter = new client.Counter({
+export const httpRequestTotal = new client.Counter({
   name: 'appointment_http_requests_total',
   help: 'Total number of HTTP requests',
   labelNames: ['method', 'route', 'status_code'],
   registers: [register],
 });
 
-export const httpRequestDurationHistogram = new client.Histogram({
+export const httpRequestDuration = new client.Histogram({
   name: 'appointment_http_request_duration_seconds',
   help: 'Duration of HTTP requests in seconds',
   labelNames: ['method', 'route', 'status_code'],

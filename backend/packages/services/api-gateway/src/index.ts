@@ -13,6 +13,7 @@ import { serviceInfo } from './info/requests.js';
 import { gatewayAuth } from './middleware/auth.js';
 import { proxyTo } from './proxy/index.js';
 import { SERVICES } from './config/services.js';
+import register, { httpRequestDuration, httpRequestTotal } from './lib/metrics.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -28,8 +29,17 @@ const logger = createLogger({
 
 const app: Express = express();
 
-// Parse JSON for non-proxied routes only
+// ── Infrastructure routes ───────────────────────────
 app.use('/health', healthRoute);
+
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.get('/', (_req, res) => {
   res.json({
@@ -38,23 +48,34 @@ app.get('/', (_req, res) => {
   });
 });
 
+// ── Middleware ──────────────────────────────────────
+
 // Apply JWT verification to all proxied routes
 app.use(gatewayAuth);
 
-// Logging middleware
+// Logging & metrics middleware
 app.use((req, res, next) => {
-  const start = Date.now();
+  const startTime = Date.now();
+  const end = typeof httpRequestDuration.startTimer === 'function' ? httpRequestDuration.startTimer() : null;
+
   logger.http('→ incoming', {
     method: req.method,
     path: req.path,
     userId: req.headers['x-user-id'] || 'anonymous',
   });
+
   res.on('finish', () => {
+    const responseTime = (Date.now() - startTime) / 1000;
+    const labels = { method: req.method, route: req.path, status_code: res.statusCode };
+    
+    if (end) end(labels);
+    httpRequestTotal.inc(labels);
+
     logger.http('← response', {
       method: req.method,
       path: req.path,
       status: res.statusCode,
-      ms: Date.now() - start,
+      ms: Math.round(responseTime * 1000),
     });
   });
   next();
@@ -85,10 +106,12 @@ app.use((_req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  logger.info(`API Gateway running on port ${PORT}`, {
-    url: `http://localhost:${PORT}`,
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    logger.info(`API Gateway running on port ${PORT}`, {
+      url: `http://localhost:${PORT}`,
+    });
   });
-});
+}
 
 export default app;

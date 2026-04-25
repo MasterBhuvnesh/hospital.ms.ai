@@ -38,6 +38,7 @@ describe('Appointment Routes', () => {
 
   describe('POST /appointments', () => {
     it('should return 201 on success', async () => {
+      const patientHeaders = { ...AUTH_HEADERS, 'x-user-role': 'PATIENT' };
       const payload = {
         patientId: MOCK_ID,
         doctorId: MOCK_ID,
@@ -46,7 +47,7 @@ describe('Appointment Routes', () => {
         slotTime: '10:00',
       };
       vi.mocked(appointmentService.create).mockResolvedValue({ id: MOCK_ID, ...payload } as any);
-      const res = await request(app).post('/appointments').set(AUTH_HEADERS).send(payload);
+      const res = await request(app).post('/appointments').set(patientHeaders).send(payload);
       expect(res.status).toBe(201);
     });
   });

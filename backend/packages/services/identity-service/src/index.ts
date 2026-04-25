@@ -30,18 +30,14 @@ app.use(express.json());
 // ── Request logging & metrics ────────────────────────
 app.use((req, res, next) => {
   const startTime = Date.now();
-  const end = httpRequestDuration.startTimer();
-
-  logger.http('Incoming request', {
-    method: req.method,
-    path: req.path,
-    ip: req.ip,
-  });
+  const end = typeof httpRequestDuration.startTimer === 'function' ? httpRequestDuration.startTimer() : null;
 
   res.on('finish', () => {
+    const responseTime = (Date.now() - startTime) / 1000;
     const route = req.route?.path || req.path;
     const labels = { method: req.method, route, status_code: res.statusCode };
-    end(labels);
+    
+    if (end) end(labels);
     httpRequestTotal.inc(labels);
 
     logger.http('Request completed', {
@@ -80,33 +76,34 @@ app.use((_req, res) => {
 
 app.use(errorHandler);
 
-// ── Start server ────────────────────────────────────
-const server = app.listen(PORT, () => {
-  logger.info(`Identity service running on port ${PORT}`, {
-    url: `http://localhost:${PORT}`,
-    healthCheck: `http://localhost:${PORT}/health`,
-    api: `http://localhost:${PORT}/v1`,
-    metrics: `http://localhost:${PORT}/metrics`,
-  });
-});
-
-// ── Graceful shutdown ───────────────────────────────
-function shutdown(signal: string) {
-  logger.info(`Received ${signal}, shutting down gracefully...`);
-  server.close(async () => {
-    await prisma.$disconnect();
-    logger.info('Server closed');
-    process.exit(0);
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(PORT, () => {
+    logger.info(`Identity service running on port ${PORT}`, {
+      url: `http://localhost:${PORT}`,
+      healthCheck: `http://localhost:${PORT}/health`,
+      api: `http://localhost:${PORT}/v1`,
+      metrics: `http://localhost:${PORT}/metrics`,
+    });
   });
 
-  // Force exit after 10 seconds
-  setTimeout(() => {
-    logger.error('Forced shutdown after timeout');
-    process.exit(1);
-  }, 10_000);
+  // ── Graceful shutdown ───────────────────────────────
+  function shutdown(signal: string) {
+    logger.info(`Received ${signal}, shutting down gracefully...`);
+    server.close(async () => {
+      await prisma.$disconnect();
+      logger.info('Server closed');
+      process.exit(0);
+    });
+
+    // Force exit after 10 seconds
+    setTimeout(() => {
+      logger.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 10_000);
+  }
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
-
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
 
 export default app;

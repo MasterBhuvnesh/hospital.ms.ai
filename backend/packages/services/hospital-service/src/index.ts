@@ -12,7 +12,7 @@ import healthRoute from './routes/health.js';
 import hospitalRoutes from './routes/hospital.routes.js';
 import departmentRoutes from './routes/department.routes.js';
 import { serviceInfo } from './info/requests.js';
-import register, { httpRequestCounter, httpRequestDurationHistogram } from './lib/metrics.js';
+import register, { httpRequestTotal, httpRequestDuration } from './lib/metrics.js';
 import { prisma } from './lib/prisma.js';
 
 const require = createRequire(import.meta.url);
@@ -32,27 +32,31 @@ const app: Express = express();
 app.use(express.json());
 app.use(extractUser);
 
+// ── Request logging & metrics ────────────────────────
 app.use((req, res, next) => {
   const startTime = Date.now();
+  const end = typeof httpRequestDuration.startTimer === 'function' ? httpRequestDuration.startTimer() : null;
+
+  logger.http('Incoming request', {
+    method: req.method,
+    path: req.path,
+    ip: req.ip,
+  });
 
   res.on('finish', () => {
     const responseTime = (Date.now() - startTime) / 1000;
-    const route = req.route ? req.route.path : req.path;
+    const route = req.route?.path || req.path;
+    const labels = { method: req.method, route, status_code: res.statusCode };
+    
+    if (end) end(labels);
+    httpRequestTotal.inc(labels);
 
-    httpRequestCounter.inc({
+    logger.http('Request completed', {
       method: req.method,
-      route,
-      status_code: res.statusCode,
+      path: req.path,
+      statusCode: res.statusCode,
+      responseTime: `${Math.round(responseTime * 1000)}ms`,
     });
-
-    httpRequestDurationHistogram.observe(
-      {
-        method: req.method,
-        route,
-        status_code: res.statusCode,
-      },
-      responseTime,
-    );
   });
 
   next();

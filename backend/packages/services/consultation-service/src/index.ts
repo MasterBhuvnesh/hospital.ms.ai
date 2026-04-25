@@ -11,7 +11,7 @@ import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
 import consultationRoutes from './routes/consultation.routes.js';
 import { serviceInfo } from './info/requests.js';
-import register, { httpRequestCounter, httpRequestDurationHistogram } from './lib/metrics.js';
+import register, { httpRequestTotal, httpRequestDuration } from './lib/metrics.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -30,10 +30,10 @@ const app: Express = express();
 app.use(express.json());
 app.use(extractUser);
 
-// ── Metrics Middleware ────────────────────────────────
-
+// ── Request logging & metrics ────────────────────────
 app.use((req, res, next) => {
   const startTime = Date.now();
+  const end = typeof httpRequestDuration.startTimer === 'function' ? httpRequestDuration.startTimer() : null;
 
   logger.http('Incoming request', {
     method: req.method,
@@ -42,8 +42,12 @@ app.use((req, res, next) => {
   });
 
   res.on('finish', () => {
-    const responseTime = (Date.now() - startTime) / 1000; // in seconds for histogram
-    const route = req.route ? req.route.path : req.path;
+    const responseTime = (Date.now() - startTime) / 1000;
+    const route = req.route?.path || req.path;
+    const labels = { method: req.method, route, status_code: res.statusCode };
+    
+    if (end) end(labels);
+    httpRequestTotal.inc(labels);
 
     logger.http('Request completed', {
       method: req.method,
@@ -51,22 +55,6 @@ app.use((req, res, next) => {
       statusCode: res.statusCode,
       responseTime: `${Math.round(responseTime * 1000)}ms`,
     });
-
-    // Track metrics
-    httpRequestCounter.inc({
-      method: req.method,
-      route,
-      status_code: res.statusCode,
-    });
-
-    httpRequestDurationHistogram.observe(
-      {
-        method: req.method,
-        route,
-        status_code: res.statusCode,
-      },
-      responseTime,
-    );
   });
 
   next();

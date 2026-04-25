@@ -4,11 +4,11 @@ const register = new client.Registry();
 
 client.collectDefaultMetrics({
   register,
-  prefix: 'identity_',
+  prefix: 'search_',
 });
 
 export const httpRequestDuration = new client.Histogram({
-  name: 'identity_http_request_duration_seconds',
+  name: 'search_http_request_duration_seconds',
   help: 'Duration of HTTP requests in seconds',
   labelNames: ['method', 'route', 'status_code'],
   buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 10],
@@ -16,23 +16,16 @@ export const httpRequestDuration = new client.Histogram({
 });
 
 export const httpRequestTotal = new client.Counter({
-  name: 'identity_http_requests_total',
+  name: 'search_http_requests_total',
   help: 'Total number of HTTP requests',
   labelNames: ['method', 'route', 'status_code'],
   registers: [register],
 });
 
-export const loginAttempts = new client.Counter({
-  name: 'identity_login_attempts_total',
-  help: 'Total number of login attempts',
-  labelNames: ['status'],
-  registers: [register],
-});
-
-export const registrations = new client.Counter({
-  name: 'identity_registrations_total',
-  help: 'Total number of user registrations',
-  labelNames: ['role'],
+export const searchOperations = new client.Counter({
+  name: 'search_operations_total',
+  help: 'Total number of search operations',
+  labelNames: ['type', 'status'],
   registers: [register],
 });
 

@@ -4,6 +4,8 @@
  *              The real implementation will proxy to other services via HTTP.
  */
 
+import { searchOperations } from '../lib/metrics.js';
+
 export const searchService = {
   // ── Doctor Search ──────────────────────────────────────
 
@@ -16,6 +18,8 @@ export const searchService = {
   }) {
     const page = query.page || 1;
     const limit = query.limit || 20;
+
+    searchOperations.inc({ type: 'doctor', status: 'success' });
 
     // TODO: proxy to doctor-service
     return { data: [], total: 0, page, limit };
@@ -32,6 +36,8 @@ export const searchService = {
     const page = query.page || 1;
     const limit = query.limit || 20;
 
+    searchOperations.inc({ type: 'hospital', status: 'success' });
+
     // TODO: proxy to hospital-service
     return { data: [], total: 0, page, limit };
   },
@@ -47,6 +53,8 @@ export const searchService = {
     const page = query.page || 1;
     const limit = query.limit || 20;
 
+    searchOperations.inc({ type: 'medicine', status: 'success' });
+
     // TODO: proxy to pharmacy-service / inventory-service
     return { data: [], total: 0, page, limit };
   },
@@ -61,6 +69,8 @@ export const searchService = {
   }) {
     const page = query.page || 1;
     const limit = query.limit || 20;
+
+    searchOperations.inc({ type: 'lab_test', status: 'success' });
 
     // TODO: proxy to lab-test-service
     return { data: [], total: 0, page, limit };
