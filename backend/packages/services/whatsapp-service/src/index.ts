@@ -1,16 +1,10 @@
-import 'dotenv/config';
-import { createRequire } from 'module';
-/**
- * @fileoverview Whatsapp Service
- * @description Whatsapp Service - Whatsapp notifications
- */
-
 import express, { type Express } from 'express';
 import { createLogger } from '@hms/common-logging';
 import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
 import whatsappRoutes from './routes/whatsapp.routes.js';
 import { serviceInfo } from './info/requests.js';
+import register, { httpRequestCounter, httpRequestDurationHistogram } from './lib/metrics.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -32,27 +26,40 @@ app.use(extractUser);
 app.use((req, res, next) => {
   const startTime = Date.now();
 
-  logger.http('Incoming request', {
-    method: req.method,
-    path: req.path,
-    ip: req.ip,
-  });
-
   res.on('finish', () => {
-    const responseTime = Date.now() - startTime;
-    logger.http('Request completed', {
+    const responseTime = (Date.now() - startTime) / 1000;
+    const route = req.route ? req.route.path : req.path;
+
+    httpRequestCounter.inc({
       method: req.method,
-      path: req.path,
-      statusCode: res.statusCode,
-      responseTime: `${responseTime}ms`,
+      route,
+      status_code: res.statusCode,
     });
+
+    httpRequestDurationHistogram.observe(
+      {
+        method: req.method,
+        route,
+        status_code: res.statusCode,
+      },
+      responseTime,
+    );
   });
 
   next();
 });
 
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.use('/health', healthRoute);
-app.use('/messages', whatsappRoutes);
+app.use('/whatsapp', whatsappRoutes);
 
 app.get('/', (_req, res) => {
   res.json({
@@ -62,21 +69,22 @@ app.get('/', (_req, res) => {
 });
 
 app.use((_req, res) => {
-  logger.warn('Route not found', { path: _req.path, method: _req.method });
   res.status(404).json({ error: 'Not Found' });
 });
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  logger.info('Whatsapp service started', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    logger.info('Whatsapp service started', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+    });
+    logger.info(`Whatsapp service running on port ${PORT}`, {
+      url: `http://localhost:${PORT}`,
+      healthCheck: `http://localhost:${PORT}/health`,
+    });
   });
-  logger.info(`Whatsapp service running on port ${PORT}`, {
-    url: `http://localhost:${PORT}`,
-    healthCheck: `http://localhost:${PORT}/health`,
-  });
-});
+}
 
 export default app;
