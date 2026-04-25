@@ -11,6 +11,7 @@ import { extractUser, errorHandler } from '@hms/common-middleware';
 import healthRoute from './routes/health.js';
 import consultationRoutes from './routes/consultation.routes.js';
 import { serviceInfo } from './info/requests.js';
+import register, { httpRequestCounter, httpRequestDurationHistogram } from './lib/metrics.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -29,6 +30,8 @@ const app: Express = express();
 app.use(express.json());
 app.use(extractUser);
 
+// ── Metrics Middleware ────────────────────────────────
+
 app.use((req, res, next) => {
   const startTime = Date.now();
 
@@ -39,16 +42,46 @@ app.use((req, res, next) => {
   });
 
   res.on('finish', () => {
-    const responseTime = Date.now() - startTime;
+    const responseTime = (Date.now() - startTime) / 1000; // in seconds for histogram
+    const route = req.route ? req.route.path : req.path;
+
     logger.http('Request completed', {
       method: req.method,
       path: req.path,
       statusCode: res.statusCode,
-      responseTime: `${responseTime}ms`,
+      responseTime: `${Math.round(responseTime * 1000)}ms`,
     });
+
+    // Track metrics
+    httpRequestCounter.inc({
+      method: req.method,
+      route,
+      status_code: res.statusCode,
+    });
+
+    httpRequestDurationHistogram.observe(
+      {
+        method: req.method,
+        route,
+        status_code: res.statusCode,
+      },
+      responseTime,
+    );
   });
 
   next();
+});
+
+// ── Metrics Endpoint ──────────────────────────────────
+
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (err: any) {
+    logger.error('Metrics collection failed', { error: err.message });
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.use('/health', healthRoute);
@@ -68,15 +101,17 @@ app.use((_req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  logger.info('Consultation service started', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    logger.info('Consultation service started', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+    });
+    logger.info(`Consultation service running on port ${PORT}`, {
+      url: `http://localhost:${PORT}`,
+      healthCheck: `http://localhost:${PORT}/health`,
+    });
   });
-  logger.info(`Consultation service running on port ${PORT}`, {
-    url: `http://localhost:${PORT}`,
-    healthCheck: `http://localhost:${PORT}/health`,
-  });
-});
+}
 
 export default app;

@@ -1,5 +1,10 @@
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '@hms/common-middleware';
+import {
+  consultationCreatedCounter,
+  vitalsRecordedCounter,
+  notesAddedCounter,
+} from '../lib/metrics.js';
 
 export const consultationService = {
   // ── Consultation CRUD ──────────────────────────────────
@@ -65,7 +70,7 @@ export const consultationService = {
     hospitalId: string;
     isPriority?: boolean;
   }) {
-    return prisma.consultation.create({
+    const consultation = await prisma.consultation.create({
       data: {
         patientId: data.patientId,
         doctorId: data.doctorId,
@@ -75,6 +80,14 @@ export const consultationService = {
         status: 'WAITING',
       },
     });
+
+    // Track metric
+    consultationCreatedCounter.inc({
+      hospital_id: data.hospitalId,
+      status: 'WAITING',
+    });
+
+    return consultation;
   },
 
   async updateStatus(id: string, status: 'WAITING' | 'WITH_DOCTOR' | 'COMPLETED' | 'CANCELLED') {
@@ -97,10 +110,18 @@ export const consultationService = {
       }
     }
 
-    return prisma.consultation.update({
+    const updatedConsultation = await prisma.consultation.update({
       where: { id },
       data: updateData,
     });
+
+    // Track status transition metric
+    consultationCreatedCounter.inc({
+      hospital_id: updatedConsultation.hospitalId,
+      status: updatedConsultation.status,
+    });
+
+    return updatedConsultation;
   },
 
   // ── SOAP Notes ─────────────────────────────────────────
@@ -122,7 +143,7 @@ export const consultationService = {
       throw new AppError('Consultation not found', 404);
     }
 
-    return prisma.consultationNote.create({
+    const note = await prisma.consultationNote.create({
       data: {
         consultationId,
         subjective: data.subjective,
@@ -132,6 +153,11 @@ export const consultationService = {
         additionalNotes: data.additionalNotes,
       },
     });
+
+    // Track metric
+    notesAddedCounter.inc();
+
+    return note;
   },
 
   async updateNote(
@@ -179,7 +205,7 @@ export const consultationService = {
       throw new AppError('Consultation not found', 404);
     }
 
-    return prisma.vital.create({
+    const vital = await prisma.vital.create({
       data: {
         consultationId,
         temperature: data.temperature,
@@ -192,5 +218,10 @@ export const consultationService = {
         height: data.height,
       },
     });
+
+    // Track metric
+    vitalsRecordedCounter.inc();
+
+    return vital;
   },
 };
