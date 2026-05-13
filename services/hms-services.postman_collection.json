@@ -1,0 +1,215 @@
+{
+  "info": {
+    "name": "HMS Microservices",
+    "_postman_id": "hms-services-collection",
+    "description": "Hospital Management System - Microservices API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Appointment Service",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3001/",
+              "host": ["{{baseUrl}}"],
+              "port": "3001",
+              "path": [""]
+            },
+            "description": "Returns appointment service information and available routes"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3001/health",
+              "host": ["{{baseUrl}}"],
+              "port": "3001",
+              "path": ["health"]
+            },
+            "description": "Returns service health status, uptime, and memory usage"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3002/",
+              "host": ["{{baseUrl}}"],
+              "port": "3002",
+              "path": [""]
+            },
+            "description": "Returns auth service information and available routes"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3002/health",
+              "host": ["{{baseUrl}}"],
+              "port": "3002",
+              "path": ["health"]
+            },
+            "description": "Returns service health status, uptime, and memory usage"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Doctor Service",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3003/",
+              "host": ["{{baseUrl}}"],
+              "port": "3003",
+              "path": [""]
+            },
+            "description": "Returns doctor service information and available routes"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3003/health",
+              "host": ["{{baseUrl}}"],
+              "port": "3003",
+              "path": ["health"]
+            },
+            "description": "Returns service health status, uptime, and memory usage"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Message Service",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3004/",
+              "host": ["{{baseUrl}}"],
+              "port": "3004",
+              "path": [""]
+            },
+            "description": "Returns message service information and available routes"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3004/health",
+              "host": ["{{baseUrl}}"],
+              "port": "3004",
+              "path": ["health"]
+            },
+            "description": "Returns service health status, uptime, and memory usage"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Patient Service",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3005/",
+              "host": ["{{baseUrl}}"],
+              "port": "3005",
+              "path": [""]
+            },
+            "description": "Returns patient service information and available routes"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3005/health",
+              "host": ["{{baseUrl}}"],
+              "port": "3005",
+              "path": ["health"]
+            },
+            "description": "Returns service health status, uptime, and memory usage"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prescription Service",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3006/",
+              "host": ["{{baseUrl}}"],
+              "port": "3006",
+              "path": [""]
+            },
+            "description": "Returns prescription service information and available routes"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}:3006/health",
+              "host": ["{{baseUrl}}"],
+              "port": "3006",
+              "path": ["health"]
+            },
+            "description": "Returns service health status, uptime, and memory usage"
+          }
+        }
+      ]
+    }
+  ]
+}

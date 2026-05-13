@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install *)",
+      "Bash(pnpm --filter @hms/doctor-service build)",
+      "Bash(pnpm build *)"
+    ]
+  }
+}
