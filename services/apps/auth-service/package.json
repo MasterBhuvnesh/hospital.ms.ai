@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --project tsconfig.json src/index.ts",
     "start": "node dist/index.js",
     "clean": "rimraf dist"
   },
   "dependencies": {
     "@hms/common-logging": "workspace:*",
+    "@hms/common-db": "workspace:*",
+    "dotenv": "^16.4.0",
     "express": "^4.21.0"
   },
   "devDependencies": {
