@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+# Monorepo uses pnpm at repo root; this file makes Vercel pick npm and breaks the workspace build.
+package-lock.json
 /.pnp
 .pnp.*
 .yarn/*
@@ -39,3 +41,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.claude
