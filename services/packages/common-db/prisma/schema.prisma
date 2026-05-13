@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(PATIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patientProfile PatientProfile?
+  doctorProfile  DoctorProfile?
+
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+model PatientProfile {
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  user           User            @relation(fields: [userId], references: [id])
+  firstName      String
+  lastName       String
+  dob            DateTime
+  gender         String
+  phone          String?
+  vitals         Json?
+  medicalReports MedicalReport[]
+  prescriptions  Prescription[]
+  invoices       Invoice[]
+  appointments   Appointment[]
+}
+
+model DoctorProfile {
+  id             String         @id @default(uuid())
+  userId         String         @unique
+  user           User           @relation(fields: [userId], references: [id])
+  firstName      String
+  lastName       String
+  specialization String
+  licenseNumber  String
+  phone          String?
+  prescriptions  Prescription[]
+  appointments   Appointment[]
+}
+
+model MedicalReport {
+  id               String         @id @default(uuid())
+  patientId        String
+  patient          PatientProfile @relation(fields: [patientId], references: [id])
+  originalText     String?        @db.Text
+  simplifiedResult String         @db.Text
+  uploadedAt       DateTime       @default(now())
+}
+
+model Medicine {
+  id            String         @id @default(uuid())
+  name          String
+  description   String
+  price         Float
+  stock         Int            @default(100)
+  prescriptions Prescription[]
+}
+
+model Prescription {
+  id         String         @id @default(uuid())
+  patientId  String
+  patient    PatientProfile @relation(fields: [patientId], references: [id])
+  doctorId   String
+  doctor     DoctorProfile  @relation(fields: [doctorId], references: [id])
+  medicineId String
+  medicine   Medicine       @relation(fields: [medicineId], references: [id])
+  quantity   Int            @default(1)
+  status     String         @default("PENDING")
+  pdfUrl     String?
+  issuedAt   DateTime       @default(now())
+}
+
+model Invoice {
+  id          String         @id @default(uuid())
+  patientId   String
+  patient     PatientProfile @relation(fields: [patientId], references: [id])
+  amount      Float
+  description String
+  status      String         @default("UNPAID")
+  pdfUrl      String?
+  issuedAt    DateTime       @default(now())
+  paidAt      DateTime?
+}
+
+model Appointment {
+  id        String         @id @default(uuid())
+  patientId String
+  patient   PatientProfile @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    DoctorProfile  @relation(fields: [doctorId], references: [id])
+  date      String
+  time      String
+  status    String         @default("Upcoming")
+  type      String         @default("In-Person")
+  notes     String?        @db.Text
+  fee       Float?
+  pdfUrl    String?
+  createdAt DateTime       @default(now())
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+  read       Boolean  @default(false)
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model GeneratedDocument {
+  id          String   @id @default(uuid())
+  type        String   // pharmacy-bill, appointment-bill, prescription
+  referenceId String?  // appointment id, prescription id, etc.
+  patientId   String?
+  doctorId    String?
+  url         String
+  publicId    String
+  fileName    String
+  createdAt   DateTime @default(now())
+}
+
+model MedicalRecord {
+  id        String   @id @default(uuid())
+  patientId String
+  fileName  String
+  url       String
+  publicId  String
+  createdAt DateTime @default(now())
+}
