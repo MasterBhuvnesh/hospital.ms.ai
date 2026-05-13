@@ -1,0 +1,423 @@
+{
+  "info": {
+    "name": "HMS Microservices",
+    "_postman_id": "hms-microservices-v2",
+    "description": "Hospital Management System - Microservices API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth Service (3002)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3002/", "host": ["{{baseUrl}}"], "port": "3002", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3002/health", "host": ["{{baseUrl}}"], "port": "3002", "path": ["health"] } }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"doctor@test.com\",\n  \"password\": \"password123\",\n  \"role\": \"DOCTOR\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"specialization\": \"Cardiology\",\n  \"licenseNumber\": \"LIC-001\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3002/auth/register", "host": ["{{baseUrl}}"], "port": "3002", "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"doctor@test.com\",\n  \"password\": \"password123\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3002/auth/login", "host": ["{{baseUrl}}"], "port": "3002", "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "List Users",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3002/auth/users", "host": ["{{baseUrl}}"], "port": "3002", "path": ["auth", "users"] } }
+        },
+        {
+          "name": "Get User by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3002/auth/users/:id", "host": ["{{baseUrl}}"], "port": "3002", "path": ["auth", "users", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        }
+      ]
+    },
+    {
+      "name": "Doctor Service (3003)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3003/", "host": ["{{baseUrl}}"], "port": "3003", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3003/health", "host": ["{{baseUrl}}"], "port": "3003", "path": ["health"] } }
+        },
+        {
+          "name": "List Doctors",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3003/doctors", "host": ["{{baseUrl}}"], "port": "3003", "path": ["doctors"] } }
+        },
+        {
+          "name": "Get Doctor by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3003/doctors/:id", "host": ["{{baseUrl}}"], "port": "3003", "path": ["doctors", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        },
+        {
+          "name": "Create Doctor",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"specialization\": \"Neurology\",\n  \"licenseNumber\": \"LIC-002\",\n  \"phone\": \"+1234567890\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3003/doctors", "host": ["{{baseUrl}}"], "port": "3003", "path": ["doctors"] }
+          }
+        },
+        {
+          "name": "Update Doctor",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"specialization\": \"Pediatrics\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3003/doctors/:id", "host": ["{{baseUrl}}"], "port": "3003", "path": ["doctors", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Doctor",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}:3003/doctors/:id", "host": ["{{baseUrl}}"], "port": "3003", "path": ["doctors", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        }
+      ]
+    },
+    {
+      "name": "Patient Service (3005)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3005/", "host": ["{{baseUrl}}"], "port": "3005", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3005/health", "host": ["{{baseUrl}}"], "port": "3005", "path": ["health"] } }
+        },
+        {
+          "name": "List Patients",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3005/patients", "host": ["{{baseUrl}}"], "port": "3005", "path": ["patients"] } }
+        },
+        {
+          "name": "Get Patient by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3005/patients/:id", "host": ["{{baseUrl}}"], "port": "3005", "path": ["patients", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        },
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Johnson\",\n  \"dob\": \"1990-05-15\",\n  \"gender\": \"Female\",\n  \"phone\": \"+1987654321\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3005/patients", "host": ["{{baseUrl}}"], "port": "3005", "path": ["patients"] }
+          }
+        },
+        {
+          "name": "Update Patient",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"+1111111111\",\n  \"vitals\": { \"bp\": \"120/80\", \"hr\": 72 }\n}" },
+            "url": { "raw": "{{baseUrl}}:3005/patients/:id", "host": ["{{baseUrl}}"], "port": "3005", "path": ["patients", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Patient",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}:3005/patients/:id", "host": ["{{baseUrl}}"], "port": "3005", "path": ["patients", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        }
+      ]
+    },
+    {
+      "name": "Appointment Service (3001)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3001/", "host": ["{{baseUrl}}"], "port": "3001", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3001/health", "host": ["{{baseUrl}}"], "port": "3001", "path": ["health"] } }
+        },
+        {
+          "name": "List Appointments",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3001/appointments", "host": ["{{baseUrl}}"], "port": "3001", "path": ["appointments"] } }
+        },
+        {
+          "name": "List Appointments (by patient)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3001/appointments?patientId=", "host": ["{{baseUrl}}"], "port": "3001", "path": ["appointments"], "query": [{ "key": "patientId", "value": "" }] } }
+        },
+        {
+          "name": "List Appointments (by doctor)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3001/appointments?doctorId=", "host": ["{{baseUrl}}"], "port": "3001", "path": ["appointments"], "query": [{ "key": "doctorId", "value": "" }] } }
+        },
+        {
+          "name": "Get Appointment by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3001/appointments/:id", "host": ["{{baseUrl}}"], "port": "3001", "path": ["appointments", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        },
+        {
+          "name": "Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"patientId\": \"\",\n  \"doctorId\": \"\",\n  \"date\": \"2026-05-20\",\n  \"time\": \"10:00\",\n  \"type\": \"In-Person\",\n  \"notes\": \"Regular checkup\",\n  \"fee\": 500\n}" },
+            "url": { "raw": "{{baseUrl}}:3001/appointments", "host": ["{{baseUrl}}"], "port": "3001", "path": ["appointments"] }
+          }
+        },
+        {
+          "name": "Update Appointment Status",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "description": "When status is set to 'Completed', a PDF bill is auto-generated via pdf-generation-service and the pdfUrl field is populated on the appointment.",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Completed\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3001/appointments/:id", "host": ["{{baseUrl}}"], "port": "3001", "path": ["appointments", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Appointment",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}:3001/appointments/:id", "host": ["{{baseUrl}}"], "port": "3001", "path": ["appointments", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        }
+      ]
+    },
+    {
+      "name": "Message Service (3004)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3004/", "host": ["{{baseUrl}}"], "port": "3004", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3004/health", "host": ["{{baseUrl}}"], "port": "3004", "path": ["health"] } }
+        },
+        {
+          "name": "List Messages",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3004/messages?userId=", "host": ["{{baseUrl}}"], "port": "3004", "path": ["messages"], "query": [{ "key": "userId", "value": "" }] } }
+        },
+        {
+          "name": "Conversation Between Two Users",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3004/messages?userId=&otherUserId=", "host": ["{{baseUrl}}"], "port": "3004", "path": ["messages"], "query": [{ "key": "userId", "value": "" }, { "key": "otherUserId", "value": "" }] } }
+        },
+        {
+          "name": "Get Message by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3004/messages/:id", "host": ["{{baseUrl}}"], "port": "3004", "path": ["messages", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"senderId\": \"\",\n  \"receiverId\": \"\",\n  \"content\": \"Hello, how are you?\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3004/messages", "host": ["{{baseUrl}}"], "port": "3004", "path": ["messages"] }
+          }
+        },
+        {
+          "name": "Mark Message as Read",
+          "request": { "method": "PATCH", "url": { "raw": "{{baseUrl}}:3004/messages/:id/read", "host": ["{{baseUrl}}"], "port": "3004", "path": ["messages", ":id", "read"], "variable": [{ "key": "id", "value": "" }] } }
+        },
+        {
+          "name": "Delete Message",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}:3004/messages/:id", "host": ["{{baseUrl}}"], "port": "3004", "path": ["messages", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        }
+      ]
+    },
+    {
+      "name": "Prescription Service (3006)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3006/", "host": ["{{baseUrl}}"], "port": "3006", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3006/health", "host": ["{{baseUrl}}"], "port": "3006", "path": ["health"] } }
+        },
+        {
+          "name": "List Prescriptions",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3006/prescriptions", "host": ["{{baseUrl}}"], "port": "3006", "path": ["prescriptions"] } }
+        },
+        {
+          "name": "List Prescriptions (by patient)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3006/prescriptions?patientId=", "host": ["{{baseUrl}}"], "port": "3006", "path": ["prescriptions"], "query": [{ "key": "patientId", "value": "" }] } }
+        },
+        {
+          "name": "List Prescriptions (by doctor)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3006/prescriptions?doctorId=", "host": ["{{baseUrl}}"], "port": "3006", "path": ["prescriptions"], "query": [{ "key": "doctorId", "value": "" }] } }
+        },
+        {
+          "name": "Get Prescription by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3006/prescriptions/:id", "host": ["{{baseUrl}}"], "port": "3006", "path": ["prescriptions", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        },
+        {
+          "name": "Create Prescription",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "description": "Creates a prescription and auto-generates a prescription PDF via pdf-generation-service. The pdfUrl field is populated asynchronously.",
+            "body": { "mode": "raw", "raw": "{\n  \"patientId\": \"\",\n  \"doctorId\": \"\",\n  \"medicineName\": \"Paracetamol 500mg\",\n  \"dose\": \"500mg\",\n  \"frequency\": \"Twice daily\",\n  \"duration\": \"5 days\",\n  \"quantity\": 10,\n  \"diagnosis\": \"Fever\",\n  \"doctorNotes\": \"Take after meals\",\n  \"status\": \"PENDING\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3006/prescriptions", "host": ["{{baseUrl}}"], "port": "3006", "path": ["prescriptions"] }
+          }
+        },
+        {
+          "name": "Update Prescription",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"FULFILLED\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3006/prescriptions/:id", "host": ["{{baseUrl}}"], "port": "3006", "path": ["prescriptions", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Prescription",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}:3006/prescriptions/:id", "host": ["{{baseUrl}}"], "port": "3006", "path": ["prescriptions", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        }
+      ]
+    },
+    {
+      "name": "File Uploader Service (3007)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3007/", "host": ["{{baseUrl}}"], "port": "3007", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3007/health", "host": ["{{baseUrl}}"], "port": "3007", "path": ["health"] } }
+        },
+        {
+          "name": "Upload Single File",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "" },
+                { "key": "folder", "value": "hms", "type": "text" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}:3007/upload", "host": ["{{baseUrl}}"], "port": "3007", "path": ["upload"] }
+          }
+        },
+        {
+          "name": "Upload Multiple Files",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "files", "type": "file", "src": "" },
+                { "key": "folder", "value": "hms", "type": "text" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}:3007/upload/multiple", "host": ["{{baseUrl}}"], "port": "3007", "path": ["upload", "multiple"] }
+          }
+        },
+        {
+          "name": "Delete File",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}:3007/upload/:publicId", "host": ["{{baseUrl}}"], "port": "3007", "path": ["upload", ":publicId"], "variable": [{ "key": "publicId", "value": "" }] } }
+        }
+      ]
+    },
+    {
+      "name": "PDF Generation Service (3008)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3008/", "host": ["{{baseUrl}}"], "port": "3008", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3008/health", "host": ["{{baseUrl}}"], "port": "3008", "path": ["health"] } }
+        },
+        {
+          "name": "Generate Pharmacy Bill",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"billNumber\": \"PH-001\",\n  \"date\": \"2026-05-13\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientPhone\": \"+1987654321\",\n  \"items\": [\n    { \"name\": \"Paracetamol 500mg\", \"quantity\": 2, \"unitPrice\": 25, \"total\": 50 },\n    { \"name\": \"Amoxicillin 250mg\", \"quantity\": 1, \"unitPrice\": 120, \"total\": 120 }\n  ],\n  \"subtotal\": 170,\n  \"tax\": 8.5,\n  \"discount\": 0,\n  \"grandTotal\": 178.5,\n  \"paymentMethod\": \"Cash\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3008/pdf/pharmacy-bill", "host": ["{{baseUrl}}"], "port": "3008", "path": ["pdf", "pharmacy-bill"] }
+          }
+        },
+        {
+          "name": "Generate Appointment Bill",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"billNumber\": \"APT-001\",\n  \"date\": \"2026-05-13\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientPhone\": \"+1987654321\",\n  \"doctorName\": \"Dr. John Smith\",\n  \"specialization\": \"Cardiology\",\n  \"appointmentDate\": \"2026-05-13\",\n  \"appointmentTime\": \"10:00 AM\",\n  \"appointmentType\": \"In-Person\",\n  \"consultationFee\": 500,\n  \"additionalCharges\": [\n    { \"description\": \"ECG Test\", \"amount\": 200 }\n  ],\n  \"grandTotal\": 700,\n  \"paymentMethod\": \"UPI\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3008/pdf/appointment-bill", "host": ["{{baseUrl}}"], "port": "3008", "path": ["pdf", "appointment-bill"] }
+          }
+        },
+        {
+          "name": "Generate Prescription PDF",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"prescriptionId\": \"RX-001\",\n  \"date\": \"2026-05-13\",\n  \"patientName\": \"Alice Johnson\",\n  \"patientAge\": \"35\",\n  \"patientGender\": \"Female\",\n  \"doctorName\": \"John Smith\",\n  \"doctorSpecialization\": \"Cardiology\",\n  \"doctorLicense\": \"LIC-001\",\n  \"diagnosis\": \"Mild Hypertension\",\n  \"medicines\": [\n    { \"name\": \"Amlodipine 5mg\", \"dose\": \"5mg\", \"frequency\": \"Once daily\", \"duration\": \"30 days\", \"quantity\": 30, \"notes\": \"Take in the morning\" },\n    { \"name\": \"Aspirin 75mg\", \"dose\": \"75mg\", \"frequency\": \"Once daily\", \"duration\": \"30 days\", \"quantity\": 30 }\n  ],\n  \"doctorNotes\": \"Monitor BP weekly. Reduce salt intake.\",\n  \"followUpDate\": \"2026-06-13\",\n  \"patientId\": \"\",\n  \"doctorId\": \"\"\n}" },
+            "url": { "raw": "{{baseUrl}}:3008/pdf/prescription", "host": ["{{baseUrl}}"], "port": "3008", "path": ["pdf", "prescription"] }
+          }
+        },
+        {
+          "name": "List Documents (by type)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3008/documents?type=prescription", "host": ["{{baseUrl}}"], "port": "3008", "path": ["documents"], "query": [{ "key": "type", "value": "prescription" }] } }
+        },
+        {
+          "name": "List Documents (by patient)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3008/documents?patientId=", "host": ["{{baseUrl}}"], "port": "3008", "path": ["documents"], "query": [{ "key": "patientId", "value": "" }] } }
+        },
+        {
+          "name": "Get Document by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3008/documents/:id", "host": ["{{baseUrl}}"], "port": "3008", "path": ["documents", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        }
+      ]
+    },
+    {
+      "name": "Medical Records Service (3009)",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3009/", "host": ["{{baseUrl}}"], "port": "3009", "path": [""] } }
+        },
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3009/health", "host": ["{{baseUrl}}"], "port": "3009", "path": ["health"] } }
+        },
+        {
+          "name": "Upload Medical Record",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "" },
+                { "key": "patientId", "value": "", "type": "text" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}:3009/medical-records/upload", "host": ["{{baseUrl}}"], "port": "3009", "path": ["medical-records", "upload"] }
+          }
+        },
+        {
+          "name": "List Medical Records (by patient)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3009/medical-records?patientId=", "host": ["{{baseUrl}}"], "port": "3009", "path": ["medical-records"], "query": [{ "key": "patientId", "value": "" }] } }
+        },
+        {
+          "name": "Get Medical Record by ID",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}:3009/medical-records/:id", "host": ["{{baseUrl}}"], "port": "3009", "path": ["medical-records", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        },
+        {
+          "name": "Delete Medical Record",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}:3009/medical-records/:id", "host": ["{{baseUrl}}"], "port": "3009", "path": ["medical-records", ":id"], "variable": [{ "key": "id", "value": "" }] } }
+        }
+      ]
+    }
+  ]
+}
