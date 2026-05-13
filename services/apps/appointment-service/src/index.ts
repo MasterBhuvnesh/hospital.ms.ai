@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import { createLogger } from '@hms/common-logging';
 import appointmentRoutes from './routes/appointment.routes';

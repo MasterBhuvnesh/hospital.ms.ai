@@ -12,5 +12,30 @@ export const serviceInfo = {
       path: '/health',
       description: 'Health check — returns service liveness and status',
     },
+    {
+      method: 'GET',
+      path: '/appointments',
+      description: 'List appointments (supports ?patientId and ?doctorId query params)',
+    },
+    {
+      method: 'GET',
+      path: '/appointments/:id',
+      description: 'Get appointment by ID',
+    },
+    {
+      method: 'POST',
+      path: '/appointments',
+      description: 'Create a new appointment',
+    },
+    {
+      method: 'PUT',
+      path: '/appointments/:id',
+      description: 'Update appointment status',
+    },
+    {
+      method: 'DELETE',
+      path: '/appointments/:id',
+      description: 'Delete an appointment',
+    },
   ],
 };
