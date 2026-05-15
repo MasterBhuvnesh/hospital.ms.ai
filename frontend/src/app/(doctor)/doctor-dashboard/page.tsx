@@ -666,6 +666,7 @@ export default function DoctorDashboard() {
           dose: med.dose,
           frequency: med.frequency,
           duration: med.duration,
+          quantity: med.quantity,
           diagnosis: editingRx.diagnosis,
           doctorNotes: editingRx.doctorNotes,
           status: 'PENDING'
@@ -677,7 +678,7 @@ export default function DoctorDashboard() {
     addAudit('CREATE_PRESCRIPTION', pt.name);
     addNotif('appointment', `Prescription issued for ${pt.name}: ${editingRx.diagnosis}`, 'low');
     setModal(null);
-    setEditingRx({ patientId: '', medications: [{ name: '', dose: '', frequency: '', duration: '' }], diagnosis: '', doctorNotes: '' });
+    setEditingRx({ patientId: '', medications: [{ name: '', dose: '', frequency: '', duration: '', quantity: '' }], diagnosis: '', doctorNotes: '' });
   };
 
   const saveLab = () => {
@@ -1097,7 +1098,7 @@ export default function DoctorDashboard() {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                         {[
                           { label: 'Register Patient', icon: 'person_add', action: () => { setEditingPatient({ ...EMPTY_PATIENT }); setModal('patient'); } },
-                          { label: 'New Prescription', icon: 'medication', action: () => { setEditingRx({ patientId: '', medications: [{ name: '', dose: '', frequency: '', duration: '' }], diagnosis: '', doctorNotes: '' }); setModal('rx'); } },
+                          { label: 'New Prescription', icon: 'medication', action: () => { setEditingRx({ patientId: '', medications: [{ name: '', dose: '', frequency: '', duration: '', quantity: '' }], diagnosis: '', doctorNotes: '' }); setModal('rx'); } },
                           { label: 'Add Lab Report', icon: 'biotech', action: () => { setEditingLab({ patientId: '', testName: '', results: [{ parameter: '', value: '', unit: '', normalRange: '', flag: 'normal' }], status: 'Pending' }); setModal('lab'); } },
                           { label: 'Create Invoice', icon: 'receipt_long', action: () => { setEditingInvoice({ patientId: '', services: [{ name: '', amount: 0 }], paymentStatus: 'Pending', insuranceCovered: 0 }); setModal('invoice'); } },
                         ].map(a => (
@@ -2020,7 +2021,7 @@ export default function DoctorDashboard() {
 
         {/* New Prescription */}
         {modal === 'rx' && (
-          <Modal title="New Prescription" icon="medication" onClose={() => { setModal(null); setEditingRx({ patientId: '', medications: [{ name: '', dose: '', frequency: '', duration: '' }], diagnosis: '', doctorNotes: '' }); ai.setResult(''); }} wide
+          <Modal title="New Prescription" icon="medication" onClose={() => { setModal(null); setEditingRx({ patientId: '', medications: [{ name: '', dose: '', frequency: '', duration: '', quantity: '' }], diagnosis: '', doctorNotes: '' }); ai.setResult(''); }} wide
             footer={<><button onClick={() => setModal(null)} className="btn-ghost">Cancel</button><button onClick={saveRx} className="btn-primary">Save Prescription</button></>}>
             <Grid2>
               <div style={{ gridColumn: '1/-1' }}>
@@ -2040,15 +2041,16 @@ export default function DoctorDashboard() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <label className="field-label" style={{ margin: 0 }}>Medications *</label>
-                <button onClick={() => setEditingRx(p => ({ ...p, medications: [...(p.medications || []), { name: '', dose: '', frequency: '', duration: '' }] }))}
+                <button onClick={() => setEditingRx(p => ({ ...p, medications: [...(p.medications || []), { name: '', dose: '', frequency: '', duration: '', quantity: '' }] }))}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 700, color: 'var(--primary)' }}>+ Add Drug</button>
               </div>
               {(editingRx.medications || []).map((m, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr auto', gap: '6px', marginBottom: '6px', alignItems: 'center' }}>
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr auto', gap: '6px', marginBottom: '6px', alignItems: 'center' }}>
                   <input className="inp" style={{ fontSize: '12px' }} value={m.name} onChange={e => setEditingRx(p => ({ ...p, medications: (p.medications || []).map((x, j) => j === i ? { ...x, name: e.target.value } : x) }))} placeholder="Drug name" />
                   <input className="inp" style={{ fontSize: '12px' }} value={m.dose} onChange={e => setEditingRx(p => ({ ...p, medications: (p.medications || []).map((x, j) => j === i ? { ...x, dose: e.target.value } : x) }))} placeholder="Dose" />
                   <input className="inp" style={{ fontSize: '12px' }} value={m.frequency} onChange={e => setEditingRx(p => ({ ...p, medications: (p.medications || []).map((x, j) => j === i ? { ...x, frequency: e.target.value } : x) }))} placeholder="Frequency" />
                   <input className="inp" style={{ fontSize: '12px' }} value={m.duration} onChange={e => setEditingRx(p => ({ ...p, medications: (p.medications || []).map((x, j) => j === i ? { ...x, duration: e.target.value } : x) }))} placeholder="Duration" />
+                  <input className="inp" style={{ fontSize: '12px' }} value={m.quantity} onChange={e => setEditingRx(p => ({ ...p, medications: (p.medications || []).map((x, j) => j === i ? { ...x, quantity: e.target.value } : x) }))} placeholder="Quantity" />
                   {(editingRx.medications || []).length > 1 && (
                     <button onClick={() => setEditingRx(p => ({ ...p, medications: (p.medications || []).filter((_, j) => j !== i) }))}
                       style={{ background: 'none', border: '1px solid #FECACA', borderRadius: '8px', cursor: 'pointer', padding: '8px', display: 'flex', color: '#EF4444' }}>
