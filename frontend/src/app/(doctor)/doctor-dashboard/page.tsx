@@ -2330,14 +2330,14 @@ function DoctorMessagesTab({ user }) {
 
       <div className="card" style={{ padding: 0, display: 'flex', height: 520, overflow: 'hidden' }}>
         {/* Contact list */}
-        <div style={{ width: 280, borderRight: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: 280, borderRight: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <div style={{ padding: '10px 16px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontWeight: 700, fontSize: 14 }}>Conversations</span>
             <button onClick={openNewChat} title="New conversation" style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--primary)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span className="ms" style={{ fontSize: 14 }}>edit</span>
             </button>
           </div>
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
             {contacts.length === 0 && !showNewChat && (
               <div style={{ padding: 24, textAlign: 'center', color: '#64748B', fontSize: 13 }}>No patient conversations yet.<br /><button onClick={openNewChat} style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginTop: 8 }}>Start a new conversation</button></div>
             )}
@@ -2367,11 +2367,11 @@ function DoctorMessagesTab({ user }) {
         </div>
 
         {/* Chat area */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           {showNewChat ? (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
               <div style={{ padding: '12px 18px', borderBottom: '1px solid #E2E8F0', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>New Conversation</div>
-              <div style={{ padding: 16, flex: 1, overflowY: 'auto' }}>
+              <div style={{ padding: 16, flex: 1, overflowY: 'auto', minHeight: 0 }}>
                 <p style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>Select a patient to message:</p>
                 {patientsList.length === 0 && <p style={{ fontSize: 13, color: '#64748B' }}>Loading patients…</p>}
                 {patientsList.map(p => (
@@ -2401,7 +2401,7 @@ function DoctorMessagesTab({ user }) {
               <div style={{ padding: '12px 18px', borderBottom: '1px solid #E2E8F0', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
                 {selectedContact.name}
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 0 }}>
                 {messages.length === 0 && <div style={{ textAlign: 'center', color: '#64748B', fontSize: 13, marginTop: 40 }}>No messages yet. Say hello!</div>}
                 {messages.map((m, i) => (
                   <div key={m.id || i} style={{
