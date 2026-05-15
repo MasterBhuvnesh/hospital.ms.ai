@@ -76,17 +76,18 @@ model Medicine {
 }
 
 model Prescription {
-  id         String         @id @default(uuid())
-  patientId  String
-  patient    PatientProfile @relation(fields: [patientId], references: [id])
-  doctorId   String
-  doctor     DoctorProfile  @relation(fields: [doctorId], references: [id])
-  medicineId String
-  medicine   Medicine       @relation(fields: [medicineId], references: [id])
-  quantity   Int            @default(1)
-  status     String         @default("PENDING")
-  pdfUrl     String?
-  issuedAt   DateTime       @default(now())
+  id           String         @id @default(uuid())
+  patientId    String
+  patient      PatientProfile @relation(fields: [patientId], references: [id])
+  doctorId     String
+  doctor       DoctorProfile  @relation(fields: [doctorId], references: [id])
+  medicineId   String
+  medicine     Medicine       @relation(fields: [medicineId], references: [id])
+  quantity     Int            @default(1)
+  instructions String?
+  status       String         @default("PENDING")
+  pdfUrl       String?
+  issuedAt     DateTime       @default(now())
 }
 
 model Invoice {

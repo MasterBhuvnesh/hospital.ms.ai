@@ -19,6 +19,7 @@ export interface CreatePrescriptionDto {
   duration?: string;
   diagnosis?: string;
   doctorNotes?: string;
+  instructions?: string;
   quantity?: number;
   status?: string;
 }
@@ -27,6 +28,7 @@ export interface UpdatePrescriptionDto {
   patientId?: string;
   doctorId?: string;
   medicineId?: string;
+  instructions?: string;
   quantity?: number;
   status?: string;
 }
@@ -109,6 +111,7 @@ export const prescriptionService = {
         doctorId: resolvedDoctorId,
         medicineId,
         quantity: Number(data.quantity) || 1,
+        instructions: data.instructions || null,
         status: data.status || 'PENDING',
       },
     });

@@ -57,7 +57,7 @@ router.get('/prescriptions/:id', async (req: Request<{ id: string }>, res: Respo
 // POST /prescriptions - Create prescription
 router.post('/prescriptions', async (req: Request, res: Response) => {
   try {
-    const { patientId, doctorId, medicineId, medicineName, dose, frequency, duration, diagnosis, doctorNotes, quantity, status } = req.body;
+    const { patientId, doctorId, medicineId, medicineName, dose, frequency, duration, diagnosis, doctorNotes, instructions, quantity, status } = req.body;
 
     if (!patientId || !doctorId) {
       res.status(400).json({
@@ -83,6 +83,7 @@ router.post('/prescriptions', async (req: Request, res: Response) => {
       duration,
       diagnosis,
       doctorNotes,
+      instructions,
       quantity,
       status,
     });
