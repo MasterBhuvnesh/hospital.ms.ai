@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 import { createLogger } from '@hms/common-logging';
 import appointmentRoutes from './routes/appointment.routes';
 import healthRoutes from './routes/health.routes';
@@ -14,6 +15,7 @@ const logger = createLogger({
   enableFile: false,
 });
 
+app.use(cors());
 app.use(express.json());
 
 app.use('/', appointmentRoutes);

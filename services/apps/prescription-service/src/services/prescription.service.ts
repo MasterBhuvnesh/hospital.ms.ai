@@ -108,7 +108,7 @@ export const prescriptionService = {
         patientId: resolvedPatientId,
         doctorId: resolvedDoctorId,
         medicineId,
-        quantity: data.quantity || 1,
+        quantity: Number(data.quantity) || 1,
         status: data.status || 'PENDING',
       },
     });
