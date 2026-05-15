@@ -261,7 +261,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "description": "Creates a prescription and auto-generates a prescription PDF via pdf-generation-service. The pdfUrl field is populated asynchronously.",
-            "body": { "mode": "raw", "raw": "{\n  \"patientId\": \"\",\n  \"doctorId\": \"\",\n  \"medicineName\": \"Paracetamol 500mg\",\n  \"dose\": \"500mg\",\n  \"frequency\": \"Twice daily\",\n  \"duration\": \"5 days\",\n  \"quantity\": 10,\n  \"diagnosis\": \"Fever\",\n  \"doctorNotes\": \"Take after meals\",\n  \"status\": \"PENDING\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"patientId\": \"\",\n  \"doctorId\": \"\",\n  \"medicineName\": \"Paracetamol 500mg\",\n  \"dose\": \"500mg\",\n  \"frequency\": \"Twice daily\",\n  \"duration\": \"5 days\",\n  \"quantity\": 10,\n  \"instructions\": \"Take after meals with warm water\",\n  \"diagnosis\": \"Fever\",\n  \"doctorNotes\": \"Take after meals\",\n  \"status\": \"PENDING\"\n}" },
             "url": { "raw": "{{baseUrl}}:3006/prescriptions", "host": ["{{baseUrl}}"], "port": "3006", "path": ["prescriptions"] }
           }
         },
