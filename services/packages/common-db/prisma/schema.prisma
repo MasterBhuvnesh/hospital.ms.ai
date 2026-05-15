@@ -119,12 +119,14 @@ model Appointment {
 }
 
 model Message {
-  id         String   @id @default(uuid())
-  senderId   String
-  receiverId String
-  content    String   @db.Text
-  createdAt  DateTime @default(now())
-  read       Boolean  @default(false)
+  id           String   @id @default(uuid())
+  senderId     String
+  senderName   String?
+  receiverId   String
+  receiverName String?
+  content      String   @db.Text
+  createdAt    DateTime @default(now())
+  read         Boolean  @default(false)
 
   sender   User @relation("SentMessages", fields: [senderId], references: [id])
   receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])

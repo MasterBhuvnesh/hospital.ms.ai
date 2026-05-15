@@ -14,6 +14,16 @@ export interface SendMessageInput {
   content: string;
 }
 
+function getUserName(user: any): string {
+  if (user.doctorProfile) {
+    return `Dr. ${user.doctorProfile.firstName} ${user.doctorProfile.lastName}`;
+  }
+  if (user.patientProfile) {
+    return `${user.patientProfile.firstName} ${user.patientProfile.lastName}`;
+  }
+  return user.email;
+}
+
 export const getMessages = async (userId?: string, otherUserId?: string) => {
   let where = {};
 
@@ -48,7 +58,11 @@ export const getMessages = async (userId?: string, otherUserId?: string) => {
     orderBy: { createdAt: 'asc' },
   });
 
-  return messages;
+  return messages.map((msg) => ({
+    ...msg,
+    senderName: getUserName(msg.sender),
+    receiverName: getUserName(msg.receiver),
+  }));
 };
 
 export const getMessageById = async (id: string) => {
@@ -56,9 +70,19 @@ export const getMessageById = async (id: string) => {
 
   const message = await prisma.message.findUnique({
     where: { id },
+    include: {
+      sender: { include: { patientProfile: true, doctorProfile: true } },
+      receiver: { include: { patientProfile: true, doctorProfile: true } },
+    },
   });
 
-  return message;
+  if (!message) return null;
+
+  return {
+    ...message,
+    senderName: getUserName(message.sender),
+    receiverName: getUserName(message.receiver),
+  };
 };
 
 export const sendMessage = async (data: SendMessageInput) => {
@@ -66,11 +90,31 @@ export const sendMessage = async (data: SendMessageInput) => {
 
   logger.info('Sending message', { senderId, receiverId });
 
-  const message = await prisma.message.create({
-    data: { senderId, receiverId, content },
+  const sender = await prisma.user.findUnique({
+    where: { id: senderId },
+    include: { patientProfile: true, doctorProfile: true },
+  });
+  const receiver = await prisma.user.findUnique({
+    where: { id: receiverId },
+    include: { patientProfile: true, doctorProfile: true },
   });
 
-  return message;
+  const senderName = sender ? getUserName(sender) : null;
+  const receiverName = receiver ? getUserName(receiver) : null;
+
+  const message = await prisma.message.create({
+    data: { senderId, receiverId, content, senderName, receiverName },
+    include: {
+      sender: { include: { patientProfile: true, doctorProfile: true } },
+      receiver: { include: { patientProfile: true, doctorProfile: true } },
+    },
+  });
+
+  return {
+    ...message,
+    senderName: senderName || getUserName(message.sender),
+    receiverName: receiverName || getUserName(message.receiver),
+  };
 };
 
 export const markMessageAsRead = async (id: string) => {
