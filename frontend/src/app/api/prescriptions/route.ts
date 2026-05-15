@@ -22,10 +22,14 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const payload = {
+      ...body,
+      instructions: body.instructions ?? body.doctorNotes,
+    };
     const res = await fetch(`${SERVICES.prescription}/prescriptions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();

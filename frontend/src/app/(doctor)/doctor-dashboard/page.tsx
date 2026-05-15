@@ -669,6 +669,7 @@ export default function DoctorDashboard() {
           quantity: med.quantity,
           diagnosis: editingRx.diagnosis,
           doctorNotes: editingRx.doctorNotes,
+          instructions: editingRx.doctorNotes,
           status: 'PENDING'
         })
       });
