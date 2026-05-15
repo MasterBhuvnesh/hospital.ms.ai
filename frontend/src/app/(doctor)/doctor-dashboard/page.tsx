@@ -452,12 +452,16 @@ export default function DoctorDashboard() {
     ]);
     setAuditLogs(load('ehr_audit') || []);
     
-    // Fetch connected data from backend
+    // Fetch connected data from backend with timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+    
     Promise.all([
-      fetch('/api/patients').then(r => r.json()).catch(() => []),
-      fetch('/api/appointments' + (userId ? `?doctorId=${userId}` : '')).then(r => r.json()).catch(() => []),
-      fetch('/api/prescriptions' + (userId ? `?doctorId=${userId}` : '')).then(r => r.json()).catch(() => [])
+      fetch('/api/patients', { signal: controller.signal }).then(r => r.json()).catch(() => []),
+      fetch('/api/appointments' + (userId ? `?doctorId=${userId}` : ''), { signal: controller.signal }).then(r => r.json()).catch(() => []),
+      fetch('/api/prescriptions' + (userId ? `?doctorId=${userId}` : ''), { signal: controller.signal }).then(r => r.json()).catch(() => [])
     ]).then(([pts, appts, rxs]) => {
+      clearTimeout(timeout);
       // Safely map DB patients to UI
       const mappedPts = (pts.length > 0 && Array.isArray(pts)) ? pts.map(p => ({
          ...p,
@@ -488,6 +492,14 @@ export default function DoctorDashboard() {
       setAppointments(mappedAppts);
       setPrescriptions(mappedRxs);
       setLoaded(true);
+    }).catch(() => {
+      // Backend unavailable, use localStorage
+      setPatients(load('ehr_patients') || []);
+      setAppointments(load('ehr_appointments') || []);
+      setPrescriptions(load('ehr_prescriptions') || []);
+      setLoaded(true);
+    }).finally(() => {
+      clearTimeout(timeout);
     });
   }, []);
 
@@ -793,7 +805,6 @@ export default function DoctorDashboard() {
     { id: 'overview',       label: 'Overview',        icon: 'dashboard' },
     { id: 'ehr',            label: 'Patient EHR',     icon: 'folder_shared',  badge: patients.length },
     { id: 'appointments',   label: 'Appointments',    icon: 'calendar_month', badge: analytics.todayAppts || undefined },
-    { id: 'messages',       label: 'Messages',        icon: 'chat' },
     { id: 'prescriptions',  label: 'Prescriptions',   icon: 'medication' },
     { id: 'labs',           label: 'Lab Reports',     icon: 'biotech',        badge: analytics.criticalLabs || undefined },
     { id: 'analytics',      label: 'Analytics',       icon: 'analytics' },
@@ -1466,9 +1477,7 @@ export default function DoctorDashboard() {
               </div>
             )}
 
-            {/* ══ MESSAGES ══════════════════════════════════════════════════════ */}
-            {activeTab === 'messages' && <DoctorMessagesTab user={user} />}
-
+         
             {/* ══ PRESCRIPTIONS ══════════════════════════════════════════════════ */}
             {activeTab === 'prescriptions' && (
               <div className="animate-in">
@@ -2204,239 +2213,3 @@ export default function DoctorDashboard() {
   );
 }
 
-// ─── DOCTOR MESSAGES TAB ─────────────────────────────────────────────────────
-function DoctorMessagesTab({ user }) {
-  const userId = user?.id || '';
-  const [contacts, setContacts] = useState([]);
-  const [selectedContact, setSelectedContact] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [showNewChat, setShowNewChat] = useState(false);
-  const [patientsList, setPatientsList] = useState([]);
-  const endRef = useRef(null);
-  const pollRef = useRef(null);
-
-  const getContactName = (m, otherId) => {
-    const other = m.senderId === userId ? m.receiver : m.sender;
-    if (!other) return `User ${otherId.slice(0, 8)}`;
-    if (other.patientProfile) return `${other.patientProfile.firstName} ${other.patientProfile.lastName}`;
-    if (other.doctorProfile) return `Dr. ${other.doctorProfile.firstName} ${other.doctorProfile.lastName}`;
-    return other.email || `User ${otherId.slice(0, 8)}`;
-  };
-
-  const getInitials = (name) => {
-    const parts = name.replace('Dr. ', '').split(' ');
-    return (parts[0]?.[0] || '').toUpperCase() + (parts[1]?.[0] || '').toUpperCase();
-  };
-
-  const loadConversations = useCallback(() => {
-    if (!userId) return;
-    fetch('/api/messages?userId=' + userId)
-      .then(r => r.json())
-      .then(data => {
-        if (!Array.isArray(data)) { setLoading(false); return; }
-        const contactMap = {};
-        data.forEach(m => {
-          const otherId = m.senderId === userId ? m.receiverId : m.senderId;
-          if (!contactMap[otherId]) {
-            contactMap[otherId] = { id: otherId, name: getContactName(m, otherId), messages: [], lastMsg: m.content, lastTime: m.createdAt, unread: 0 };
-          }
-          contactMap[otherId].messages.push(m);
-          if (m.receiverId === userId && !m.read) contactMap[otherId].unread++;
-          if (new Date(m.createdAt) > new Date(contactMap[otherId].lastTime)) {
-            contactMap[otherId].lastMsg = m.content;
-            contactMap[otherId].lastTime = m.createdAt;
-          }
-        });
-        const list = Object.values(contactMap).sort((a, b) => new Date(b.lastTime) - new Date(a.lastTime));
-        setContacts(list);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [userId]);
-
-  useEffect(() => {
-    loadConversations();
-    pollRef.current = setInterval(loadConversations, 10000);
-    return () => clearInterval(pollRef.current);
-  }, [loadConversations]);
-
-  const openConversation = (contact) => {
-    setSelectedContact(contact);
-    setShowNewChat(false);
-    fetch(`/api/messages?userId=${userId}&otherUserId=${contact.id}`)
-      .then(r => r.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setMessages(data);
-          data.filter(m => m.receiverId === userId && !m.read).forEach(m => {
-            fetch(`/api/messages?id=${m.id}`, { method: 'PATCH' });
-          });
-        }
-      });
-  };
-
-  useEffect(() => {
-    if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const openNewChat = () => {
-    setShowNewChat(true);
-    setSelectedContact(null);
-    fetch('/api/patients')
-      .then(r => r.json())
-      .then(data => { if (Array.isArray(data)) setPatientsList(data); });
-  };
-
-  const startConversation = (patient) => {
-    const pUserId = patient.userId || patient.id;
-    const existing = contacts.find(c => c.id === pUserId);
-    if (existing) {
-      openConversation(existing);
-    } else {
-      setSelectedContact({ id: pUserId, name: `${patient.firstName} ${patient.lastName}` });
-      setMessages([]);
-      setShowNewChat(false);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!input.trim() || !selectedContact) return;
-    const msg = { senderId: userId, receiverId: selectedContact.id, content: input.trim() };
-    setInput('');
-    setMessages(prev => [...prev, { ...msg, id: Date.now().toString(), createdAt: new Date().toISOString(), read: false }]);
-    await fetch('/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(msg)
-    });
-    loadConversations();
-  };
-
-  const formatTime = (ts) => {
-    if (!ts) return '';
-    const d = new Date(ts);
-    const now = new Date();
-    if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>Loading messages…</div>;
-
-  return (
-    <div className="animate-in">
-      <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 900, fontFamily: 'var(--font-serif)' }}>Messages</h2>
-        <p style={{ fontSize: '13px', color: '#64748B', marginTop: '4px' }}>Communicate with your patients securely.</p>
-      </div>
-
-      <div className="card" style={{ padding: 0, display: 'flex', height: 520, overflow: 'hidden' }}>
-        {/* Contact list */}
-        <div style={{ width: 280, borderRight: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-          <div style={{ padding: '10px 16px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontWeight: 700, fontSize: 14 }}>Conversations</span>
-            <button onClick={openNewChat} title="New conversation" style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--primary)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="ms" style={{ fontSize: 14 }}>edit</span>
-            </button>
-          </div>
-          <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-            {contacts.length === 0 && !showNewChat && (
-              <div style={{ padding: 24, textAlign: 'center', color: '#64748B', fontSize: 13 }}>No patient conversations yet.<br /><button onClick={openNewChat} style={{ color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginTop: 8 }}>Start a new conversation</button></div>
-            )}
-            {contacts.map(c => (
-              <button
-                key={c.id}
-                onClick={() => openConversation(c)}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
-                  background: selectedContact?.id === c.id ? '#EFF6FF' : 'transparent',
-                  border: 'none', borderBottom: '1px solid #F1F5F9', cursor: 'pointer', textAlign: 'left'
-                }}
-              >
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#0F172A', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-                  {getInitials(c.name)}
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
-                  <div style={{ fontSize: 11.5, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.lastMsg}</div>
-                </div>
-                {c.unread > 0 && (
-                  <span style={{ minWidth: 18, height: 18, borderRadius: 9, background: 'var(--primary)', color: 'white', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{c.unread}</span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Chat area */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-          {showNewChat ? (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-              <div style={{ padding: '12px 18px', borderBottom: '1px solid #E2E8F0', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>New Conversation</div>
-              <div style={{ padding: 16, flex: 1, overflowY: 'auto', minHeight: 0 }}>
-                <p style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>Select a patient to message:</p>
-                {patientsList.length === 0 && <p style={{ fontSize: 13, color: '#64748B' }}>Loading patients…</p>}
-                {patientsList.map(p => (
-                  <button
-                    key={p.id}
-                    onClick={() => startConversation(p)}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', cursor: 'pointer', marginBottom: 8, textAlign: 'left' }}
-                  >
-                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#0F172A', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>
-                      {(p.firstName?.[0] || '').toUpperCase()}{(p.lastName?.[0] || '').toUpperCase()}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{p.firstName} {p.lastName}</div>
-                      <div style={{ fontSize: 11.5, color: '#64748B' }}>{p.gender} &middot; {p.phone || 'No phone'}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : !selectedContact ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', fontSize: 14, flexDirection: 'column', gap: 8 }}>
-              <span className="ms" style={{ fontSize: 40, opacity: 0.3 }}>chat_bubble_outline</span>
-              <span>Select a conversation or start a new one</span>
-            </div>
-          ) : (
-            <>
-              <div style={{ padding: '12px 18px', borderBottom: '1px solid #E2E8F0', fontWeight: 700, fontSize: 14, color: '#0F172A' }}>
-                {selectedContact.name}
-              </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 0 }}>
-                {messages.length === 0 && <div style={{ textAlign: 'center', color: '#64748B', fontSize: 13, marginTop: 40 }}>No messages yet. Say hello!</div>}
-                {messages.map((m, i) => (
-                  <div key={m.id || i} style={{
-                    alignSelf: m.senderId === userId ? 'flex-end' : 'flex-start',
-                    maxWidth: '75%', padding: '9px 13px', borderRadius: 13,
-                    background: m.senderId === userId ? 'var(--primary)' : '#F8FAFC',
-                    color: m.senderId === userId ? 'white' : '#0F172A',
-                    border: m.senderId === userId ? 'none' : '1px solid #E2E8F0',
-                    fontSize: 13.5, lineHeight: 1.5
-                  }}>
-                    <div>{m.content}</div>
-                    <div style={{ fontSize: 10, opacity: 0.6, marginTop: 3, textAlign: 'right' }}>{formatTime(m.createdAt)}</div>
-                  </div>
-                ))}
-                <div ref={endRef} />
-              </div>
-              <div style={{ padding: '10px 14px', borderTop: '1px solid #E2E8F0', display: 'flex', gap: 8 }}>
-                <input
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                  placeholder="Type a message…"
-                  style={{ flex: 1, border: '1.5px solid #E2E8F0', borderRadius: '10px', padding: '9px 13px', fontSize: 13.5, outline: 'none', background: '#F8FAFC', fontFamily: 'var(--font-sans)' }}
-                />
-                <button onClick={sendMessage} style={{ background: 'var(--primary)', color: 'white', width: 38, height: 38, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
-                  <span className="ms" style={{ fontSize: 17 }}>send</span>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
