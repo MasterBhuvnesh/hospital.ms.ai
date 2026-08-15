@@ -15,6 +15,7 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | ------- | --------- | ------ | ---- |
 | Project documentation set under `docs` (10 documents, 3799 lines) | BHUVNESH | DONE | 15-08-2026 |
 | `.github` folder with README, RULES and RECORD | BHUVNESH | DONE | 15-08-2026 |
+| Service README completion rule and template | BHUVNESH | DONE | 15-08-2026 |
 | Academic synopsis in LaTeX with built PDF under `docs/Synopsis` | BHUVNESH | DONE | 15-08-2026 |
 | Naming settled: product Atelier Health, repo `atelier-health`, scope `@hms/*`, images `hms-<service>` and `hms-platform` | BHUVNESH | DONE | 15-08-2026 |
 | Review of the first documentation draft, 10 critical findings raised and closed | BHUVNESH | DONE | 15-08-2026 |

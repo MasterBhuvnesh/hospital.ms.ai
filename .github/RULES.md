@@ -34,6 +34,47 @@ Rules any person or agent must follow when working in this repository.
 - Date format is DD-MM-YYYY and records the date the status last changed.
 - Commit the updated `RECORD.md` along with the feature it describes, in the same commit.
 
+## SERVICE README ON COMPLETION
+
+A service README starts as a stub describing intent. **Before that service can be marked DONE in `RECORD.md`, its README must be filled in.** Use [`SERVICE_README_TEMPLATE.md`](SERVICE_README_TEMPLATE.md).
+
+The README is the only document a person reads when they are paged at 2am, integrating against the service, or picking it up two years later. Write for those three readers and nobody else.
+
+### REQUIRED SECTIONS
+
+| SECTION | WHY IT EXISTS |
+| ------- | ------------- |
+| **Purpose** | One paragraph. What it owns and what it deliberately does not |
+| **Goals** | Checkbox list of the `docs/role-checklist.md` ids this service closed. Reference the ids, do not restate the features, or the two drift apart |
+| **API surface** | Every route: method, path, role required, ownership check. The first thing an integrator needs |
+| **Events** | Published and consumed, with the action taken on each consume |
+| **Data owned** | Tables in its schema, and which are hospital-scoped |
+| **Configuration** | Only the env keys **this** service reads, not the whole file |
+| **Dependencies** | Which services and datastores it needs, synchronous or async |
+| **How to run** | Dev, Docker, tests. Commands that work when pasted |
+| **Test status** | CI badge, coverage threshold, and **what is deliberately not covered** |
+| **Failure modes** | What happens when each dependency is unavailable. Degrade or fail, and which |
+| **Known limitations** | Deliberate shortcuts with their upgrade path. Honesty here saves a rediscovery later |
+
+### RULES FOR THE TEST SECTION
+
+- **Never paste a test count or a coverage number into prose.** It is stale on the next merge, and a stale number is worse than no number because it is believed. Use a CI badge that updates itself.
+- State the **coverage threshold** instead. A threshold is a contract that does not decay; a snapshot is a claim that does.
+- List what is **not** tested, and why. A gap someone chose is information. A gap someone hid is a defect waiting to be found in production.
+- Link the negative authorization tests this service is covered by, from `tests/integration/security`.
+
+### RULES FOR THE GOALS SECTION
+
+- Checkboxes reference checklist ids: `- [x] PAT-4.03 Unique constraint on the token tuple`.
+- An unchecked box in a service marked DONE is a lie. Either check it, or move it out of scope and say where it went.
+- Do not restate what the feature does. `docs/features.md` already does that, and two descriptions of one feature always diverge.
+
+### WHAT NOT TO PUT IN A SERVICE README
+
+- Anything already in `docs/`. Link instead. A copy is a future contradiction.
+- Architecture diagrams of the whole system. This document is about **one** service.
+- Aspirational content. If it is not built, it belongs in `RECORD.md` as PLANNED, not in the README as prose.
+
 ## DOCUMENTATION AUTHORITY
 
 - [`docs/traceability.md`](../docs/traceability.md) is the source of truth for phase assignment and feature ownership. When any other document disagrees about when something ships or which service owns it, traceability wins and the other document is a bug.
