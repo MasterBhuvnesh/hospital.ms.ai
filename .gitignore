@@ -1,0 +1,56 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# turbo
+.turbo/
+
+# environment: only the example is committed
+envs/.env.*
+!envs/.env.example
+.env
+.env.*
+!.env.example
+
+# secrets and keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+
+# LaTeX intermediates: the .tex source and the built .pdf are committed
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# local agent state
+.claude/
+
+# logs and coverage
+logs/
+*.log
+coverage/
