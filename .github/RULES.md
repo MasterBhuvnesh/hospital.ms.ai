@@ -46,7 +46,7 @@ The README is the only document a person reads when they are paged at 2am, integ
 | ------- | ------------- |
 | **Purpose** | One paragraph. What it owns and what it deliberately does not |
 | **Goals** | Checkbox list of the `docs/role-checklist.md` ids this service closed. Reference the ids, do not restate the features, or the two drift apart |
-| **API surface** | Every route: method, path, role required, ownership check. The first thing an integrator needs |
+| **API surface** | Every route: method, path, role required, ownership check, path and query parameters, request body, response body, and the errors that route can return. The first thing an integrator needs |
 | **Events** | Published and consumed, with the action taken on each consume |
 | **Data owned** | Tables in its schema, and which are hospital-scoped |
 | **Configuration** | Only the env keys **this** service reads, not the whole file |
@@ -62,6 +62,13 @@ The README is the only document a person reads when they are paged at 2am, integ
 - State the **coverage threshold** instead. A threshold is a contract that does not decay; a snapshot is a claim that does.
 - List what is **not** tested, and why. A gap someone chose is information. A gap someone hid is a defect waiting to be found in production.
 - Link the negative authorization tests this service is covered by, from `tests/integration/security`.
+
+### RULES FOR THE API SECTION
+
+- State auth, tenancy, pagination, idempotency and the error envelope **once** in a conventions table. Per-route blocks document only what differs.
+- Document request and response as **field tables with types and constraints**, then one JSON example of each. An example alone is not documentation: it does not say which fields are optional or what the bounds are.
+- `string` is not a constraint. Write the length, the enum, or the format.
+- If the service emits an OpenAPI document generated from its zod schemas, link the generated file instead of hand-maintaining the route index. A hand-written API table drifts within two sprints, which is the same failure as pasting a test count.
 
 ### RULES FOR THE GOALS SECTION
 
