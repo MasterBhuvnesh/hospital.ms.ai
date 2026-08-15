@@ -1,0 +1,28 @@
+# Normalise line endings so Windows, macOS and Linux clones produce identical
+# diffs. Without this, every file touched on Windows shows as fully rewritten.
+* text=auto eol=lf
+
+# Scripts must stay LF or they break when executed in a container or in CI.
+*.sh    text eol=lf
+*.bash  text eol=lf
+
+# Windows-only files keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary: never touch, never diff as text.
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.ez    binary
+
+# Generated or vendored files: collapse in pull request diffs.
+pnpm-lock.yaml  linguist-generated=true -diff
