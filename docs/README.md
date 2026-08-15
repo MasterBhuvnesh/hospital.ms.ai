@@ -57,7 +57,7 @@ Repository conventions and the implementation record live in [`.github/`](../.gi
 | Broker | RabbitMQ only, self-hosted (events *and* delayed work). No BullMQ, no Kafka, no Amazon MQ |
 | Object storage | MinIO by default, any S3-compatible endpoint by configuration |
 | Registry | Docker Hub active. ECR written and commented out |
-| Image strategy | **One image, `SERVICE` selects the entrypoint.** Per-service build exists but is not wired in |
+| Image strategy | **Per-service images are primary** (`apps/<svc>/Dockerfile`), plus an all-in-one image for Compose, single-host and recovery. All nine tagged with the same git SHA |
 | Desktop | electron-vite (`pnpm create @quick-start/electron`, React) |
 | Auto-update | Desktop (electron-updater) and Android (EAS Update) |
 | Notification channels | in-app, push, **SMS**, email, WhatsApp |

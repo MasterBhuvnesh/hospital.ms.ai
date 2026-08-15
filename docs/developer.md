@@ -8,7 +8,7 @@ Profiles and the cloud-independence contract: [portability.md](./portability.md)
 
 ## 0. Four ways to run this
 
-All four run the **same code and the same image**. The difference is configuration.
+All four run the **same code from the same commit**. The difference is configuration and which image strategy is used.
 
 | # | Mode | Profile | Command | For |
 |---|---|---|---|---|
@@ -179,21 +179,82 @@ Check on foreground, download in background, **`reloadAsync()` on next cold star
 
 ## 3. Docker
 
-### 3.1 One image, `SERVICE` selects the entrypoint
+### 3.1 Two image strategies, both first-class
 
-**This is the deployment model.** One `docker/Dockerfile` builds every service. `SERVICE` chooses which one boots.
+| Strategy | Dockerfile | Image | Used by |
+|---|---|---|---|
+| **Per-service** | `apps/<service>/Dockerfile` | `hms-<service>` (eight of them) | **Kubernetes, every environment** |
+| **All-in-one** | `docker/Dockerfile` | `hms-platform` | Compose, `single-host`, disaster recovery, offline pilots, CI smoke |
+
+Both build from the same commit in the same CI run and are **tagged with the same git SHA**.
+
+That shared tag is what preserves the property worth having. The reason to prefer one image was "all eight services are provably the same code"; tagging every per-service image with the same SHA gives that without giving up per-service builds.
+
+#### Per-service is the primary deployment
+
+```bash
+# build from the REPOSITORY ROOT, never from the service directory
+docker build -f apps/scheduling/Dockerfile -t hms-scheduling:$(git rev-parse --short HEAD) .
+docker run -p 5003:5003 --env-file envs/.env.container hms-scheduling:$SHA
+```
+
+What it buys:
+
+- **Its own dependency graph.** `pnpm --filter "@hms/scheduling..." build` then `deploy --prod` prunes to that service alone, so `gateway` does not ship Prisma and `identity` does not ship the PDF renderer.
+- **Independent lifecycle.** A `scheduling` hotfix rebuilds and restarts one Deployment, not eight.
+- **Room to diverge.** `clinical` can embed the fonts its templates need without every other image carrying them.
+- **A smaller blast radius.** A CVE in one service's dependency is one rebuild.
+
+What it costs: eight build jobs instead of one, and a longer CI run. Buildx layer caching absorbs most of it, because the `deps` layer is shared until a `package.json` changes.
+
+#### The all-in-one image
 
 ```bash
 docker run -e SERVICE=scheduling -e PORT=5003 --env-file envs/.env.container hms-platform:$SHA
 ```
 
-**What it buys:** one build, one push, one digest per commit, so all eight services in an environment are provably the same code. One CI pipeline instead of eight. Rollback is a single tag change. The same digest that runs on EKS runs in Compose on a hospital's server.
+Not a fallback experiment. It is what makes the `single-host` profile and the recovery path possible: a one-hospital customer pulls one image rather than eight, and a disaster-recovery host comes up from one `docker save`. It ships from every commit and is exercised in CI.
 
-**What it costs:** every service's dependencies ship everywhere, and any service change rebuilds the shared image. At eight services that is the right trade. At thirty it would not be, and that is the signal to revisit.
+### 3.2 A per-service Dockerfile: `apps/<service>/Dockerfile`
 
-**`docker/Dockerfile.service`** also exists: a parameterized per-service build for the day one service needs genuine dependency isolation. It is **not wired into CI, Helm, or Compose**, and nothing depends on it. Do not assume it is in use.
+Each service owns one. They are near-identical today and are expected to diverge, which is the point.
 
-### 3.2 `docker/Dockerfile`
+```dockerfile
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@10 --activate
+WORKDIR /app
+
+# manifests only, so this layer caches until a package.json changes
+FROM base AS deps
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
+COPY apps/*/package.json apps/
+COPY packages/*/package.json packages/
+RUN pnpm install --frozen-lockfile
+
+FROM deps AS build
+COPY . .
+# "@hms/scheduling..." builds this service AND its dependencies, nothing else
+RUN pnpm --filter "@hms/scheduling..." build \
+ && pnpm --filter "@hms/db" prisma:generate
+# prune to this service's production graph alone
+RUN pnpm --filter "@hms/scheduling" deploy --prod --legacy /out
+
+FROM base AS runtime
+ENV NODE_ENV=production APP_ENV=container SERVICE=scheduling PORT=5003
+RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs app
+COPY --from=build --chown=app:nodejs /out /app
+USER app
+EXPOSE 5003
+HEALTHCHECK --interval=30s --timeout=3s --start-period=20s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+ENTRYPOINT ["node", "dist/index.js"]
+```
+
+`gateway` omits the `prisma:generate` step, because it owns no schema.
+
+**Build context is the repository root**, never the service directory. The build needs `pnpm-workspace.yaml` and the shared packages, neither of which is reachable from inside `apps/scheduling/`.
+
+### 3.2b The all-in-one image: `docker/Dockerfile`
 
 ```dockerfile
 FROM node:22-alpine AS base
@@ -383,9 +444,12 @@ infra/helm/hms/
 
 ```yaml
 image:
-  repository: docker.io/atelierhealth/hms-platform
-  tag: ""                  # set by CI to the git SHA. NEVER "latest"
+  registry: docker.io/atelierhealth
+  tag: ""                  # git SHA, set by CI. The SAME tag for every service
   pullPolicy: IfNotPresent
+  # per-service -> registry/hms-<name>:tag      (default, what production runs)
+  # all-in-one  -> registry/hms-platform:tag    with SERVICE=<name>
+  mode: per-service
 
 services:
   - { name: gateway,    port: 4000, replicas: 2, public: true }
@@ -403,7 +467,21 @@ externalSecretBackend: kubernetes    # kubernetes | vault | aws | gcp | azure
 
 `values-aws.yaml` adds only what AWS changes: the RDS and ElastiCache endpoints, the S3 bucket and region, the IRSA service-account annotation, and `externalSecretBackend: aws`. It changes **no template**.
 
-One `deployment.yaml` loops `.Values.services`, rendering Deployment plus Service plus HPA per entry, all pointing at the same `image.tag` with `SERVICE: {{ .name }}`. The chart is roughly 200 lines. **Adding a service is one values entry.**
+One `deployment.yaml` loops `.Values.services`, rendering Deployment plus Service plus HPA per entry, and resolves the image from `image.mode`:
+
+```yaml
+{{- $img := printf "%s/hms-%s:%s" $.Values.image.registry .name $.Values.image.tag }}
+{{- if eq $.Values.image.mode "all-in-one" }}
+{{-   $img = printf "%s/hms-platform:%s" $.Values.image.registry $.Values.image.tag }}
+{{- end }}
+image: {{ $img }}
+```
+
+`SERVICE` is set in both modes, so the all-in-one entrypoint works and the per-service image still knows its own name for logs and metrics.
+
+**Both modes take the same `image.tag`**, because CI builds all nine images from one commit and tags them identically. Switching a cluster from per-service to all-in-one is a one-line values change with no rebuild, which is exactly what you want during a recovery.
+
+The chart is roughly 200 lines. **Adding a service is one values entry plus one `apps/<name>/Dockerfile`.**
 
 ```bash
 helm upgrade --install hms infra/helm/hms -n hms-production --create-namespace \
@@ -612,7 +690,7 @@ State lives in S3 with DynamoDB locking on AWS environments, and in any Terrafor
 | Workflow | Trigger | Does |
 |---|---|---|
 | `pr.yml` | every PR | install, lint, typecheck, **test**, contract validation, **portability lint**, docker build (no push). Required to merge |
-| `main.yml` | merge to main | build and tag by SHA, push to Docker Hub, deploy to `hms-dev`, **deploy the `portable` profile to kind and run the loop smoke test** |
+| `main.yml` | merge to main | build **nine images** (eight per-service plus the all-in-one) tagged with the same git SHA, push to Docker Hub, deploy to `hms-dev`, **deploy the `portable` profile to kind and run the loop smoke test** |
 | `release.yml` | tag `v*` | promote the **same digest** to staging, run the migration Job, integration tests, promote to production, record deployment metadata |
 | `desktop.yml` | tag `desktop-v*` | build and sign Windows and macOS artifacts, publish to the update feed |
 | `mobile.yml` | tag `mobile-v*` | EAS build, submit, and `eas update` |
@@ -621,10 +699,11 @@ State lives in S3 with DynamoDB locking on AWS environments, and in any Terrafor
 
 ```
 PR ──► lint · typecheck · test · portability-lint · build ──► merge
-merge ──► image:$SHA ──► Docker Hub ──► hms-dev ──► smoke
-                    ├─► (ECR: written, commented out)
-                    └─► kind PORTABLE deploy ──► loop smoke test
-tag ──► same digest ──► migrate ──► staging ──► integration ──► production
+merge ──► 8 × hms-<service>:$SHA ─┐
+      └─► hms-platform:$SHA ──────┼─► Docker Hub ──► hms-dev ──► smoke
+                                  ├─► (ECR: written, commented out)
+                                  └─► kind PORTABLE deploy ──► loop smoke test
+tag ──► same digests ──► migrate ──► staging ──► integration ──► production
 ```
 
 ### 6.1 `main.yml`
@@ -634,13 +713,15 @@ name: main
 on:
   push: { branches: [main] }
 
-env:
-  IMAGE: ${{ vars.DOCKERHUB_USER }}/hms-platform
-
 jobs:
-  build-push:
+  # ---- eight service images -------------------------------------------------
+  build-services:
     runs-on: ubuntu-latest
-    outputs: { sha: ${{ github.sha }} }
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [gateway, identity, directory, scheduling,
+                  clinical, commerce, comms, ai]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -663,22 +744,47 @@ jobs:
       #   uses: aws-actions/amazon-ecr-login@v2
       # ───────────────────────────────────────────────────────────────────
 
+      # eight per-service images, built in parallel, all on the SAME git SHA
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/${{ matrix.service }}/Dockerfile
+          push: true
+          # add when the ECR block above is enabled:
+          #   ${{ steps.ecr.outputs.registry }}/hms-${{ matrix.service }}:${{ github.sha }}
+          tags: |
+            ${{ vars.DOCKERHUB_USER }}/hms-${{ matrix.service }}:${{ github.sha }}
+            ${{ vars.DOCKERHUB_USER }}/hms-${{ matrix.service }}:main
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  # ---- the all-in-one image, same commit, same tag --------------------------
+  build-platform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/Dockerfile
           push: true
-          # add when the ECR block above is enabled:
-          #   ${{ steps.ecr.outputs.registry }}/hms-platform:${{ github.sha }}
           tags: |
-            ${{ env.IMAGE }}:${{ github.sha }}
-            ${{ env.IMAGE }}:main
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ vars.DOCKERHUB_USER }}/hms-platform:${{ github.sha }}
+            ${{ vars.DOCKERHUB_USER }}/hms-platform:main
+          cache-from: type=gha,scope=platform
+          cache-to: type=gha,mode=max,scope=platform
+
+      # prove all eight boot from the one digest
+      - run: ./scripts/ci/smoke-all-in-one.sh ${{ github.sha }}
 
   # THE portability gate. If this breaks, cloud-agnosticism has broken.
   portable-deploy:
-    needs: build-push
+    needs: [build-services, build-platform]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -689,7 +795,7 @@ jobs:
       - run: pnpm test:smoke -- --base-url http://localhost --host hms.local
 
   deploy-dev:
-    needs: build-push
+    needs: build-services
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -878,7 +984,7 @@ done
 
 # 3. Kubernetes, portable profile
 ./scripts/k8s/kind-up.sh --image-tag $SHA
-kubectl get deploy -n hms-dev        # 8 deployments, ONE image digest
+kubectl get deploy -n hms-dev        # 8 deployments, 8 images, ONE git SHA
 
 # 4. Auth negatives: these must FAIL
 curl -H "x-user-role: ADMIN" http://localhost:4000/api/admin/hospitals            # 401

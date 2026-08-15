@@ -16,7 +16,7 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | Project documentation set under `docs` (10 documents, 3799 lines) | BHUVNESH | DONE | 15-08-2026 |
 | `.github` folder with README, RULES and RECORD | BHUVNESH | DONE | 15-08-2026 |
 | Academic synopsis in LaTeX with built PDF under `docs/Synopsis` | BHUVNESH | DONE | 15-08-2026 |
-| Naming settled: product Atelier Health, repo `atelier-health`, scope `@hms/*`, image `hms-platform` | BHUVNESH | DONE | 15-08-2026 |
+| Naming settled: product Atelier Health, repo `atelier-health`, scope `@hms/*`, images `hms-<service>` and `hms-platform` | BHUVNESH | DONE | 15-08-2026 |
 | Review of the first documentation draft, 10 critical findings raised and closed | BHUVNESH | DONE | 15-08-2026 |
 | pnpm workspace and Turborepo initialised | BHUVNESH | PLANNED | 15-08-2026 |
 | Repository conventions: lint, format, commit hooks | BHUVNESH | PLANNED | 15-08-2026 |
@@ -30,7 +30,7 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | Eight deployable services confirmed, thirteen domains merged | BHUVNESH | DONE | 15-08-2026 |
 | Consultation boundary settled: `scheduling` owns state, `clinical` owns content | BHUVNESH | DONE | 15-08-2026 |
 | Tenancy settled: users and patients global, visits hospital-scoped | BHUVNESH | DONE | 15-08-2026 |
-| Single image with `SERVICE` entrypoint chosen as the deployment model | BHUVNESH | DONE | 15-08-2026 |
+| Per-service images primary, all-in-one retained for Compose, single-host and recovery | BHUVNESH | DONE | 15-08-2026 |
 | RabbitMQ self-hosted on every profile, Amazon MQ rejected for plugin support | BHUVNESH | DONE | 15-08-2026 |
 | BullMQ dropped, delayed work moved onto the RabbitMQ delayed-message exchange | BHUVNESH | DROPPED | 15-08-2026 |
 | Waiting-room TV and queue-display board removed from v1 | BHUVNESH | DROPPED | 15-08-2026 |
@@ -59,7 +59,9 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 
 | FEATURE | DEVELOPER | STATUS | DATE |
 | ------- | --------- | ------ | ---- |
-| `docker/Dockerfile`, one image for all eight services | BHUVNESH | PLANNED | 15-08-2026 |
+| Per-service `Dockerfile` in each of the eight services | BHUVNESH | DONE | 15-08-2026 |
+| `docker/Dockerfile`, the all-in-one image for Compose and recovery | BHUVNESH | PLANNED | 15-08-2026 |
+| CI builds nine images from one commit, all on the same git SHA | BHUVNESH | PLANNED | 15-08-2026 |
 | `docker/rabbitmq` image with the delayed-message plugin | BHUVNESH | PLANNED | 15-08-2026 |
 | Compose dependency stack: Postgres, Redis, RabbitMQ, MinIO, Mailpit | BHUVNESH | PLANNED | 15-08-2026 |
 | MinIO private bucket initialisation | BHUVNESH | PLANNED | 15-08-2026 |

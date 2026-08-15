@@ -2,7 +2,7 @@
 
 | Template | Renders |
 |---|---|
-| `deployment.yaml` | One Deployment per entry in `.Values.services`, all on the same image digest |
+| `deployment.yaml` | One Deployment per entry in `.Values.services`, image resolved from `image.mode`, all on the same git SHA |
 | `service.yaml` | `ClusterIP` for every service. Only `gateway` is reachable through Ingress |
 | `hpa.yaml` | CPU autoscaling, plus a KEDA trigger on RabbitMQ queue depth for `scheduling` |
 | `migration-job.yaml` | `pre-upgrade` hook running `prisma migrate deploy` from the same image |

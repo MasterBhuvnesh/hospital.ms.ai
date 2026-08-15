@@ -93,11 +93,12 @@ apps/scheduling/
 │   ├── app.ts                      builds the Fastify instance (testable)
 │   └── server.ts                   binds the port (never imported by tests)
 ├── prisma/schema.prisma
+├── Dockerfile                      builds hms-scheduling. Context is the REPO ROOT
 ├── package.json
 └── tsconfig.json
 ```
 
-There is no per-service `Dockerfile`. One parameterized build serves all eight ([developer.md 3](./developer.md)).
+**Each service owns its Dockerfile**, so each gets its own pruned dependency graph, its own image, and its own rollback and scaling lifecycle. The all-in-one image in `docker/` is built from the same commit for Compose, single-host and recovery. See [developer.md 3](./developer.md).
 
 The `app.ts` and `server.ts` split exists so `supertest` can drive the application without binding a port.
 
@@ -171,8 +172,7 @@ atelier-health/
 │       └── values-aws.yaml            RDS, ElastiCache, S3, IRSA
 │
 ├── docker/
-│   ├── Dockerfile                     ONE image, SERVICE selects the entrypoint
-│   ├── Dockerfile.service             optional per-service build, not wired into CI
+│   ├── Dockerfile                     all-in-one, SERVICE selects the entrypoint
 │   ├── Dockerfile.web
 │   ├── rabbitmq/                      base image + delayed-message plugin
 │   └── compose/

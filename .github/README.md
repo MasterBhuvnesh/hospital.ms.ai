@@ -45,7 +45,7 @@ Contributors and agents read [RULES.md](RULES.md) before touching anything.
 
 ## ARCHITECTURE IN ONE TABLE
 
-Eight deployable services, one image, `SERVICE` selects the entrypoint.
+Eight deployable services, each with its own Dockerfile and image.
 
 | SERVICE | PORT | OWNS |
 | ------- | ---- | ---- |
@@ -68,7 +68,7 @@ Full reasoning and rejected alternatives in [tech-stack.md](../docs/tech-stack.m
 
 ## DEPLOYMENT PROFILES
 
-One image, four ways to run it.
+Same commit, four ways to run it. Kubernetes profiles use the per-service images; Compose profiles use the all-in-one.
 
 | PROFILE | RUNS ON | FOR |
 | ------- | ------- | --- |

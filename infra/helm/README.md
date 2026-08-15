@@ -17,7 +17,9 @@ hms/
 
 ## How it works
 
-Every service points at the **same `image.tag`** with `SERVICE: {{ .name }}`, because one image builds all eight. **Adding a service is one entry in the values list**, not a new chart.
+Every service resolves its image from `image.mode`: `per-service` (the default, `registry/hms-<name>:tag`) or `all-in-one` (`registry/hms-platform:tag` with `SERVICE=<name>`). Both modes take the **same `image.tag`**, because CI builds all nine images from one commit and tags them identically.
+
+**Adding a service is one entry in the values list** plus one `apps/<name>/Dockerfile`, not a new chart.
 
 ## The cloud-neutral rule
 

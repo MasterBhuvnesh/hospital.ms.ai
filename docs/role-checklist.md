@@ -604,6 +604,9 @@ Implemented · unit tested · **authorization tested including the negative case
 - [ ] `PLT-4.08` `[P0]` Production deployment and rollback by image digest
 - [ ] `PLT-4.09` `[P1]` Backups: Postgres to an S3-compatible target, bucket versioning
 - [ ] `PLT-4.10` `[P1]` **All-in-one image boots all 8 services from one digest** (CI smoke)
+- [ ] `PLT-4.15` `[P0]` A `Dockerfile` per service, built from the repository root, pruned to that service's graph
+- [ ] `PLT-4.16` `[P0]` CI builds nine images from one commit and tags them with the **same git SHA**
+- [ ] `PLT-4.17` `[P1]` Helm `image.mode` switches between `per-service` and `all-in-one` with no rebuild
 - [ ] `PLT-4.11` `[P6]` Load test: 500 concurrent queue watchers per hospital
 - [ ] `PLT-4.12` `[P6]` External penetration test
 - [ ] `PLT-4.13` `[P6]` Quarterly restore drill within RTO

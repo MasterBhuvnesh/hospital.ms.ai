@@ -14,6 +14,8 @@ values-portable.yaml    in-cluster postgres, redis, minio
 values-aws.yaml         RDS, ElastiCache, S3, IRSA
 ```
 
-**Adding a service is one entry in `.Values.services`.** All eight point at the same `image.tag` with `SERVICE: {{ .name }}`, because one image builds them all.
+**Adding a service is one entry in `.Values.services`** plus one `apps/<name>/Dockerfile`.
+
+`image.mode` chooses between `per-service` (default: `registry/hms-<name>:tag`) and `all-in-one` (`registry/hms-platform:tag`). Both take the same `image.tag`, so switching modes during a recovery is a one-line values change with no rebuild.
 
 `values.yaml` and every template are cloud-neutral: no ARN, no annotation, no storage class. `values-aws.yaml` changes values only, never a template.

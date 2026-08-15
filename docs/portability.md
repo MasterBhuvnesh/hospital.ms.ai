@@ -20,7 +20,7 @@ If the same commit cannot serve all three, we lose either the second buyer (the 
 
 ## 2. Deployment profiles
 
-Four profiles, one codebase, one image. The profile is selected by configuration, never by a build flag or a code branch.
+Four profiles, one codebase, one commit. Kubernetes profiles deploy the eight per-service images; Compose profiles run the all-in-one image. All nine carry the same git SHA, so the profile is a configuration choice and never a code branch.
 
 | Profile | Runs on | Dependencies | Who uses it |
 |---|---|---|---|

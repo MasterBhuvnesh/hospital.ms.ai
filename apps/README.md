@@ -4,7 +4,7 @@ Everything that is deployed. Eight backend services and three clients.
 
 ## Services
 
-All eight build from **one image** (`docker/Dockerfile`); the `SERVICE` environment variable selects which one boots. That is why there is no per-service `Dockerfile` here.
+**Each service owns its `Dockerfile`**, producing `hms-<service>`. They are also all included in the all-in-one image (`docker/Dockerfile`), which boots one of them by `SERVICE`. Both are built from the same commit and tagged with the same git SHA.
 
 | Folder | Port | Postgres schema |
 |---|---|---|

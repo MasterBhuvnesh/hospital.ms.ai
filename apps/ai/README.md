@@ -29,11 +29,19 @@ src/
 
 ## Build
 
-There is no `Dockerfile` here. `docker/Dockerfile` builds every service and `SERVICE=ai` selects this entrypoint.
+This service has its own `Dockerfile`, producing the `hms-ai` image. Build from the **repository root**, because the build needs the workspace manifests and the shared packages:
+
+```bash
+docker build -f apps/ai/Dockerfile -t hms-ai:$(git rev-parse --short HEAD) .
+docker run -p 5007:5007 --env-file envs/.env.container hms-ai:$SHA
+```
+
+The build prunes to this service's production dependency graph only, so the image carries nothing the other seven need.
+
+It is also included in the all-in-one image (`docker/Dockerfile`), which boots this service with `SERVICE=ai`. That image is used for Compose, disaster recovery and offline pilots. Both are built from the same commit and tagged with the same git SHA.
 
 ```bash
 pnpm dev --filter @hms/ai
-docker run -e SERVICE=ai -e PORT=5007 --env-file envs/.env.container hms-platform:$SHA
 ```
 
 See [`docs/architecture.md`](../../docs/architecture.md) and [`docs/traceability.md`](../../docs/traceability.md).

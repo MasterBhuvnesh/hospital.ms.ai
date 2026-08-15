@@ -43,7 +43,7 @@ The week counts below assume this team. **They are capacity-bound estimates, not
 
 | Phase | Deliverable | Weeks | Cumulative |
 |---|---|---|---|
-| **P0 Foundation** | Monorepo, contracts, platform adapters, one image, Helm with both profiles, CI with tests and the portability gate, identity and gateway with real auth and SMS OTP | 2 | 2 |
+| **P0 Foundation** | Monorepo, contracts, platform adapters, nine images, Helm with both profiles, CI with tests and the portability gate, identity and gateway with real auth and SMS OTP | 2 | 2 |
 | **P1 The Loop** | Directory and scheduling, live queue over WS, reception and doctor desktops, mobile queue, admin console. **The differentiator, shipped** | 4 | 6 |
 | **P2 Clinical** | Clinical service, deterministic patient sheet, consultation, signed prescriptions, consent grants, break-glass | 3 | 9 |
 | **P3 Commerce** | Billing, Razorpay, pharmacy, inventory, dispensing, laboratory. **MVP. First paying hospital** | 3 | 12 |
@@ -84,7 +84,7 @@ Three reasons, all of them about what a customer can buy:
 - **Portability gates:** the ESLint SDK rule, `check-portable-chart.sh`, and the kind portable deployment in CI
 - Conventions defined: API shape, error format, health and readiness, log format, correlation ids, event naming and envelope, API versioning, migrations
 - Local Compose: Postgres, Redis, **RabbitMQ with the delayed-message plugin**, **MinIO with bucket init**, Mailpit
-- `docker/Dockerfile` (one image, `SERVICE` selects the entrypoint)
+- A `Dockerfile` per service in `apps/<service>/`, plus `docker/Dockerfile` for the all-in-one image. Nine images, one git SHA
 - Helm chart with `values.yaml`, `values-portable.yaml`, `values-aws.yaml`
 - Terraform split: `modules/kubernetes` and `modules/aws`
 - `pr.yml` **with `pnpm test` as a required check**; `main.yml` publishing to Docker Hub with ECR commented out
@@ -309,7 +309,7 @@ Sequential enough to start Monday.
 16. Local Compose: Postgres, Redis, Mailpit
 17. `docker/rabbitmq` image with the delayed-message plugin, wired into Compose
 18. Local MinIO with private bucket initialization
-19. `docker/Dockerfile`: one image, `SERVICE` entrypoint
+19. Per-service `apps/<svc>/Dockerfile` for all eight, plus `docker/Dockerfile` all-in-one
 20. `pr.yml` **with tests as a required check**
 21. `check-portable-chart.sh` and `lint:portability`
 22. Docker Hub publishing in `main.yml`
