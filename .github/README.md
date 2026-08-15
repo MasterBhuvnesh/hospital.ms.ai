@@ -1,13 +1,29 @@
-# ATELIER HEALTH
+<div align="center">
 
-MULTI-HOSPITAL HOSPITAL MANAGEMENT SYSTEM.
+## MULTI-HOSPITAL HOSPITAL MANAGEMENT SYSTEM
 
-A queue-first hospital platform. Most HMS products are record-keeping systems that happen to have a waiting room. This one is a waiting-room product that happens to keep records.
+A queue-first hospital platform.
 
+Most HMS products are record-keeping systems that happen to have a waiting room.<br/>
+**This one is a waiting-room product that happens to keep records.**
+
+</div>
+
+```mermaid
+flowchart LR
+    A([Check-in]):::q --> B([Token]):::q --> C([Live Queue]):::q --> D([Patient Sheet]):::q
+    D --> E([Consultation]):::r --> F([Prescription]):::r --> G([Billing]):::r
+    G --> H([Pharmacy]):::r --> I([Laboratory]):::r
+
+    classDef q fill:#0B4F6C,stroke:#0B4F6C,stroke-width:1px,color:#FFFFFF
+    classDef r fill:#E8EFF3,stroke:#9FB3BE,stroke-width:1px,color:#0B4F6C
 ```
-Check-in -> Token -> Live Queue -> Patient Sheet -> Consultation
-         -> Prescription -> Billing -> Pharmacy -> Laboratory
-```
+
+<div align="center">
+
+<sub>The shaded stages are the differentiator. Everything after them is table stakes.</sub>
+
+</div>
 
 ## STATUS
 
