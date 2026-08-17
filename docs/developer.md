@@ -6,18 +6,55 @@ Profiles and the cloud-independence contract: [portability.md](./portability.md)
 
 ---
 
-## 0. Four ways to run this
+## 0. Six ways to run this
 
-All four run the **same code from the same commit**. The difference is configuration and which image strategy is used.
+All six run the **same code from the same commit**. Nothing below is a build variant or a fork.
 
-| # | Mode | Profile | Command | For |
-|---|---|---|---|---|
-| 1 | Native dev | `local` | `pnpm deps:up && pnpm dev` | Day-to-day coding. Hot reload, debugger |
-| 2 | Full Compose | `local` / `single-host` | `docker compose up` | Container sanity, demos, **customers with one server** |
-| 3 | Local Kubernetes | `portable` | kind or minikube plus `helm upgrade` | Manifests, probes, autoscaling, migration jobs |
-| 4 | Cluster | `portable` or `aws` | Terraform plus Helm | dev, staging, production, and customer-hosted |
+Mode 5 appears once but serves two data planes: local dependencies for a demo, managed providers for a real single-hospital deployment. It is the same container either way, which is why the list is six rows and not seven.
 
-Mode 2 and the `portable` profile are **product features**, not conveniences. A single-hospital customer should never be told to learn Kubernetes, and a hospital chain with its own cluster should never be told to open an AWS account.
+| # | Mode | Command | For |
+|---|---|---|---|
+| 1 | **Native dev** | `pnpm deps:up && pnpm dev` | Day-to-day coding. Hot reload, debugger |
+| 2 | **Native dev on managed providers** | `pnpm dev` with a third-party env file | Working without a local container stack, and proving the platform adapters are real |
+| 3 | **Full Compose, one container per service** | `pnpm compose:up` | Container sanity, and reaching a service directly from Postman |
+| 4 | **Local Kubernetes** | kind or minikube plus `helm upgrade` | Manifests, probes, autoscaling, migration jobs. **The portability gate in CI** |
+| 5 | **One container, whole backend** | `pnpm single:up`, or the same file against managed providers | **Customers with one server.** Disaster recovery, offline pilots |
+| 6 | **Cluster** | Terraform plus Helm | dev, staging, production, customer-hosted, and AWS |
+
+### The two axes
+
+Six rows, but only two decisions. Every mode above is a pair.
+
+**Where the services run:**
+
+| | Form | How |
+|---|---|---|
+| **Host** | Node processes on your machine | `pnpm dev` |
+| **N containers** | One container per service, one image | `SERVICE=<name>` |
+| **One container** | Every service in one process | `SERVICES=<list>`, or neither set |
+| **Pods** | Kubernetes | Helm, `image.mode` picks per-service or all-in-one |
+
+**Where the data plane lives:**
+
+| | Postgres | Redis | Broker | Storage | Mail |
+|---|---|---|---|---|---|
+| **Local** | Compose | Compose | Compose | MinIO | Mailpit |
+| **Managed** | any Postgres 16 with pgvector | any Redis 7 | see the broker note below | any S3-compatible endpoint | any SMTP relay |
+| **AWS** | RDS | ElastiCache | **still self-hosted** | S3 via IAM role | SES over SMTP |
+
+The second axis is **entirely environment values**. No code, no image, and no chart knows which column it is in, which is the whole portability claim and why mode 4 runs in CI on every merge.
+
+### Two things worth knowing before you pick
+
+**The broker does not have a managed column.** RabbitMQ needs `rabbitmq_delayed_message_exchange`, and Amazon MQ cannot install plugins. Check whether a managed provider can enable that specific plugin before planning on it; if it cannot, the broker stays self-hosted even in mode 2 and mode 6 on AWS. See [portability.md](./portability.md).
+
+**Managed Postgres means two URLs.** Every managed Postgres fronts the database with a connection pooler, and Prisma migrations and prepared statements do not work through a pooler in transaction mode. `DATABASE_URL` is the pooled endpoint for runtime and `DIRECT_URL` is the direct one for migrations. Also disable scale-to-zero if the provider offers it: a cold start of even a few hundred milliseconds is visible on a live queue.
+
+### The single-container mode is not a fallback
+
+Mode 5 and the `portable` profile are **product features**. A single-hospital customer should never be told to learn Kubernetes, and a hospital chain with its own cluster should never be told to open an AWS account.
+
+One thing in mode 5 is not arbitrary: **`ai` runs in its own container.** Every service in one container is one Node process and therefore one event loop, and embeddings and PDF rendering are CPU bound. An embedding computed on the loop that serves the queue stalls every live token update in the building. `docker/compose/single-host.yml` splits it for that reason and for no other. Same image, one more container.
 
 ---
 
@@ -26,7 +63,7 @@ Mode 2 and the `portable` profile are **product features**, not conveniences. A 
 | Tool | Version | Install |
 |---|---|---|
 | Node.js | 22 LTS | `winget install OpenJS.NodeJS.LTS` · `brew install node@22` · nvm |
-| pnpm | 10.x | `corepack enable && corepack prepare pnpm@10 --activate` |
+| pnpm | 11.20.0 | `corepack enable && corepack prepare pnpm@11.20.0 --activate` |
 | Docker Desktop | latest | WSL2 backend on Windows |
 | Git | latest | `winget install Git.Git` |
 
@@ -34,7 +71,7 @@ Per task: `kubectl`, `helm`, `kind` or `minikube`, `terraform`, Expo Go, a therm
 
 ```bash
 node -v        # v22.x
-pnpm -v        # 10.x
+pnpm -v        # 11.20.0
 docker version # client and server both respond
 ```
 
@@ -221,7 +258,7 @@ Each service owns one. They are near-identical today and are expected to diverge
 
 ```dockerfile
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@11.20.0 --activate
 WORKDIR /app
 
 # manifests only, so this layer caches until a package.json changes
@@ -256,35 +293,38 @@ ENTRYPOINT ["node", "dist/index.js"]
 
 ### 3.2b The all-in-one image: `docker/Dockerfile`
 
-```dockerfile
-FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10 --activate
-WORKDIR /app
+The file itself is not reproduced here, because a copy of a real file is a future
+contradiction. Read [`docker/Dockerfile`](../docker/Dockerfile). It differs from a
+per-service image in one way: it is **not pruned** to one dependency graph, since
+any subset of services may be asked to run.
 
-FROM base AS deps
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
-COPY apps/*/package.json apps/
-COPY packages/*/package.json packages/
-RUN pnpm install --frozen-lockfile
+Its entrypoint is [`docker/all-in-one.mjs`](../docker/all-in-one.mjs), which decides
+how much of the platform the container is:
 
-FROM deps AS build
-COPY . .
-RUN pnpm --filter "./packages/**" build \
- && pnpm --filter "./apps/{gateway,identity,directory,scheduling,clinical,commerce,comms,ai}" build \
- && pnpm --filter "@hms/db" prisma:generate
+| Set | Runs | Used by |
+|---|---|---|
+| `SERVICE=scheduling` `PORT=5003` | exactly that one | Kubernetes, and `dev.yml` |
+| `SERVICES=gateway,identity,comms` | those three, one process | `single-host.yml` |
+| `SERVICES=ai` | one service, isolated event loop | `single-host.yml` |
+| neither | every service, one process | a demo, or recovery |
 
-FROM base AS runtime
-RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs app
-COPY --from=build --chown=app:nodejs /app/node_modules ./node_modules
-COPY --from=build --chown=app:nodejs /app/apps      ./apps
-COPY --from=build --chown=app:nodejs /app/packages  ./packages
-USER app
-ENV NODE_ENV=production APP_ENV=container
-# SERVICE is the ONLY thing that differs between the 8 Deployments
-ENTRYPOINT ["sh","-c","exec node apps/${SERVICE:?SERVICE is required}/dist/index.js"]
-```
+`SERVICE` wins when both are set, so the per-service form and Helm's
+`image.mode: all-in-one` need no knowledge of `SERVICES`.
 
-Health checks are Kubernetes probes and Compose healthchecks against `/health/live` and `/health/ready`, defined where the container is orchestrated rather than baked into the image, because the port differs per service.
+**The catalogue has one home.** The runner discovers services by reading
+`hms.port` from each `apps/*/package.json`, which is already where the port is
+declared. There is no service list and no port map in the entrypoint, so
+extracting a ninth service out of `clinical` requires no edit to it.
+
+Health checks are Kubernetes probes and Compose healthchecks against
+`/health/live` and `/health/ready`. The image carries a `HEALTHCHECK` against
+`HEALTH_PORT`, which defaults to the gateway, because which port is worth probing
+depends on `SERVICES` and cannot be baked in.
+
+**One process means one event loop.** Several services sharing a container share
+it, so a CPU-bound service starves the others. That is why `SERVICES` is a list
+rather than an all-or-nothing flag, and why `ai` is deployed separately. See
+section 0.
 
 ### 3.3 Registries
 

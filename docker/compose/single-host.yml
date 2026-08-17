@@ -1,0 +1,47 @@
+# The whole backend in one container. One hospital, one Linux box, no Kubernetes.
+#
+# Deliberately does NOT include deps.yml, so the same file serves both data planes:
+#
+#   local dependencies      docker compose -f deps.yml -f single-host.yml up -d
+#   managed providers       docker compose -f single-host.yml up -d
+#                           (with DATABASE_URL etc. pointing at them)
+#
+# Only the gateway publishes a port. Everything else is reachable on the Compose
+# network and nowhere else, which is the same posture as ClusterIP.
+name: hms-single
+
+x-platform: &platform
+  image: hms-platform:${TAG:-local}
+  build:
+    context: ../..
+    dockerfile: docker/Dockerfile
+  env_file:
+    - path: ../../envs/.env.container
+      required: false
+  restart: unless-stopped
+
+services:
+  # Seven services, one process, one event loop.
+  platform:
+    <<: *platform
+    environment:
+      SERVICES: gateway,identity,directory,scheduling,clinical,commerce,comms
+      HEALTH_PORT: 4000
+    ports: ['${BIND_ADDR:-127.0.0.1}:4000:4000']
+
+  # `ai` runs apart on purpose, and this is the one thing in this file that is not
+  # arbitrary. Node is single-threaded: an embedding computation on the same event
+  # loop as the queue stalls every live token update in the building. Splitting it
+  # costs one more container from the same image and keeps the queue responsive,
+  # which is the entire product.
+  #
+  # Drop this service and add `ai` to SERVICES above if the deployment has no AI
+  # features enabled. Nothing else changes.
+  ai:
+    <<: *platform
+    environment:
+      SERVICES: ai
+      HEALTH_PORT: 5007
+# ponytail: no `migrate` one-shot service yet, because there is no Prisma schema
+# to run. Add it as a service both of these depend_on with
+# `condition: service_completed_successfully`. Do it with the first schema.

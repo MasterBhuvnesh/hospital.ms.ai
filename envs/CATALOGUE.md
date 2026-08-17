@@ -39,6 +39,7 @@ Nothing here is needed to start. The phase column is when it starts blocking wor
 | **Razorpay account and KYC** | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | Razorpay dashboard. Test keys are issued immediately, live keys need KYC and settlement setup | Test: minutes. Live: days to weeks | Online payment. Cash and card at the counter work without it | P3 |
 | **LLM provider** | `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, `EMBEDDING_MODEL` | Any OpenAI-compatible endpoint, or self-hosted vLLM or Ollama, in which case there is no third party at all | Minutes | AI features only, which are designed to degrade rather than block | P4 |
 | **Production SMTP** | `SMTP_URL`, `EMAIL_FROM` | Amazon SES (SMTP endpoint, not the SDK), Resend, Postmark, or your own relay | Hours to days, mostly domain verification | Production email. Development uses Mailpit and needs nothing | P5 |
+| **A domain name** | `PUBLIC_URL`, `CORS_ORIGINS`, and the Terraform `domain_name` | Any registrar | Minutes to hours | TLS, **and both webhooks**: WhatsApp and Razorpay each require a public HTTPS URL and neither can be worked around | P3 |
 | **Expo account** | `EXPO_ACCESS_TOKEN` | expo.dev | Minutes | Mobile push and EAS builds | P1 |
 | **Docker Hub** | `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` | hub.docker.com, access token not password | Minutes | CI image publishing | P0 |
 | **Sentry** | `SENTRY_DSN` | sentry.io. Optional, self-hosted GlitchTip works too | Minutes | Nothing. Errors still reach the logs | P6 |
@@ -75,14 +76,17 @@ Required column: **all** means every service reads it, otherwise the services na
 | `NODE_ENV` | all | yes | `development` | A build concern. Never conflated with `APP_ENV` |
 | `APP_ENV` | all | yes | `development` | Selects the env file. The deployment concern |
 | `LOG_LEVEL` | all | no | `info` | `debug` locally, `info` in production |
-| `SERVICE` | all-in-one image | container only | | Selects the entrypoint. Not set in development |
-| `PORT` | all | container only | per-service constant | Not set in development, where eight services cannot share one |
+| `SERVICE` | all-in-one image | container only | | Run exactly one service. Wins over `SERVICES`. Not set in development |
+| `SERVICES` | all-in-one image | no | every service | Comma separated. Several services in **one process and one event loop**, so keep `ai` out of the list and run it separately |
+| `PORT` | all | container only | `hms.port` from the service manifest | Only meaningful with `SERVICE`. Ignored when several services share a process |
+| `HEALTH_PORT` | all-in-one image | no | `4000` | Which port the image's `HEALTHCHECK` probes. Depends on `SERVICES`, so it cannot be baked in |
 
 ### 3.2 Datastores
 
 | Key | Read by | Required | Default | Notes |
 |---|---|---|---|---|
-| `DATABASE_URL` | all except `gateway` | yes | | **No schema in the URL.** `packages/db` appends `?schema=<service>` |
+| `DATABASE_URL` | all except `gateway` | yes | | **No schema in the URL.** `packages/db` appends `?schema=<service>` per calling service |
+| `DIRECT_URL` | migrations | managed Postgres only | empty | Set when `DATABASE_URL` is a connection pooler, which every managed Postgres is by default. Prisma migrations do not survive a pooler in transaction mode |
 | `DATABASE_POOL_MAX` | same | no | `10` | Per replica. Multiply by replica count against the server limit |
 | `DATABASE_STATEMENT_TIMEOUT` | same | no | `15s` | A query that outlives the request is a leak, not a slow query |
 | `REDIS_URL` | all | yes | | |
@@ -327,5 +331,74 @@ Every driver is a stub or a local container. OTP prints to the console, email la
 The first key you will actually need is `SMS_API_KEY`, and only when patient login has to work on a real phone. That is why the DLT registration is the one thing to start this week.
 
 ---
+
+## 8. What each way of running needs
+
+The six modes are in [`docs/developer.md`](../docs/developer.md) section 0. This is the procurement view of the same table.
+
+**Modes 1, 3, 4 and 5-with-local-dependencies need nothing from any third party.** Only modes 2 and 6, and mode 5 pointed at managed providers, cost money. That is deliberate: the portability gate has to stay free to run on every merge, or it stops being run.
+
+| Mode | Local tooling | Accounts and money |
+|---|---|---|
+| 1 Native dev | Node 22+, pnpm 11.20.0, Docker, `openssl` | none |
+| 2 Native dev on managed providers | Node 22+, pnpm 11.20.0, `openssl`, Docker **for the broker only** | Postgres, Redis, storage and SMTP providers |
+| 3 Full Compose per service | Docker | none |
+| 4 Local Kubernetes | kind or minikube, `kubectl`, Helm 3 | none |
+| 5 One container | Docker. Plus a Linux host, for a real deployment | none locally, providers if managed |
+| 6 Cluster | `terraform`, `kubectl`, Helm 3, AWS CLI for the `aws` profile | see below |
+
+### Mode 2: Docker does not fully go away
+
+The broker is the exception. RabbitMQ needs `rabbitmq_delayed_message_exchange`, so unless a managed provider can enable that specific plugin, mode 2 still runs one container. **Verify plugin support before planning on a provider**; do not assume it from a feature list.
+
+### The managed data plane, stated as requirements
+
+Provider names are examples throughout this repository and nowhere a dependency. What the platform actually requires:
+
+| Capability | Requirement | Keys |
+|---|---|---|
+| Postgres | **16 or later with the `vector` extension available.** pgvector is not optional: the AI service stores embeddings in the same database | `DATABASE_URL`, `DIRECT_URL` |
+| Redis | 7 or later. TLS endpoints use the `rediss://` scheme | `REDIS_URL` |
+| Broker | AMQP 0-9-1 **with `rabbitmq_delayed_message_exchange` installable.** TLS endpoints use `amqps://` | `RABBITMQ_URL` |
+| Object storage | **S3-compatible API** with presigned URL support, and a configurable endpoint | `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_REGION`, `S3_FORCE_PATH_STYLE` |
+| Mail | **Plain SMTP.** Not a vendor SDK, which is why SES is used through its SMTP endpoint | `SMTP_URL`, `EMAIL_FROM` |
+
+Two requirements are easy to miss when comparing providers:
+
+- **pgvector.** A managed Postgres that cannot enable the `vector` extension rules itself out of the AI phase entirely.
+- **A configurable storage endpoint.** `S3_ENDPOINT` plus `S3_FORCE_PATH_STYLE` is what makes any S3-compatible service work without a code change. A provider whose SDK is the only way in is not S3-compatible for this purpose.
+
+### Two traps on managed Postgres
+
+1. **The default connection string is a pooler.** Prisma migrations and prepared statements do not work through one in transaction mode. Set `DATABASE_URL` to the pooled endpoint and `DIRECT_URL` to the direct one.
+2. **Scale-to-zero must be off.** A cold start of even a few hundred milliseconds is visible on a live queue, and the queue is the product.
+
+### Mode 6 on AWS, in full
+
+Everything in section 6, plus:
+
+| What | Note |
+|---|---|
+| AWS account with billing enabled | the only mode that bills continuously |
+| EKS cluster and node group | |
+| RDS Postgres | enable the `vector` extension |
+| ElastiCache Redis | |
+| S3 bucket | reached by IAM role, no keys in any env file |
+| Secrets Manager plus External Secrets Operator | |
+| IRSA roles for pods | |
+| **An OIDC role for GitHub Actions** | `AWS_ROLE_ARN`. No long-lived AWS key in CI |
+| Ingress controller | ALB, or nginx |
+| **A domain name and an ACM certificate** | see below |
+| SES, verified domain | used over SMTP, never the SDK |
+| **A self-hosted RabbitMQ in the cluster** | Amazon MQ cannot install the delayed-message plugin |
+
+### Two images to publish, not one
+
+Easy to forget for modes 4, 5 and 6: the platform needs **`hms-platform`** (or the eight per-service images) **and the custom `rabbitmq` image** from `docker/rabbitmq/`, because the delayed-message plugin is baked in. A registry holding only the platform image leaves the broker unschedulable.
+
+### A domain name is a dependency
+
+It is cheap and fast, so it is easily left off a procurement list, but three things need a public HTTPS URL and none of them can be worked around: **TLS**, the **WhatsApp webhook**, and the **Razorpay webhook**.
+
 
 See [`docs/portability.md`](../docs/portability.md) for the capability matrix behind section 4, and [`docs/developer.md`](../docs/developer.md) section 7 for how `packages/config` loads and validates all of this.

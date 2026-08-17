@@ -26,6 +26,8 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | Service application template | BHUVNESH | PLANNED | 15-08-2026 |
 | `envs/.env.example` completed, and `envs/CATALOGUE.md` with per-profile requirements and the procurement list | BHUVNESH | DONE | 17-08-2026 |
 | `scripts/dev/generate-jwt-keys.sh`, writes the RS256 pair without printing it | BHUVNESH | DONE | 17-08-2026 |
+| `packages/config` and `packages/db` specified as per-service factories, because several services share one process | BHUVNESH | DONE | 17-08-2026 |
+| `DIRECT_URL` for managed Postgres, since Prisma migrations do not survive a pooler | BHUVNESH | DONE | 17-08-2026 |
 | Env files: development, testing, container, production, created from the example | BHUVNESH | PLANNED | 15-08-2026 |
 
 ## ARCHITECTURE DECISIONS
@@ -47,6 +49,7 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | Break-glass defined for administrative clinical access | BHUVNESH | DONE | 15-08-2026 |
 | Event catalogue completed, 26 events with publishers, consumers and actions | BHUVNESH | DONE | 15-08-2026 |
 | Verify that Amazon MQ cannot install the delayed-message plugin | BHUVNESH | PLANNED | 15-08-2026 |
+| Verify whether any managed AMQP provider can enable `rabbitmq_delayed_message_exchange` | BHUVNESH | PLANNED | 17-08-2026 |
 
 ## PORTABILITY AND CLOUD INDEPENDENCE
 
@@ -68,12 +71,19 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | FEATURE | DEVELOPER | STATUS | DATE |
 | ------- | --------- | ------ | ---- |
 | Per-service `Dockerfile` in each of the eight services | BHUVNESH | DONE | 15-08-2026 |
-| `docker/Dockerfile`, the all-in-one image for Compose and recovery | BHUVNESH | PLANNED | 15-08-2026 |
+| `docker/Dockerfile`, the all-in-one image for Compose and recovery | BHUVNESH | DONE | 17-08-2026 |
+| `docker/all-in-one.mjs`: `SERVICES` runs any subset of services in one process, discovering ports from `hms.port` | BHUVNESH | DONE | 17-08-2026 |
 | CI builds nine images from one commit, all on the same git SHA | BHUVNESH | PLANNED | 15-08-2026 |
 | `docker/rabbitmq` image with the delayed-message plugin, broker pinned to 4.2 | BHUVNESH | DONE | 17-08-2026 |
 | Compose dependency stack: Postgres, Redis, RabbitMQ, MinIO, Mailpit | BHUVNESH | DONE | 17-08-2026 |
 | MinIO private bucket initialisation | BHUVNESH | PLANNED | 15-08-2026 |
-| `compose.single-host.yml` for the no-Kubernetes deployment | BHUVNESH | PLANNED | 15-08-2026 |
+| `docker/compose/dev.yml`: one container per service, every port published for Postman | BHUVNESH | DONE | 17-08-2026 |
+| `docker/compose/single-host.yml`: whole backend in one container, `ai` split to keep the queue off a busy event loop | BHUVNESH | DONE | 17-08-2026 |
+| Six ways to run documented as two axes: where services run, where the data plane lives | BHUVNESH | DONE | 17-08-2026 |
+| `migrate` one-shot Compose service, so no service races the migration | BHUVNESH | PLANNED | 17-08-2026 |
+| TLS for the local Kubernetes mode, cert-manager with a self-signed issuer | BHUVNESH | PLANNED | 17-08-2026 |
+| A secret store for `single-host`, rather than a plain env file on the host | BHUVNESH | PLANNED | 17-08-2026 |
+| Postgres backup schedule, retention, and a rehearsed restore | BHUVNESH | PLANNED | 17-08-2026 |
 | Helm chart, one chart rendering all services from a values list | BHUVNESH | PLANNED | 15-08-2026 |
 | `scripts/k8s/kind-up.sh` including secret creation and pinned chart versions | BHUVNESH | PLANNED | 15-08-2026 |
 | `pr.yml` with lint, typecheck, tests and the portability gates | BHUVNESH | PLANNED | 15-08-2026 |
