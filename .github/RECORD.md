@@ -24,7 +24,9 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | Commit hooks | BHUVNESH | PLANNED | 17-08-2026 |
 | Per-service specification in each service README: goal, capabilities, conditions, boundaries | BHUVNESH | DONE | 17-08-2026 |
 | Service application template | BHUVNESH | PLANNED | 15-08-2026 |
-| Env files: `.env.example` plus development, testing, container, production | BHUVNESH | PLANNED | 15-08-2026 |
+| `envs/.env.example` completed, and `envs/CATALOGUE.md` with per-profile requirements and the procurement list | BHUVNESH | DONE | 17-08-2026 |
+| `scripts/dev/generate-jwt-keys.sh`, writes the RS256 pair without printing it | BHUVNESH | DONE | 17-08-2026 |
+| Env files: development, testing, container, production, created from the example | BHUVNESH | PLANNED | 15-08-2026 |
 
 ## ARCHITECTURE DECISIONS
 

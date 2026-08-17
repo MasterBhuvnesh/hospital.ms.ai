@@ -2,6 +2,8 @@
 
 One environment file per deployment context. **Only `.env.example` is committed.**
 
+[**CATALOGUE.md**](CATALOGUE.md) is the reference: every key, who reads it, which profile needs it, and which values have to be obtained from a third party rather than generated. Start there.
+
 | File | Context |
 |---|---|
 | `.env.example` | The template. Every key, fake values. **The only file in git** |
