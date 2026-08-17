@@ -1,0 +1,89 @@
+# Every service in its own container, plus the dependencies.
+#
+#   pnpm compose:up      build and start
+#   pnpm compose:down    stop
+#
+# This is container sanity: the same code as `pnpm dev`, but running the way it
+# runs in production, with service names for hostnames instead of localhost.
+#
+# Eight containers from ONE image. `SERVICE` is the only thing that differs
+# between them, which is what makes the all-in-one image worth having.
+#
+# Unlike single-host.yml this publishes every service port, because the point of
+# this file is to reach a service directly from Postman without going through
+# the gateway. single-host.yml publishes only the gateway, as production should.
+name: hms-dev
+
+include:
+  - deps.yml
+
+x-service: &service
+  image: hms-platform:local
+  build:
+    context: ../..
+    dockerfile: docker/Dockerfile
+  env_file:
+    # Absent on a fresh clone, and that is fine: the defaults in the image plus
+    # the environment below are enough to boot.
+    - path: ../../envs/.env.container
+      required: false
+  restart: unless-stopped
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+    rabbitmq: { condition: service_healthy }
+    minio: { condition: service_healthy }
+
+# Hostnames are Compose service names here, never localhost. A container's
+# localhost is itself.
+x-environment: &environment
+  DATABASE_URL: postgresql://hms:hms@postgres:5432/hms
+  REDIS_URL: redis://redis:6379
+  RABBITMQ_URL: amqp://hms:hms@rabbitmq:5672
+  S3_ENDPOINT: http://minio:9000
+  SMTP_URL: smtp://mailpit:1025
+
+services:
+  gateway:
+    <<: *service
+    environment: { <<: *environment, SERVICE: gateway, HEALTH_PORT: 4000 }
+    ports: ['127.0.0.1:4000:4000']
+
+  identity:
+    <<: *service
+    environment: { <<: *environment, SERVICE: identity, HEALTH_PORT: 5001 }
+    ports: ['127.0.0.1:5001:5001']
+
+  directory:
+    <<: *service
+    environment: { <<: *environment, SERVICE: directory, HEALTH_PORT: 5002 }
+    ports: ['127.0.0.1:5002:5002']
+
+  scheduling:
+    <<: *service
+    environment: { <<: *environment, SERVICE: scheduling, HEALTH_PORT: 5003 }
+    ports: ['127.0.0.1:5003:5003']
+
+  clinical:
+    <<: *service
+    environment: { <<: *environment, SERVICE: clinical, HEALTH_PORT: 5004 }
+    ports: ['127.0.0.1:5004:5004']
+
+  commerce:
+    <<: *service
+    environment: { <<: *environment, SERVICE: commerce, HEALTH_PORT: 5005 }
+    ports: ['127.0.0.1:5005:5005']
+
+  comms:
+    <<: *service
+    environment: { <<: *environment, SERVICE: comms, HEALTH_PORT: 5006 }
+    ports: ['127.0.0.1:5006:5006']
+
+  ai:
+    <<: *service
+    environment: { <<: *environment, SERVICE: ai, HEALTH_PORT: 5007 }
+    ports: ['127.0.0.1:5007:5007']
+# ponytail: no `migrate` one-shot service yet, because there is no Prisma schema
+# to run. Add it as a service every other one depends_on with
+# `condition: service_completed_successfully`, so none of them race the
+# migration. Do it in the same commit that adds the first schema.
