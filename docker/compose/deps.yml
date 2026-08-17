@@ -72,6 +72,37 @@ services:
       timeout: 5s
       retries: 10
 
+  # Creates the four buckets, then exits. Without this the first storage call
+  # against a fresh volume fails on a missing bucket.
+  #
+  # `mc anonymous set none` is asserted and then read back, rather than trusted
+  # to be the default. These buckets hold patient documents, so a bucket that is
+  # public because a default changed is a data breach, and the cheapest place to
+  # catch it is here, loudly, at startup.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio: { condition: service_healthy }
+    restart: 'no'
+    entrypoint:
+      - sh
+      - -c
+      - |
+        set -e
+        mc alias set local http://minio:9000 hmsminio hmsminio
+        for b in hms-documents hms-prescriptions hms-invoices hms-lab; do
+          mc mb -p "local/$$b"
+          mc anonymous set none "local/$$b"
+          # `case` rather than `grep`: the minio/mc image has no grep, and with
+          # `set -e` the missing binary failed the assertion on the first bucket
+          # and left the other three uncreated. Verified by running it.
+          case "$$(mc anonymous get "local/$$b")" in
+            *none*) ;;
+            *) echo "FAILED: local/$$b is not private"; exit 1 ;;
+          esac
+        done
+        echo 'buckets ready and private'
+
   # Catches every outbound email in development. Nothing leaves the machine.
   mailpit:
     image: axllent/mailpit:latest

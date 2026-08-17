@@ -43,6 +43,7 @@ COPY --from=build --chown=app:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=app:nodejs /app/apps         ./apps
 COPY --from=build --chown=app:nodejs /app/packages     ./packages
 COPY --from=build --chown=app:nodejs /app/docker/all-in-one.mjs ./docker/all-in-one.mjs
+COPY --from=build --chown=app:nodejs /app/docker/migrate.sh ./docker/migrate.sh
 USER app
 
 # Documentation only; publishing is decided where the container is orchestrated.

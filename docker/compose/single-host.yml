@@ -20,7 +20,25 @@ x-platform: &platform
       required: false
   restart: unless-stopped
 
+# `depends_on` is NOT in the anchor above, because `migrate` uses that anchor too
+# and would then depend on itself.
+x-after-migrate: &after-migrate
+  migrate: { condition: service_completed_successfully }
+
 services:
+  # Runs first, alone, so nothing races the schema.
+  #
+  # Deliberately depends on NO other Compose service. This file has no database
+  # of its own — it serves both data planes — so depending on a `postgres`
+  # service would make the managed-provider form fail with "undefined service".
+  # docker/migrate.sh retries the migration instead, which covers both a local
+  # Postgres that is still starting and a managed endpoint that is briefly
+  # unreachable.
+  migrate:
+    <<: *platform
+    restart: 'no'
+    entrypoint: ['sh', '/app/docker/migrate.sh']
+
   # Seven services, one process, one event loop.
   platform:
     <<: *platform
@@ -28,6 +46,7 @@ services:
       SERVICES: gateway,identity,directory,scheduling,clinical,commerce,comms
       HEALTH_PORT: 4000
     ports: ['${BIND_ADDR:-127.0.0.1}:4000:4000']
+    depends_on: *after-migrate
 
   # `ai` runs apart on purpose, and this is the one thing in this file that is not
   # arbitrary. Node is single-threaded: an embedding computation on the same event
@@ -42,6 +61,4 @@ services:
     environment:
       SERVICES: ai
       HEALTH_PORT: 5007
-# ponytail: no `migrate` one-shot service yet, because there is no Prisma schema
-# to run. Add it as a service both of these depend_on with
-# `condition: service_completed_successfully`. Do it with the first schema.
+    depends_on: *after-migrate

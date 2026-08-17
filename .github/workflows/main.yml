@@ -1,0 +1,223 @@
+name: main
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: docker.io
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  # ---- eight service images -------------------------------------------------
+  build-services:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [gateway, identity, directory, scheduling, clinical, commerce, comms, ai]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # ---- ECR: enable when production pulls move to AWS ──────────────────
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      #     aws-region: ap-south-1
+      #
+      # - name: Log in to Amazon ECR
+      #   id: ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+      # ──────────────────────────────────────────────────────────────────────
+
+      - name: Build and push per-service image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/hms-${{ matrix.service }}:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  # ---- the all-in-one image, same commit, same tag --------------------------
+  build-platform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # ---- ECR: enable when production pulls move to AWS ──────────────────
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+      #     aws-region: ap-south-1
+      #
+      # - name: Log in to Amazon ECR
+      #   id: ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+      # ──────────────────────────────────────────────────────────────────────
+
+      - name: Build and push all-in-one image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/hms-platform:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=platform
+          cache-to: type=gha,mode=max,scope=platform
+
+      - name: Smoke test all-in-one image
+        run: ./scripts/ci/smoke-all-in-one.sh ${{ github.sha }}
+
+  # ---- the custom broker image ----------------------------------------------
+  build-broker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # ---- ECR: enable when production pulls move to AWS ──────────────────
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     role-to-assume: ${{ secrets.AWS_ROLE_ARN }
+      #     aws-region: ap-south-1
+      #
+      # - name: Log in to Amazon ECR
+      #   id: ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+      # ──────────────────────────────────────────────────────────────────────
+
+      - name: Build and push broker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/rabbitmq/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/hms-rabbitmq:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=broker
+          cache-to: type=gha,mode=max,scope=broker
+
+  # ---- ECR mirror (commented out) -------------------------------------------
+  # ecr-mirror:
+  #   needs: [build-services, build-platform, build-broker]
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+  #         aws-region: ap-south-1
+  #
+  #     - name: Log in to Amazon ECR
+  #       id: ecr
+  #       uses: aws-actions/amazon-ecr-login@v2
+  #
+  #     - name: Pull and re-tag per-service images to ECR
+  #       run: |
+  #         for svc in gateway identity directory scheduling clinical commerce comms ai; do
+  #           docker pull ${{ secrets.DOCKER_USERNAME }}/hms-${svc}:${{ github.sha }}
+  #           docker tag ${{ secrets.DOCKER_USERNAME }}/hms-${svc}:${{ github.sha }} ${{ steps.ecr.outputs.registry }}/hms-${svc}:${{ github.sha }}
+  #           docker push ${{ steps.ecr.outputs.registry }}/hms-${svc}:${{ github.sha }}
+  #         done
+  #
+  #     - name: Pull and re-tag all-in-one image to ECR
+  #       run: |
+  #         docker pull ${{ secrets.DOCKER_USERNAME }}/hms-platform:${{ github.sha }}
+  #         docker tag ${{ secrets.DOCKER_USERNAME }}/hms-platform:${{ github.sha }} ${{ steps.ecr.outputs.registry }}/hms-platform:${{ github.sha }}
+  #         docker push ${{ steps.ecr.outputs.registry }}/hms-platform:${{ github.sha }}
+  #
+  #     - name: Pull and re-tag broker image to ECR
+  #       run: |
+  #         docker pull ${{ secrets.DOCKER_USERNAME }}/hms-rabbitmq:${{ github.sha }}
+  #         docker tag ${{ secrets.DOCKER_USERNAME }}/hms-rabbitmq:${{ github.sha }} ${{ steps.ecr.outputs.registry }}/hms-rabbitmq:${{ github.sha }}
+  #         docker push ${{ steps.ecr.outputs.registry }}/hms-rabbitmq:${{ github.sha }}
+
+  # ---- NOT YET ENABLED ------------------------------------------------------
+  # Both jobs below are commented out because every path they call is missing:
+  # scripts/k8s/kind-config.yaml, scripts/k8s/kind-up.sh,
+  # scripts/ci/check-portable-chart.sh, scripts/deployment/smoke.sh, and the
+  # `test:smoke` script. All are PLANNED in .github/RECORD.md. Left as commented
+  # YAML rather than deleted, the same way the ECR job above is, so the intent
+  # survives and enabling them is uncommenting rather than rewriting.
+  #
+  # deploy-dev additionally has no cluster authentication step, so it could not
+  # reach a cluster even if the chart values were right. Do not enable it until
+  # it does, and consider whether an unguarded deploy on every push to main is
+  # wanted at all.
+  # ---------------------------------------------------------------------------
+
+  ## ---- THE portability gate -------------------------------------------------
+  #portable-deploy:
+  #  needs: [build-services, build-platform, build-broker]
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v4
+
+  #    - name: Create kind cluster
+  #      uses: helm/kind-action@v1
+  #      with:
+  #        cluster_name: hms
+  #        config: scripts/k8s/kind-config.yaml
+
+  #    - name: Deploy portable profile
+  #      run: ./scripts/k8s/kind-up.sh --image-tag ${{ github.sha }} --pull
+
+  #    - name: Verify portable chart
+  #      run: ./scripts/ci/check-portable-chart.sh
+
+  #    - name: Run smoke test
+  #      run: pnpm test:smoke -- --base-url http://localhost --host hms.local
+
+  ## ---- Deploy to dev environment --------------------------------------------
+  #deploy-dev:
+  #  needs: build-services
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v4
+
+  #    - name: Deploy to hms-dev
+  #      run: |
+  #        helm upgrade --install hms infra/helm/hms -n hms-dev \
+  #          -f infra/helm/hms/values.yaml -f infra/helm/hms/values-aws.yaml \
+  #          --set image.repository=${{ secrets.DOCKER_USERNAME }} \
+  #          --set image.tag=${{ github.sha }} --wait --timeout 10m
+
+  #    - name: Smoke test dev deployment
+  #      run: ./scripts/deployment/smoke.sh
