@@ -10,13 +10,15 @@ Everything else lives elsewhere: the *why* is in [features.md](./features.md), t
 
 | Phase | Name | Weeks | Cumulative | Release boundary |
 |---|---|---|---|---|
-| P0 | Foundation | 2 | 2 | |
-| P1 | The Loop | 4 | 6 | Demonstrable product |
-| P2 | Clinical | 3 | 9 | |
-| P3 | Commerce | 3 | 12 | **MVP. Ship to first paying hospital** |
-| P4 | AI | 4 | 16 | |
-| P5 | Comms at scale | 2 | 18 | |
-| P6 | Hardening | 2 | 20 | Production-hardened |
+| P0 | Foundation | 3 | 3 | |
+| P1 | The Loop | 9 | 12 | Demonstrable product |
+| P2 | Clinical | 6 | 18 | |
+| P3 | Commerce | 6 | 24 | **MVP. Ship to first paying hospital** |
+| P4 | AI | 5 | 29 | |
+| P5 | Comms at scale | 2 | 31 | |
+| P6 | Hardening | 3 | 34 | Production-hardened |
+
+Week counts are sized for a team of four using AI assistance, with full scope retained. See [plan.md 1](./plan.md) for the sizing and [plan.md 13](./plan.md) for what to cut if the schedule slips. **Scope is unchanged from the original plan.** No feature moved phase; only the durations changed.
 
 **Commerce (P3) precedes AI (P4).** The MVP defined in [product-scope.md](./product-scope.md) includes billing and does not include AI, and the end-to-end test ends in a payment. Ordering AI first would leave the flagship test unrunnable until week 16.
 

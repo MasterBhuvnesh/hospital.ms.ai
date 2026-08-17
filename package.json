@@ -1,0 +1,49 @@
+{
+  "name": "atelier-health",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Multi-hospital hospital management system. A queue-first platform.",
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "deps:up": "docker compose -f docker/compose/deps.yml up -d",
+    "deps:down": "docker compose -f docker/compose/deps.yml down",
+    "deps:reset": "docker compose -f docker/compose/deps.yml down -v && pnpm deps:up",
+    "deps:logs": "docker compose -f docker/compose/deps.yml logs -f",
+    "obs:up": "docker compose -f docker/compose/observability.yml up -d",
+    "obs:down": "docker compose -f docker/compose/observability.yml down",
+    "obs:logs": "docker compose -f docker/compose/observability.yml logs -f",
+    "db:migrate": "turbo run db:migrate",
+    "db:generate": "turbo run db:generate",
+    "db:seed": "turbo run db:seed",
+    "db:studio": "pnpm --filter @hms/db exec prisma studio"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.12",
+    "turbo": "^2.10.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.10"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "semi": true,
+    "trailingComma": "all"
+  }
+}

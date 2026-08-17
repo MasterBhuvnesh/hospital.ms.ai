@@ -1,0 +1,31 @@
+{
+  "name": "@hms/platform-aws",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1111.0",
+    "@aws-sdk/client-secrets-manager": "^3.1111.0",
+    "@aws-sdk/s3-request-presigner": "^3.1111.0",
+    "@hms/config": "workspace:*",
+    "@hms/platform": "workspace:*"
+  }
+}

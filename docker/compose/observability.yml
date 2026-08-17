@@ -1,0 +1,81 @@
+# Prometheus, Grafana, Loki and Tempo. Metrics, dashboards, logs and traces.
+#
+#   pnpm obs:up      start
+#   pnpm obs:down    stop
+#   pnpm obs:logs    follow
+#
+#   Grafana      http://localhost:3001    (anonymous admin, local only)
+#   Prometheus   http://localhost:9090
+#
+# Deliberately SEPARATE from deps.yml. The datastores are needed to run
+# anything; these four are not, and four extra containers on every `pnpm dev`
+# is a tax on people debugging a route. Start them when you are looking at
+# latency, not by default.
+#
+# It joins the deps network so Prometheus can scrape RabbitMQ by name.
+#
+# Self-hosted here and self-hosted on AWS. There is no CloudWatch path, which
+# is what keeps a dashboard portable between a hospital's own hardware and our
+# hosted cluster. See docs/portability.md.
+name: hms-obs
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    ports: ['127.0.0.1:9090:9090']
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=72h
+      # Tempo's metrics generator writes RED metrics back into Prometheus.
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ../observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus:/prometheus
+    extra_hosts:
+      # Services run on the host in development, not in a container.
+      - 'host.docker.internal:host-gateway'
+
+  loki:
+    image: grafana/loki:3.3.2
+    ports: ['127.0.0.1:3100:3100']
+    command: ['-config.file=/etc/loki/local-config.yaml']
+    volumes:
+      - loki:/loki
+
+  tempo:
+    image: grafana/tempo:2.7.1
+    ports:
+      - '127.0.0.1:3200:3200' # query
+      - '127.0.0.1:4317:4317' # OTLP gRPC
+      - '127.0.0.1:4318:4318' # OTLP HTTP, what OTEL_EXPORTER_OTLP_ENDPOINT points at
+    command: ['-config.file=/etc/tempo/tempo.yaml']
+    volumes:
+      - ../observability/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - tempo:/var/tempo
+
+  grafana:
+    image: grafana/grafana:11.5.1
+    ports: ['127.0.0.1:3001:3000'] # 3000 belongs to the Next.js dev server
+    environment:
+      # Local only. The production chart uses real authentication.
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: 'true'
+      GF_FEATURE_TOGGLES_ENABLE: traceqlEditor
+    volumes:
+      - ../observability/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - grafana:/var/lib/grafana
+    depends_on: [prometheus, loki, tempo]
+
+volumes:
+  prometheus:
+  loki:
+  tempo:
+  grafana:
+
+# Lets Prometheus reach the RabbitMQ metrics port by service name.
+networks:
+  default:
+    name: hms-deps_default
+    external: true
