@@ -232,11 +232,12 @@ Not secrets. Defaults a hospital may override in its own settings.
 
 | Key | Read by | Default | Notes |
 |---|---|---|---|
-| `OTEL_ENABLED` | all | `false` | |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | all | | Tempo, self-hosted on every profile including AWS |
+| `OTEL_ENABLED` | all | `false` | Set to `true` after `pnpm obs:up` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | all | `http://localhost:4318` | Tempo, OTLP over HTTP. Self-hosted on every profile including AWS |
 | `OTEL_SERVICE_NAME` | all | `SERVICE` | |
 | `METRICS_ENABLED` | all | `true` | |
 | `METRICS_PATH` | all | `/metrics` | Scraped by Prometheus, never exposed publicly |
+| `LOKI_URL` | all | unset | Ships pino output to Loki. Unset in development, where logs go to the terminal you are already looking at |
 | `SENTRY_DSN` | all | | Optional |
 | `SENTRY_TRACES_SAMPLE_RATE` | all | `0.1` | |
 

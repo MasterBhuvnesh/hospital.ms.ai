@@ -76,7 +76,9 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | `pr.yml` with lint, typecheck, tests and the portability gates | BHUVNESH | PLANNED | 15-08-2026 |
 | `main.yml` publishing to Docker Hub, ECR job written and commented out | BHUVNESH | PLANNED | 15-08-2026 |
 | `release.yml` promoting the same image digest, never rebuilding | BHUVNESH | PLANNED | 15-08-2026 |
-| Prometheus, Grafana, Loki and Tempo, self-hosted on every profile | BHUVNESH | PLANNED | 15-08-2026 |
+| Prometheus, Grafana, Loki and Tempo, local Compose stack with provisioned datasources | BHUVNESH | DONE | 17-08-2026 |
+| Prometheus, Grafana, Loki and Tempo in the Helm chart, self-hosted on every profile | BHUVNESH | PLANNED | 17-08-2026 |
+| Grafana dashboards and alert rules | BHUVNESH | PLANNED | 17-08-2026 |
 
 ## SHARED PACKAGES
 
