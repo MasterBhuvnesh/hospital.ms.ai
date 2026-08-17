@@ -1,0 +1,86 @@
+# Dependencies only. Services run on the host with `pnpm dev`.
+#
+#   pnpm deps:up      start
+#   pnpm deps:logs    follow
+#   pnpm deps:down    stop, keeping data
+#   pnpm deps:reset   stop, destroy volumes, start again
+#
+# Every port is bound to 127.0.0.1. A development database reachable from the
+# local network is a development database reachable from a coffee shop.
+name: hms-deps
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports: ["127.0.0.1:5432:5432"]
+    environment:
+      POSTGRES_USER: hms
+      POSTGRES_PASSWORD: hms
+      POSTGRES_DB: hms
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hms -d hms"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["127.0.0.1:6379:6379"]
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    build:
+      context: ../rabbitmq
+    image: hms-rabbitmq:local
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672" # management UI, hms / hms
+    environment:
+      RABBITMQ_DEFAULT_USER: hms
+      RABBITMQ_DEFAULT_PASS: hms
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001" # console, hmsminio / hmsminio
+    environment:
+      MINIO_ROOT_USER: hmsminio
+      MINIO_ROOT_PASSWORD: hmsminio
+    volumes:
+      - minio:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Catches every outbound email in development. Nothing leaves the machine.
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1:1025:1025" # SMTP
+      - "127.0.0.1:8025:8025" # web UI
+
+volumes:
+  postgres:
+  redis:
+  rabbitmq:
+  minio:

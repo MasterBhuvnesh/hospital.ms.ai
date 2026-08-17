@@ -19,8 +19,10 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | Academic synopsis in LaTeX with built PDF under `docs/Synopsis` | BHUVNESH | DONE | 15-08-2026 |
 | Naming settled: product Atelier Health, repo `atelier-health`, scope `@hms/*`, images `hms-<service>` and `hms-platform` | BHUVNESH | DONE | 15-08-2026 |
 | Review of the first documentation draft, 10 critical findings raised and closed | BHUVNESH | DONE | 15-08-2026 |
-| pnpm workspace and Turborepo initialised | BHUVNESH | PLANNED | 15-08-2026 |
-| Repository conventions: lint, format, commit hooks | BHUVNESH | PLANNED | 15-08-2026 |
+| pnpm workspace and Turborepo initialised, 21 packages building | BHUVNESH | DONE | 17-08-2026 |
+| Repository conventions: TypeScript base config, ESLint flat config, Prettier | BHUVNESH | DONE | 17-08-2026 |
+| Commit hooks | BHUVNESH | PLANNED | 17-08-2026 |
+| Per-service specification in each service README: goal, capabilities, conditions, boundaries | BHUVNESH | DONE | 17-08-2026 |
 | Service application template | BHUVNESH | PLANNED | 15-08-2026 |
 | Env files: `.env.example` plus development, testing, container, production | BHUVNESH | PLANNED | 15-08-2026 |
 
@@ -50,7 +52,7 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | `packages/platform` interfaces (storage, secrets, email, sms, push, whatsapp, payments, llm) | BHUVNESH | PLANNED | 15-08-2026 |
 | `packages/platform-generic` implementations over S3 API, SMTP and HTTP | BHUVNESH | PLANNED | 15-08-2026 |
 | `packages/platform-aws` isolated, the only package permitted an AWS SDK | BHUVNESH | PLANNED | 15-08-2026 |
-| ESLint gate blocking cloud SDK imports outside `platform-aws` | BHUVNESH | PLANNED | 15-08-2026 |
+| ESLint gate blocking cloud SDK imports outside `platform-aws` | BHUVNESH | DONE | 17-08-2026 |
 | `check-portable-chart.sh` rejecting AWS strings in the rendered base chart | BHUVNESH | PLANNED | 15-08-2026 |
 | CI job deploying the portable profile to kind on every merge | BHUVNESH | PLANNED | 15-08-2026 |
 | Terraform split into `modules/kubernetes` and `modules/aws` | BHUVNESH | PLANNED | 15-08-2026 |
@@ -63,8 +65,8 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | Per-service `Dockerfile` in each of the eight services | BHUVNESH | DONE | 15-08-2026 |
 | `docker/Dockerfile`, the all-in-one image for Compose and recovery | BHUVNESH | PLANNED | 15-08-2026 |
 | CI builds nine images from one commit, all on the same git SHA | BHUVNESH | PLANNED | 15-08-2026 |
-| `docker/rabbitmq` image with the delayed-message plugin | BHUVNESH | PLANNED | 15-08-2026 |
-| Compose dependency stack: Postgres, Redis, RabbitMQ, MinIO, Mailpit | BHUVNESH | PLANNED | 15-08-2026 |
+| `docker/rabbitmq` image with the delayed-message plugin, broker pinned to 4.2 | BHUVNESH | DONE | 17-08-2026 |
+| Compose dependency stack: Postgres, Redis, RabbitMQ, MinIO, Mailpit | BHUVNESH | DONE | 17-08-2026 |
 | MinIO private bucket initialisation | BHUVNESH | PLANNED | 15-08-2026 |
 | `compose.single-host.yml` for the no-Kubernetes deployment | BHUVNESH | PLANNED | 15-08-2026 |
 | Helm chart, one chart rendering all services from a values list | BHUVNESH | PLANNED | 15-08-2026 |

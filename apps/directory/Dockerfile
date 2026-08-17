@@ -11,7 +11,7 @@
 # =============================================================================
 
 FROM node:22-alpine AS base
-RUN corepack enable && corepack prepare pnpm@10 --activate
+RUN corepack enable && corepack prepare pnpm@11.20.0 --activate
 WORKDIR /app
 
 # --- dependencies -------------------------------------------------------------
@@ -46,4 +46,4 @@ EXPOSE 5002
 HEALTHCHECK --interval=30s --timeout=3s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-ENTRYPOINT ["node", "dist/index.js"]
+ENTRYPOINT ["node", "dist/server.js"]

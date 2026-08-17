@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+dist
+.next
+out
+coverage
+.turbo
+docs/Synopsis/*.pdf
