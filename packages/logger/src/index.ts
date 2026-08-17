@@ -1,3 +1,3 @@
-// pino with PHI redaction paths applied.
-// Nothing is exported yet. See ../README.md.
-export {};
+export { createLogger, type Logger, type LoggerConfig } from './logger.js';
+export { getContext, runWithContext, setContext, type LogContext } from './context.js';
+export { REDACT_CENSOR, REDACT_PATHS } from './redact.js';

@@ -1,0 +1,17 @@
+// Typechecks the whole repository INCLUDING test files.
+//
+// tsconfig.base.json excludes tests so that tsc does not emit them into dist.
+// That exclusion would otherwise leave test files unchecked, and an unchecked
+// test is one that can assert against a type that no longer exists and still
+// look green. This config exists to close that hole.
+//
+//   pnpm typecheck:tests
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts"],
+  "exclude": ["node_modules", "**/dist/**", "**/.next/**", "**/out/**"]
+}

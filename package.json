@@ -12,6 +12,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
+    "typecheck:tests": "tsc -p tsconfig.typecheck.json",
     "test": "turbo run test",
     "test:integration": "turbo run test:integration",
     "format": "prettier --write .",
