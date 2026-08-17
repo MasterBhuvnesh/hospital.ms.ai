@@ -5,3 +5,9 @@ out
 coverage
 .turbo
 docs/Synopsis/*.pdf
+
+# Markdown is hand-written to the style in .github/RULES.md, which Prettier
+# does not know about. Letting it reflow tables and wrap prose would rewrite
+# every documentation file and add noise to every future diff.
+*.md
+

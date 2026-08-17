@@ -1,19 +1,19 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
   # Scaffolded by their own generators (create-next-app, create-expo,
   # create @quick-start/electron). Added back once those run, so the
   # generator is not fighting a manifest that already exists.
-  - "!apps/web"
-  - "!apps/mobile"
-  - "!apps/desktop"
+  - '!apps/web'
+  - '!apps/mobile'
+  - '!apps/desktop'
 allowBuilds:
   # Ships prebuilt platform binaries. Vitest and tsx will not run without it.
   esbuild: true
   # Native addon, compiled at install. Password hashing.
   argon2: true
   # Prisma generates the client into node_modules at install time.
-  "@prisma/client": true
+  '@prisma/client': true
   prisma: true
   # Downloads the query engine binary for this platform.
-  "@prisma/engines": true
+  '@prisma/engines': true

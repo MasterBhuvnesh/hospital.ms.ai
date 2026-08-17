@@ -49,7 +49,14 @@ export default tseslint.config(
   {
     files: ['packages/platform/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [{ group: ['*'], message: 'packages/platform is interfaces only. It imports nothing.' }] }],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: ['*'], message: 'packages/platform is interfaces only. It imports nothing.' },
+          ],
+        },
+      ],
     },
   },
 );
