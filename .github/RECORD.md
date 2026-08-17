@@ -40,6 +40,9 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | BullMQ dropped, delayed work moved onto the RabbitMQ delayed-message exchange | BHUVNESH | DROPPED | 15-08-2026 |
 | Waiting-room TV and queue-display board removed from v1 | BHUVNESH | DROPPED | 15-08-2026 |
 | Release order changed: Commerce (P3) now precedes AI (P4), MVP is P0 to P3 | BHUVNESH | DONE | 15-08-2026 |
+| Plan re-baselined for a team of four: 34 weeks, full scope retained, no feature cut | BHUVNESH | DONE | 17-08-2026 |
+| Four ownership tracks defined, and review rules for AI-assisted work | BHUVNESH | DONE | 17-08-2026 |
+| Assign the four tracks to named people, and agree who reviews whom | BHUVNESH | PLANNED | 17-08-2026 |
 | Prescription signature defined as an attestation with a SHA-256 content hash | BHUVNESH | DONE | 15-08-2026 |
 | Break-glass defined for administrative clinical access | BHUVNESH | DONE | 15-08-2026 |
 | Event catalogue completed, 26 events with publishers, consumers and actions | BHUVNESH | DONE | 15-08-2026 |
