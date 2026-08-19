@@ -57,14 +57,19 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | ------- | --------- | ------ | ---- |
 | Four deployment profiles defined: local, single-host, portable, aws | BHUVNESH | DONE | 15-08-2026 |
 | Capability matrix, 22 dependencies each with an AWS and a non-AWS implementation | BHUVNESH | DONE | 15-08-2026 |
-| `packages/platform` interfaces (storage, secrets, email, sms, push, whatsapp, payments, llm) | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/platform-generic` implementations over S3 API, SMTP and HTTP | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/platform-aws` isolated, the only package permitted an AWS SDK | BHUVNESH | PLANNED | 15-08-2026 |
-| ESLint gate blocking cloud SDK imports outside `platform-aws` | BHUVNESH | DONE | 17-08-2026 |
+| `packages/platform` interfaces (storage, secrets, email, sms, push, whatsapp, payments, llm) | BHUVNESH | PLANNED | 19-08-2026 |
+| `packages/platform-generic` implementations over S3 API, SMTP and HTTP | BHUVNESH | PLANNED | 19-08-2026 |
+| `packages/platform-aws` isolated, the only package permitted an AWS SDK | BHUVNESH | PLANNED | 19-08-2026 |
+| ESLint gate blocking cloud SDK imports, repository-wide | BHUVNESH | DONE | 19-08-2026 |
 | `check-portable-chart.sh` rejecting AWS strings in the rendered base chart | BHUVNESH | PLANNED | 15-08-2026 |
 | CI job deploying the portable profile to kind on every merge | BHUVNESH | PLANNED | 15-08-2026 |
 | Terraform split into `modules/kubernetes` and `modules/aws` | BHUVNESH | PLANNED | 15-08-2026 |
 | Helm values files for the portable and aws profiles | BHUVNESH | PLANNED | 15-08-2026 |
+| Deployment owned by BHUVNESH; every other developer runs the `local` profile only | BHUVNESH | DONE | 19-08-2026 |
+| `local` profile, Compose on a laptop, the development environment | BHUVNESH | IN PROGRESS | 19-08-2026 |
+| `single-host` profile, Compose on one VM, built once the backend is complete | BHUVNESH | PLANNED | 19-08-2026 |
+| `portable` profile, built after `single-host` | BHUVNESH | PLANNED | 19-08-2026 |
+| `aws` profile, overrides on `portable`, built last | BHUVNESH | PLANNED | 19-08-2026 |
 
 ## INFRASTRUCTURE
 
@@ -97,24 +102,31 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 
 | FEATURE | DEVELOPER | STATUS | DATE |
 | ------- | --------- | ------ | ---- |
-| `packages/contracts`, zod schemas as the single contract source | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/config`, `APP_ENV` loader with zod validation at boot | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/logger`, pino with PHI redaction paths | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/middleware`, auth, error, validation, correlation id | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/db`, Prisma factory with tenancy-scoped repository base | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/events`, RabbitMQ envelope, publish, consume, delayed publish | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/auth`, JWT sign and verify, RBAC, ownership, break-glass | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/pdf`, prescription, invoice and lab report templates with Noto Devanagari | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/ui`, React components shared by web and the desktop renderer | BHUVNESH | PLANNED | 15-08-2026 |
-| `packages/api-client`, typed client generated from contracts | BHUVNESH | PLANNED | 15-08-2026 |
+| `packages/contracts`, zod schemas as the single contract source | BHUVNESH | DONE | 18-08-2026 |
+| `packages/config`, `APP_ENV` loader with zod validation at boot | BHUVNESH | DONE | 18-08-2026 |
+| `packages/logger`, pino with PHI redaction paths | BHUVNESH | DONE | 18-08-2026 |
+| `packages/middleware`, health and readiness probes | BHUVNESH | DONE | 18-08-2026 |
+| `packages/middleware`, auth, error, validation, correlation id | BHUVNESH | PLANNED | 19-08-2026 |
+| `packages/db`, Prisma factory with tenancy-scoped repository base | BHUVNESH | DONE | 18-08-2026 |
+| `packages/events`, RabbitMQ envelope, publish, consume, delayed publish | BHUVNESH | PLANNED | 19-08-2026 |
+| `packages/auth`, RS256 JWT sign and verify, argon2id hashing, token hashing | BHUVNESH | DONE | 19-08-2026 |
+| `packages/auth`, RBAC, ownership checks, break-glass | BHUVNESH | PLANNED | 19-08-2026 |
+| `packages/pdf`, prescription, invoice and lab report templates with Noto Devanagari | BHUVNESH | PLANNED | 19-08-2026 |
+| `packages/ui`, React components shared by web and the desktop renderer | BHUVNESH | PLANNED | 19-08-2026 |
+| `packages/api-client`, typed client generated from contracts | BHUVNESH | PLANNED | 19-08-2026 |
+
+The seven packages still marked PLANNED hold only a README. Their placeholder source and manifests were deleted on 19-08-2026: an empty package that builds is indistinguishable from a finished one, and seven of them made the workspace graph lie about what exists.
 
 ## BACKEND SERVICES
 
 | FEATURE | DEVELOPER | STATUS | DATE |
 | ------- | --------- | ------ | ---- |
 | `gateway`: routing, JWT verification, `x-user-*` header stripping, rate limiting, WS upgrade | BHUVNESH | PLANNED | 15-08-2026 |
-| `identity`: users, roles, sessions, refresh rotation, argon2id, device registration | BHUVNESH | PLANNED | 15-08-2026 |
-| `identity`: SMS OTP delivery, blocking patient login until it exists | BHUVNESH | PLANNED | 15-08-2026 |
+| `identity`: register, login, refresh rotation with reuse detection, logout, profile | BHUVNESH | DONE | 19-08-2026 |
+| `identity`: OTP request and verify, hashed, single use, attempt limited | BHUVNESH | DONE | 19-08-2026 |
+| `identity`: Prisma store written, no migration applied, never run against Postgres | BHUVNESH | IN PROGRESS | 19-08-2026 |
+| `identity`: role granting, JWKS endpoint, device registration | BHUVNESH | PLANNED | 19-08-2026 |
+| `identity`: SMS OTP delivery, blocking patient login until it exists | BHUVNESH | PLANNED | 19-08-2026 |
 | `directory`: hospitals, departments, rooms, doctors, schedules, attendance, leave | BHUVNESH | PLANNED | 15-08-2026 |
 | `directory`: availability computed from schedule, attendance and leave | BHUVNESH | PLANNED | 15-08-2026 |
 | `scheduling`: appointments, waitlists, rescheduling, cancellation | BHUVNESH | PLANNED | 15-08-2026 |

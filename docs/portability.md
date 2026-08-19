@@ -31,6 +31,29 @@ Four profiles, one codebase, one commit. Kubernetes profiles deploy the eight pe
 
 **`portable` is the default profile.** `aws` is a set of overrides on top of it. That ordering matters: if AWS were the default, the portable path would rot, because nobody would run it.
 
+### 2.1 Ownership
+
+**BHUVNESH owns deployment.** Every profile above `local` is his: he builds them, he runs them, he is the one paged when one breaks. Nobody else on the team needs a cluster, a cloud account, or a set of credentials to do their work.
+
+**Everyone else uses `local`, and only `local`.** One command, `docker compose -f docker/compose/compose.local.yml up`, and the whole platform is running against containers on the laptop. A developer who has never opened a Helm chart should still be able to build a feature end to end, and that is the point of the profile existing.
+
+This is a division of labour, not a restriction. If you want to learn the Kubernetes side, ask — the constraint is that nobody is *required* to.
+
+### 2.2 Sequencing
+
+The three deployment profiles are built after the backend is complete, in this order, and deliberately not before:
+
+| Profile | When | Why then |
+|---|---|---|
+| `local` | Now, alongside every service | It is how the backend gets written at all. It is not a deployment target, it is the development environment. |
+| `single-host` | Once the backend is complete | It is the smallest real deployment: one Compose file, one VM. It proves the all-in-one image boots the whole platform before any orchestrator is involved. |
+| `portable` | After `single-host` | Kubernetes is where the manifests, the probes and the secret handling get exercised. Doing it before the services are stable means debugging the chart and the code at the same time. |
+| `aws` | Last | It is overrides on top of `portable`. There is nothing to override until `portable` works. |
+
+The reason for the ordering is that a deployment profile can only be validated against a system that runs. Building the Helm chart for a service whose endpoints are still moving produces a chart that is rewritten twice and trusted once. The `local` profile carries all of the risk during development; the other three carry it after.
+
+What this does **not** mean: the profiles are an afterthought. The capability matrix in section 3 is already binding, and the ESLint gate is already enforced. Code written today must not assume a cloud that only `aws` provides — that is what makes the later profiles a configuration exercise instead of a rewrite.
+
 ### Selecting a profile
 
 ```bash
