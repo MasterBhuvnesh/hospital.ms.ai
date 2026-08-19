@@ -1,0 +1,562 @@
+{
+  "info": {
+    "_postman_id": "a1e6f2c4-7b3d-4a58-9f21-6c0d5e8b4a10",
+    "name": "Atelier Health — Identity",
+    "description": "Auth for the Atelier Health platform: registration, password login, OTP login, refresh-token rotation and profile.\n\n## Before you run anything\n\nSelect an environment, or set `baseUrl` in the collection variables. Two are useful:\n\n- **direct** — `http://localhost:5001`, talking to identity itself\n- **gateway** — `http://localhost:4000`, the way a real client reaches it\n\nEvery route below is identical through both. The gateway adds rate limiting and `x-user-*` headers; it does not change the contract.\n\n## Tokens are captured for you\n\n`Register`, `Login`, `Verify OTP` and `Refresh` all run a test script that writes `accessToken` and `refreshToken` into the collection variables. Nothing needs copying by hand — run `Register`, then `Get profile` works.\n\n## Getting the OTP\n\n`SMS_DRIVER` and `EMAIL_DRIVER` default to `console`, so no message is sent anywhere. The code is printed to the service's stdout:\n\n```\ndocker compose -f docker/compose/single-host.yml logs -f platform\n```\n\nLook for `OTP for this phone: 123456`. That driver is refused at startup when `APP_ENV=production`.\n\n## The negative requests are the point\n\nThe folder `Security expectations` contains requests that are SUPPOSED to fail, each asserting the specific failure. They are the difference between an endpoint that works and an endpoint that is safe: no account enumeration, no reason given for a rejected token, no reuse of a rotated refresh token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5001" },
+    { "key": "email", "value": "asha.menon@example.com" },
+    { "key": "phone", "value": "+919876543210" },
+    { "key": "password", "value": "a-sufficiently-long-password" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "otpCode", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Liveness",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/live",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "live"]
+            },
+            "description": "Is the process running. Answers 200 even when the database is down — restarting would not help, so this must not fail on a dependency."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('reports ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Readiness",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "ready"]
+            },
+            "description": "Can it serve traffic. 503 when a hard dependency is unavailable. The response never names which one — that belongs in the log, not in a public body."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 or 503', () => pm.expect([200, 503]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Password auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Asha Menon\",\n  \"email\": \"{{email}}\",\n  \"phone\": \"{{phone}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Creates an account and returns a token pair straight away — 201, not 200.\n\n`email` and `phone` are each optional but at least one is required. This product is phone-first: a patient at a district hospital has a number and no address, and an administrator may have only a work address. Sending neither is a 400.\n\nPassword minimum is 12 characters with no composition rules, which is the NIST recommendation — rules like \"one symbol\" measurably produce weaker passwords.\n\nBoth contacts start unverified. Only a successful OTP verification sets `emailVerified` or `phoneVerified`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('returns a bearer pair', () => {",
+                  "  pm.expect(body.tokenType).to.eql('Bearer');",
+                  "  pm.expect(body.accessToken).to.be.a('string');",
+                  "  pm.expect(body.refreshToken).to.be.a('string');",
+                  "});",
+                  "pm.test('never echoes the password', () => {",
+                  "  pm.expect(pm.response.text()).to.not.include(pm.collectionVariables.get('password'));",
+                  "});",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Send either `email` or `phone`, plus the password.\n\nThe access token carries the user's PRIMARY hospital and role. A user who belongs to no hospital — every patient between registering and their first appointment — gets `hospitalId: null` and an empty role list, which is a valid token, not an error."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "The only authenticated route in this service.\n\nThe bearer token is verified with the PUBLIC key, exactly as any other service would verify it. identity holds the private key but does not use it here, so this code path is exercised the same way the rest of the platform exercises tokens."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('has an id and roles', () => {",
+                  "  pm.expect(body.id).to.be.a('string');",
+                  "  pm.expect(body.roles).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OTP",
+      "item": [
+        {
+          "name": "Request code",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"purpose\": \"LOGIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/otp/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "otp", "request"]
+            },
+            "description": "Always 202 with an empty body, whether or not the destination belongs to an account. This endpoint is unauthenticated, so a 404 for an unknown number would be a free account-enumeration oracle.\n\nOne live challenge per destination and purpose. Asking again before the first expires is a 429: ten live codes would be ten chances to guess.\n\n`purpose` is one of LOGIN, VERIFY_CONTACT, RESET_PASSWORD, and a code issued for one purpose cannot be redeemed for another.\n\nThe code is never in this response. Read it from the service log — see the collection description."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "pm.test('body is empty', () => pm.expect(pm.response.text()).to.be.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify code",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"{{otpCode}}\",\n  \"purpose\": \"LOGIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "otp", "verify"]
+            },
+            "description": "Set the `otpCode` collection variable from the service log first.\n\nA correct code returns a token pair AND marks the contact verified — proving control of a destination is what verification means. A code is single-use.\n\nAfter OTP_MAX_ATTEMPTS wrong guesses the challenge is spent and even the correct code returns 429."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Session",
+      "item": [
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Returns a NEW refresh token and revokes the one you sent. The old token is dead the moment this returns — see `Replay a rotated refresh token` for what happens if it is used again."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('rotated', () => {",
+                  "  pm.expect(body.refreshToken).to.not.eql(pm.collectionVariables.get('refreshToken'));",
+                  "});",
+                  "pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "204, and idempotent: an unknown or already-revoked token still succeeds. Revokes the whole token family, not just the one sent, so logging out on one device ends that session lineage entirely.\n\nThe ACCESS token stays valid until it expires (15 minutes). Revoking it would mean a database lookup on every request in all eight services, which is the tradeoff the short TTL exists to make."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Security expectations",
+      "description": "Requests that must fail, each asserting how. Run the whole folder after any change to auth.",
+      "item": [
+        {
+          "name": "Login with an unknown account",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nobody-at-all@example.com\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Must be byte-identical to a wrong password: same 401, same code, same message. Anything that distinguishes them tells an attacker which addresses are registered.\n\nThe service also verifies the password against a decoy hash when no user is found, so the two cases take the same time as well — a timing gap is an enumeration oracle even when the bodies match."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401', () => pm.response.to.have.status(401));",
+                  "pm.test('says only Invalid credentials', () => {",
+                  "  pm.expect(pm.response.json().error.message).to.eql('Invalid credentials');",
+                  "});",
+                  "pm.test('does not hint that the account is unknown', () => {",
+                  "  const text = pm.response.text().toLowerCase();",
+                  "  ['not found', 'no such', 'unknown user', 'does not exist'].forEach((phrase) => {",
+                  "    pm.expect(text).to.not.include(phrase);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login with a wrong password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"definitely-the-wrong-password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "The other half of the enumeration pair. Compare the body to the previous request — they must be identical."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401', () => pm.response.to.have.status(401));",
+                  "pm.test('same message as an unknown account', () => {",
+                  "  pm.expect(pm.response.json().error.message).to.eql('Invalid credentials');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Request an OTP for a number nobody registered",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919999999999\",\n  \"purpose\": \"LOGIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/otp/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "otp", "request"]
+            },
+            "description": "202 and an empty body, exactly like a known number. Nothing is generated and nothing is sent, and the caller cannot tell."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('202, same as a known destination', () => pm.response.to.have.status(202));",
+                  "pm.test('empty body', () => pm.expect(pm.response.text()).to.be.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Replay a rotated refresh token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Run `Refresh` twice with the SAME token to see this: the second attempt is 401 and revokes the entire family, including the token the first attempt just issued.\n\nThat is deliberate. Rotation alone does not detect theft — the thief simply refreshes first, and the victim looks like the anomaly. Killing the family means whoever refreshes second logs the other one out, so a stolen session cannot outlive the real user's next request. Both parties re-authenticate, which is the correct outcome when one of them is an attacker."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 on replay', () => pm.response.to.have.status(401));",
+                  "pm.test('gives no detail about why', () => {",
+                  "  pm.expect(pm.response.json().error.message).to.eql('Invalid refresh token');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Use a refresh token as a bearer token",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{refreshToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "A refresh token is opaque random bytes, not a JWT. It must never authenticate a request."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('401', () => pm.response.to.have.status(401));"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Profile with no token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401', () => pm.response.to.have.status(401));",
+                  "pm.test('shared error envelope', () => {",
+                  "  pm.expect(pm.response.json().error.code).to.eql('UNAUTHENTICATED');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Profile with a garbage token",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer not.a.jwt" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "The message is `Invalid token` for every failure — bad signature, expired, wrong issuer, wrong audience. Distinguishing them tells an attacker whether they hold something real."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401', () => pm.response.to.have.status(401));",
+                  "pm.test('gives no reason', () => {",
+                  "  pm.expect(pm.response.json().error.message).to.eql('Invalid token');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register with neither email nor phone",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nobody\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "400 with the shared error envelope and a `details` array naming the failing path."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400', () => pm.response.to.have.status(400));",
+                  "pm.test('VALIDATION_ERROR with details', () => {",
+                  "  const error = pm.response.json().error;",
+                  "  pm.expect(error.code).to.eql('VALIDATION_ERROR');",
+                  "  pm.expect(error.details).to.be.an('array').that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register with a non-E.164 phone",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nobody\",\n  \"phone\": \"9876543210\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Numbers are stored in E.164 (`+919876543210`) with no exceptions. A bare local number is ambiguous across countries and cannot be dialled by an SMS provider."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('400', () => pm.response.to.have.status(400));"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

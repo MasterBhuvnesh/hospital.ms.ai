@@ -1,0 +1,14 @@
+{
+  // prisma.config.ts sits outside src/, so neither ../tsconfig.json (include:
+  // src/**) nor tsconfig.typecheck.json (include: apps/*/src/**) covers it. The
+  // editor then falls back to an implicit config with no `types`, and every
+  // `process.env` read reports "Cannot find name 'process'". This config exists
+  // only to give that one file a home. Prisma runs it through its own loader,
+  // so nothing is emitted.
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["*.ts"]
+}

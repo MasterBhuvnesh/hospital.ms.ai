@@ -29,6 +29,19 @@ RUN pnpm install --frozen-lockfile
 # --- build --------------------------------------------------------------------
 FROM deps AS build
 COPY . .
+# The Prisma client must be generated before anything compiles: `@prisma/client`
+# exports nothing until it is, so packages/db fails with "no exported member
+# PrismaClient". This works locally without the step only because a client was
+# generated there earlier, which is exactly the kind of difference a container
+# build exists to catch.
+#
+# The placeholder URLs are required because Prisma resolves `env()` while
+# reading the schema, even for `generate`, which never connects to anything.
+# They are build-time only and are not present in the runtime stage.
+RUN DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder" \
+    DIRECT_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder" \
+    pnpm --filter @hms/db db:generate
+
 # ./apps/* is the eight services and nothing else: web, mobile and desktop are
 # excluded from the workspace in pnpm-workspace.yaml until they are scaffolded.
 RUN pnpm --filter "./packages/*" build && pnpm --filter "./apps/*" build

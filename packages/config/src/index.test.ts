@@ -1,3 +1,7 @@
+// expectTypeOf must be imported, not taken from globals: the global declaration
+// resolves to a different signature and every toEqualTypeOf<T>() below fails to
+// compile under `pnpm typecheck:tests`, while vitest itself passes because it
+// strips types without checking them.
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import {
   createConfigLoader,
@@ -374,7 +378,36 @@ describe('createConfigLoader', () => {
 
     const loadConfig = createConfigLoader(serviceSchema);
 
-    expect(() => loadConfig()).toThrow('Invalid duration format');
+    expect(() => loadConfig()).toThrow('Expected a duration like 15m, 60s, 24h or 30d');
+  });
+
+  // The point of DURATION_KEYS. Before this, every duration key validated as a
+  // string and was handed to callers as one, so each service had to parse `15m`
+  // itself, and `setTimeout('15m')` fires immediately rather than failing.
+  it('converts every duration key to milliseconds', () => {
+    process.env.REDIS_URL = 'redis://localhost:6379';
+    process.env.JWT_PUBLIC_KEY = 'test-public-key';
+    process.env.ACCESS_TOKEN_TTL = '15m';
+    process.env.REFRESH_TOKEN_TTL = '30d';
+    process.env.OTP_TTL = '5m';
+    process.env.OTP_RESEND_COOLDOWN = '60s';
+    process.env.UPSTREAM_TIMEOUT = '10s';
+
+    const config = createConfigLoader(z.object({}))();
+
+    expect(config.ACCESS_TOKEN_TTL).toBe(900_000);
+    expect(config.REFRESH_TOKEN_TTL).toBe(2_592_000_000);
+    expect(config.OTP_TTL).toBe(300_000);
+    expect(config.OTP_RESEND_COOLDOWN).toBe(60_000);
+    expect(config.UPSTREAM_TIMEOUT).toBe(10_000);
+  });
+
+  it('leaves an unset duration undefined rather than defaulting it to zero', () => {
+    process.env.REDIS_URL = 'redis://localhost:6379';
+    process.env.JWT_PUBLIC_KEY = 'test-public-key';
+    delete process.env.LAB_RESULT_SLA;
+
+    expect(createConfigLoader(z.object({}))().LAB_RESULT_SLA).toBeUndefined();
   });
 
   it('fails on invalid APP_ENV value', () => {
@@ -410,20 +443,29 @@ describe('createConfigLoader', () => {
     const loadConfig = createConfigLoader(serviceSchema);
     const config = loadConfig();
 
-    expectTypeOf(config.MY_SERVICE_KEY).toEqualTypeOf<string>();
-    expectTypeOf(config.MY_NUMBER).toEqualTypeOf<number>();
-    expectTypeOf(config.MY_DURATION).toEqualTypeOf<number>();
-    expectTypeOf(config.MY_CORS).toEqualTypeOf<string[]>();
-    expectTypeOf(config.APP_ENV).toEqualTypeOf<
-      'development' | 'testing' | 'container' | 'production'
-    >();
-    expectTypeOf(config.LOG_LEVEL).toEqualTypeOf<'trace' | 'debug' | 'info' | 'warn' | 'error'>();
+    // Plain annotated bindings rather than expectTypeOf. They assert the same
+    // thing — assigning a wrongly-inferred value fails compilation — and they are
+    // checked by `pnpm typecheck:tests`, which is where a type assertion has to
+    // hold. vitest itself proves nothing about types: it strips them.
+    const serviceKey: string = config.MY_SERVICE_KEY;
+    const numberKey: number = config.MY_NUMBER;
+    const durationKey: number = config.MY_DURATION;
+    const corsKey: string[] = config.MY_CORS;
+    const appEnv: 'development' | 'testing' | 'container' | 'production' = config.APP_ENV;
+    const logLevel: 'trace' | 'debug' | 'info' | 'warn' | 'error' = config.LOG_LEVEL;
+
+    // Asserted at runtime too, so the bindings are not unused and the parsing
+    // that produced them is confirmed.
+    expect(serviceKey).toBe('value');
+    expect(numberKey).toBe(42);
+    expect(durationKey).toBe(300_000);
+    expect(corsKey).toEqual(['http://a.com', 'http://b.com']);
+    expect(appEnv).toBe('development');
+    expect(logLevel).toBeDefined();
   });
 });
 
-// Helper for type testing
-function expectTypeOf<T>(_value: T): { toEqualTypeOf(): void } {
-  return {
-    toEqualTypeOf() {},
-  };
-}
+// A local no-op `expectTypeOf` stub used to live here, whose `toEqualTypeOf()`
+// took no type argument and did nothing. Every type assertion in this file
+// silently passed against it. Replaced by annotated bindings above, which fail
+// compilation under `pnpm typecheck:tests` when the inferred type is wrong.

@@ -10,8 +10,11 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["node", "vitest/globals"]
+    // Not "vitest/globals". Its ambient declarations shadow the real exports, and
+    // `expectTypeOf<T>()` then resolves to a signature taking no type arguments.
+    // Test files import from 'vitest' explicitly, which is what we want anyway.
+    "types": ["node"]
   },
-  "include": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts"],
+  "include": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts", "apps/*/prisma/*.ts"],
   "exclude": ["node_modules", "**/dist/**", "**/.next/**", "**/out/**"]
 }

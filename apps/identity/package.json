@@ -10,7 +10,7 @@
     "start": "node dist/server.js",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
@@ -21,9 +21,9 @@
     "@hms/config": "workspace:*",
     "@hms/contracts": "workspace:*",
     "@hms/db": "workspace:*",
-    "@hms/events": "workspace:*",
     "@hms/logger": "workspace:*",
     "@hms/middleware": "workspace:*",
+    "@prisma/client": "^7.9.1",
     "argon2": "^0.45.1",
     "fastify": "^5.12.0",
     "ioredis": "^6.0.0",
@@ -32,5 +32,8 @@
   },
   "hms": {
     "port": 5001
+  },
+  "devDependencies": {
+    "prisma": "^7.9.1"
   }
 }

@@ -64,7 +64,11 @@ describe('PHI redaction', () => {
     ['a password hash', { passwordHash: '$argon2id$v=19$m=65536' }, 'argon2id'],
     ['a refresh token', { refreshToken: 'rt_9f8a7b6c5d' }, 'rt_9f8a7b6c5d'],
     ['a private key', { privateKey: '-----BEGIN PRIVATE KEY-----' }, 'BEGIN PRIVATE KEY'],
-    ['an authorization header', { req: { headers: { authorization: 'Bearer abc.def' } } }, 'abc.def'],
+    [
+      'an authorization header',
+      { req: { headers: { authorization: 'Bearer abc.def' } } },
+      'abc.def',
+    ],
     ['a cookie header', { req: { headers: { cookie: 'session=xyz' } } }, 'session=xyz'],
     ['a whole request body', { req: { body: { name: 'Asha', complaint: 'fever' } } }, 'Asha'],
     ['a break-glass reason', { reason: 'patient unconscious, next of kin absent' }, 'unconscious'],

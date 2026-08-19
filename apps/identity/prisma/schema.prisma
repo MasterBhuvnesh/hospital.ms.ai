@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Connection URLs are NOT here. Prisma 7 rejects `url` and `directUrl` in a
+// schema file outright: "The datasource property `url` is no longer supported in
+// schema files." They live in prisma.config.ts beside this file, and every
+// command that needs them passes --config, so discovery does not depend on the
+// working directory.
+datasource db {
+  provider = "postgresql"
+  schemas  = ["identity"]
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  NURSE
+  RECEPTIONIST
+  PHARMACIST
+  LAB_TECH
+  HOSPITAL_ADMIN
+  PLATFORM_ADMIN
+
+  @@schema("identity")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String?   @unique
+  emailVerified Boolean   @default(false)
+  phone         String?   @unique
+  phoneVerified Boolean   @default(false)
+  fullName      String
+  avatarUrl     String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  credentials       Credential[]
+  hospitalRoles     UserHospitalRole[]
+  refreshTokens     RefreshToken[]
+  devices           Device[]
+  otpChallenges     OtpChallenge[]
+  auditLogs         AuditLog[]   @relation("UserAuditLogs")
+
+  @@schema("identity")
+  // Invariant: at least one of email or phone must be present.
+  // Enforced in application layer (identity service) before create.
+}
+
+model Credential {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@schema("identity")
+  @@index([userId])
+}
+
+model UserHospitalRole {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospitalId String
+  role      Role
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("identity")
+  @@unique([userId, hospitalId, role])
+  @@index([hospitalId])
+  @@index([hospitalId, createdAt])
+  @@index([userId])
+}
+
+model RefreshToken {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash       String   @unique
+  familyId        String
+  parentTokenHash String?
+  userAgent       String?
+  ip              String?
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  replacedByHash  String?
+  createdAt       DateTime @default(now())
+
+  @@schema("identity")
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
+}
+
+model Device {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId     String
+  name         String?
+  platform     String?
+  userAgent    String?
+  ip           String?
+  lastSeenAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@schema("identity")
+  @@unique([userId, deviceId])
+  @@index([userId])
+  @@index([deviceId])
+}
+
+model OtpChallenge {
+  id            String   @id @default(uuid())
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destination   String
+  destinationType String  // "phone" | "email"
+  codeHash      String
+  purpose       String
+  attemptCount  Int      @default(0)
+  maxAttempts   Int
+  expiresAt     DateTime
+  consumedAt    DateTime?
+  createdAt     DateTime @default(now())
+
+  @@schema("identity")
+  @@index([userId])
+  @@index([destination, destinationType])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  actorId       String?
+  actor         User?    @relation("UserAuditLogs", fields: [actorId], references: [id], onDelete: SetNull)
+  actorRole     Role?
+  action        String
+  resource      String
+  resourceId    String?
+  hospitalId    String?
+  before        Json?
+  after         Json?
+  ip            String?
+  timestamp     DateTime @default(now())
+  correlationId String?
+  reason        String?
+
+  @@schema("identity")
+  @@index([hospitalId, timestamp])
+  @@index([actorId])
+  @@index([resource, resourceId])
+  @@index([correlationId])
+  @@index([timestamp])
+}

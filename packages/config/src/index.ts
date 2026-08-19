@@ -88,9 +88,17 @@ function parseDuration(value: string): number {
   return amount * multipliers[unit];
 }
 
-const durationSchema = z.string().transform((val) => {
-  return parseDuration(val);
-});
+/**
+ * `15m` in the env file becomes `900000` in the config object.
+ *
+ * The regex is on the schema rather than only inside parseDuration so that a
+ * malformed value is a normal zod issue, reported with its key alongside every
+ * other problem, instead of an exception thrown from inside a transform.
+ */
+const durationSchema = z
+  .string()
+  .regex(/^\d+[smhd]$/, 'Expected a duration like 15m, 60s, 24h or 30d')
+  .transform(parseDuration);
 
 const corsOriginsSchema = z.string().transform((val) => {
   return val
@@ -133,7 +141,16 @@ const baseSchema = z
     LLM_DRIVER: z.enum(LLM_DRIVER_VALUES).default(DRIVER_DEFAULTS.LLM_DRIVER),
     CORS_ORIGINS: z.string().optional(),
   })
-  .extend(Object.fromEntries(DURATION_KEYS.map((k) => [k, z.string().optional()])));
+  // The cast is load-bearing. `Object.fromEntries` returns an index signature,
+  // and extending with one makes EVERY key on the resulting schema
+  // `string | undefined`, so LOG_LEVEL and APP_ENV stop being their enums and
+  // callers lose the compile error this package exists to give them. The mapped
+  // type says the same thing with exact keys instead.
+  .extend(
+    Object.fromEntries(DURATION_KEYS.map((key) => [key, durationSchema.optional()])) as {
+      [K in (typeof DURATION_KEYS)[number]]: z.ZodOptional<typeof durationSchema>;
+    },
+  );
 
 type BaseConfig = z.infer<typeof baseSchema>;
 
@@ -165,9 +182,15 @@ function loadEnvFile(appEnv: AppEnv): Record<string, string> {
 type ValidatedConfig = BaseConfig & Record<string, unknown>;
 
 export function createConfigLoader<T extends z.ZodRawShape>(serviceSchema: z.ZodObject<T>) {
-  const combinedSchema = baseSchema
-    .extend(serviceSchema.shape)
-    .superRefine((data: unknown, ctx) => {
+  // The object schema is captured BEFORE the refinement chain, and its inferred
+  // type is what callers get back. Reading the type off the refined schema
+  // instead degrades the base keys to `string | undefined`, so APP_ENV stops
+  // being its enum and a caller loses the compile error on a typo, which is the
+  // main thing this package is for.
+  const objectSchema = baseSchema.extend(serviceSchema.shape);
+
+  const combinedSchema = objectSchema
+    .superRefine((data, ctx) => {
       const d = data as ValidatedConfig;
       // In testing, all drivers must be stub/console values
       if (d.APP_ENV === 'testing') {
@@ -182,7 +205,7 @@ export function createConfigLoader<T extends z.ZodRawShape>(serviceSchema: z.Zod
         }
       }
     })
-    .superRefine((data: unknown, ctx) => {
+    .superRefine((data, ctx) => {
       const d = data as ValidatedConfig;
       // CORS_ORIGINS=* forbidden in production
       if (d.APP_ENV === 'production' && d.CORS_ORIGINS?.includes('*')) {
@@ -192,26 +215,9 @@ export function createConfigLoader<T extends z.ZodRawShape>(serviceSchema: z.Zod
           path: ['CORS_ORIGINS'],
         });
       }
-    })
-    .superRefine((data: unknown, ctx) => {
-      const d = data as ValidatedConfig;
-      // Duration validation for known duration keys
-      for (const key of DURATION_KEYS) {
-        const value = d[key];
-        if (value !== undefined && typeof value === 'string') {
-          const match = value.match(/^(\d+)([smhd])$/);
-          if (!match) {
-            ctx.addIssue({
-              code: 'custom',
-              message: `Invalid duration format: ${value}. Expected format like 15m, 5m, 60s, 15s, 30d`,
-              path: [key],
-            });
-          }
-        }
-      }
     });
 
-  return function loadConfig(): z.infer<typeof combinedSchema> {
+  return function loadConfig(): z.infer<typeof objectSchema> {
     const rawAppEnv = (process.env.APP_ENV ?? 'development') as AppEnv;
     if (!APP_ENV_VALUES.includes(rawAppEnv)) {
       throw new Error(
