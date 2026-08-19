@@ -66,6 +66,8 @@ Phase and task ids come from [`docs/traceability.md`](../docs/traceability.md) a
 | Terraform split into `modules/kubernetes` and `modules/aws` | BHUVNESH | PLANNED | 15-08-2026 |
 | Helm values files for the portable and aws profiles | BHUVNESH | PLANNED | 15-08-2026 |
 | Deployment owned by BHUVNESH; every other developer runs the `local` profile only | BHUVNESH | DONE | 19-08-2026 |
+| `.github/CODEOWNERS`: BHUVNESH reviews every pull request, and owns infra outright | BHUVNESH | DONE | 19-08-2026 |
+| Branch protection on `main` requiring a Code Owner review, set in repository settings | BHUVNESH | PLANNED | 19-08-2026 |
 | `local` profile, Compose on a laptop, the development environment | BHUVNESH | IN PROGRESS | 19-08-2026 |
 | `single-host` profile, Compose on one VM, built once the backend is complete | BHUVNESH | PLANNED | 19-08-2026 |
 | `portable` profile, built after `single-host` | BHUVNESH | PLANNED | 19-08-2026 |
