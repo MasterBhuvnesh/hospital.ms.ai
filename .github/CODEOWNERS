@@ -1,0 +1,42 @@
+# Code owners for Atelier Health.
+#
+# A CODEOWNERS entry does one thing: it requests a review from the owner when a
+# pull request touches a matching path. It is not an access control. Making it
+# BLOCK a merge requires branch protection on `main` with "Require review from
+# Code Owners" enabled, and that setting lives in the repository settings, not
+# in this file. Without it, this file is a suggestion.
+#
+# Later rules win over earlier ones, so the catch-all comes first and the
+# specific paths below it are the ones that actually matter.
+
+# ---------------------------------------------------------------------------
+# Everything. Every pull request goes through Bhuvnesh.
+# ---------------------------------------------------------------------------
+
+*                       @MasterBhuvnesh
+
+# ---------------------------------------------------------------------------
+# Infrastructure and deployment. Bhuvnesh only.
+#
+# These are the paths where a mistake costs more than a revert: a bad Helm
+# value takes production down, a Terraform change bills money, a Compose edit
+# breaks every developer's machine at once, and a workflow change can leak a
+# secret into a public log. They are listed separately from the catch-all so
+# that the ownership survives if the catch-all is ever narrowed.
+# ---------------------------------------------------------------------------
+
+/infra/                 @MasterBhuvnesh
+/docker/                @MasterBhuvnesh
+/envs/                  @MasterBhuvnesh
+/scripts/               @MasterBhuvnesh
+/.github/               @MasterBhuvnesh
+
+# Root configuration: the build graph, the type and lint gates, the workspace
+# definition. A change here affects every package in the repository.
+/package.json           @MasterBhuvnesh
+/pnpm-workspace.yaml    @MasterBhuvnesh
+/pnpm-lock.yaml         @MasterBhuvnesh
+/turbo.json             @MasterBhuvnesh
+/eslint.config.mjs      @MasterBhuvnesh
+/tsconfig*.json         @MasterBhuvnesh
+/.dockerignore          @MasterBhuvnesh

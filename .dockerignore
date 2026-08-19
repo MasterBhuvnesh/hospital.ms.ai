@@ -1,0 +1,52 @@
+# Every Dockerfile in this repository builds from the REPOSITORY ROOT and does
+# `COPY . .`, so this file decides what ends up inside nine images.
+#
+# Two reasons it is load-bearing, both found by actually building:
+#
+#   1. Without it, the host's node_modules is copied over the one installed in
+#      the image. On Windows that means native Windows binaries landing in an
+#      Alpine container, and `pnpm build` fails its dependency check before it
+#      compiles anything.
+#   2. Without it, envs/.env.development is copied into an image layer. That file
+#      holds JWT_PRIVATE_KEY, which signs every token in the system. A secret in
+#      a layer is disclosed to anyone who can pull the image, and deleting it in
+#      a later layer does not remove it.
+
+# --- the two that break the build and leak a key -----------------------------
+**/node_modules
+envs/.env
+envs/.env.*
+!envs/.env.example
+
+# --- build output. Rebuilt inside the image; copying it in is stale and slow --
+**/dist
+**/.next
+**/out
+**/.turbo
+**/coverage
+**/*.tsbuildinfo
+
+# --- version control and CI. Not needed at build time ------------------------
+.git
+.gitignore
+.github
+
+# --- documentation. Large, and no service reads it ---------------------------
+docs
+*.md
+!README.md
+
+# --- local tooling and editor state ------------------------------------------
+.vscode
+.idea
+.claude
+*.log
+.DS_Store
+Thumbs.db
+
+# --- other Dockerfiles and compose files -------------------------------------
+# A Dockerfile does not need its siblings, and excluding them keeps an edit to
+# one from invalidating every other image's cache.
+docker/compose
+**/Dockerfile
+!docker/Dockerfile

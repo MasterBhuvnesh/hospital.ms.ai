@@ -97,6 +97,8 @@ The README is the only document a person reads when they are paged at 2am, integ
 - Branch naming follows the type of work, for example `feat/p0-foundation`, `fix/queue-token-race`.
 - Every branch ends in a pull request. The repository owner merges. Never merge without being asked.
 - The pull request description must list every change made on the branch.
+- **BHUVNESH reviews every pull request.** [`.github/CODEOWNERS`](./CODEOWNERS) requests the review automatically; the review is required regardless of whether GitHub asked for it.
+- **`infra/`, `docker/`, `envs/`, `scripts/`, `.github/` and the root configuration are BHUVNESH's alone.** A pull request that touches them without his involvement is a mistake, not a contribution. These are the paths where an error costs more than a revert: a Helm value takes production down, a Terraform change bills money, a Compose edit breaks every developer's machine at once, and a workflow change can put a secret in a public log.
 - Ask before destructive or irreversible Git actions (`reset --hard`, `push --force`, history rewrites).
 
 ## ARCHITECTURE CONSTRAINTS
@@ -107,7 +109,7 @@ These are not preferences. Breaking one of them is a defect.
 - **`hospitalId` scoping is applied in the repository layer**, never in a route handler. Users and patients are global; everything about a visit is hospital-scoped.
 - **Every RabbitMQ consumer is idempotent on `messageId`.** Redelivery is normal operation, not an error.
 - **Every critical write takes an idempotency key**: booking, token generation, payment, refund, dispensing.
-- **No cloud SDK outside `packages/platform-aws`.** Lint enforces this and the pull request fails without it.
+- **No cloud SDK anywhere in the tree.** A cloud dependency belongs behind an interface. Lint enforces this and the pull request fails without it.
 - **No cloud-specific annotation, storage class, or ARN in the base Helm chart.** AWS extras live in `values-aws.yaml`.
 - **Dates and times on anything hospital-scoped derive from the hospital's configured timezone**, never the server's.
 - **AI never writes a clinical record without a human signature**, and that signature is recorded in the audit log.

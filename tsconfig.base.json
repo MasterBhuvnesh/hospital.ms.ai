@@ -20,5 +20,18 @@
     "sourceMap": true,
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules", "dist", ".next", "out"]
+  // Tests are excluded from the BUILD, not from typechecking. Without this, tsc
+  // emits every *.test.ts into dist, vitest then discovers both the source and
+  // the compiled copy and runs every test twice, and test code ships in the
+  // published output. Tests are still typechecked, by tsconfig.typecheck.json.
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".next",
+    "out",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/__tests__/**"
+  ]
 }

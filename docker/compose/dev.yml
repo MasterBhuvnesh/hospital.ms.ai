@@ -33,6 +33,22 @@ x-service: &service
     redis: { condition: service_healthy }
     rabbitmq: { condition: service_healthy }
     minio: { condition: service_healthy }
+    migrate: { condition: service_completed_successfully }
+
+x-migrate: &migrate
+  image: hms-platform:local
+  build:
+    context: ../..
+    dockerfile: docker/Dockerfile
+  env_file:
+    - path: ../../envs/.env.container
+      required: false
+  restart: 'no'
+  depends_on:
+    postgres: { condition: service_healthy }
+  # Same script as single-host.yml, so the two cannot drift. It also handles the
+  # not-yet-any-migrations case, which is why there is no shell conditional here.
+  entrypoint: ['sh', '/app/docker/migrate.sh']
 
 # Hostnames are Compose service names here, never localhost. A container's
 # localhost is itself.
@@ -83,7 +99,6 @@ services:
     <<: *service
     environment: { <<: *environment, SERVICE: ai, HEALTH_PORT: 5007 }
     ports: ['127.0.0.1:5007:5007']
-# ponytail: no `migrate` one-shot service yet, because there is no Prisma schema
-# to run. Add it as a service every other one depends_on with
-# `condition: service_completed_successfully`, so none of them race the
-# migration. Do it in the same commit that adds the first schema.
+
+  migrate:
+    <<: *migrate

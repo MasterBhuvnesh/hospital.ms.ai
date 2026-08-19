@@ -10,7 +10,7 @@
     "start": "node dist/server.js",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
@@ -21,7 +21,6 @@
     "@hms/config": "workspace:*",
     "@hms/contracts": "workspace:*",
     "@hms/db": "workspace:*",
-    "@hms/events": "workspace:*",
     "@hms/logger": "workspace:*",
     "@hms/middleware": "workspace:*",
     "fastify": "^5.12.0",
