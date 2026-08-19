@@ -1,7 +1,13 @@
 name: main
+
+# DISABLED 19-08-2026, at the repository owner's request. The automatic
+# triggers are commented out rather than the whole file, so the workflow stays
+# valid YAML and GitHub does not flag it as broken. It can still be started by
+# hand from the Actions tab. Uncomment the two lines below to restore it.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
 
 env:
   REGISTRY: docker.io
