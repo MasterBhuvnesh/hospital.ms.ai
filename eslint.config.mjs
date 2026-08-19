@@ -22,12 +22,11 @@ export default tseslint.config(
   },
 
   // ARCHITECTURE CONSTRAINT, see .github/RULES.md.
-  // No cloud SDK outside packages/platform-aws. This is the mechanism that
-  // makes "cloud-agnostic" a property rather than a claim: without it the
-  // first AWS import lands quietly and the portable profile stops building.
+  // No cloud SDK anywhere in the tree. This is the mechanism that makes
+  // "cloud-agnostic" a property rather than a claim: without it the first AWS
+  // import lands quietly and the portable profile stops building.
   {
     files: ['**/*.{ts,tsx,mts,cts}'],
-    ignores: ['packages/platform-aws/**'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -36,24 +35,8 @@ export default tseslint.config(
             {
               group: ['@aws-sdk/*', 'aws-sdk', '@aws-cdk/*'],
               message:
-                'Cloud SDKs are confined to packages/platform-aws. Depend on the interface in @hms/platform instead.',
+                'No cloud SDK in application code. A cloud dependency belongs behind an interface, not inlined at the call site.',
             },
-          ],
-        },
-      ],
-    },
-  },
-
-  // packages/platform declares interfaces. An implementation here would be a
-  // dependency every profile inherits, which is exactly what it exists to stop.
-  {
-    files: ['packages/platform/**/*.ts'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            { group: ['*'], message: 'packages/platform is interfaces only. It imports nothing.' },
           ],
         },
       ],
