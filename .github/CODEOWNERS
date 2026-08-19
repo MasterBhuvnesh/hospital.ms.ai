@@ -39,6 +39,4 @@
 /turbo.json             @MasterBhuvnesh
 /eslint.config.mjs      @MasterBhuvnesh
 /tsconfig*.json         @MasterBhuvnesh
-/.gitignore             @MasterBhuvnesh
 /.dockerignore          @MasterBhuvnesh
-/.prettier*             @MasterBhuvnesh
