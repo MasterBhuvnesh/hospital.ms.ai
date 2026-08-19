@@ -92,10 +92,24 @@ higher instead on two things:
 `pnpm format:check` and `pnpm test` must all pass, and the matching rows in
 [`RECORD.md`](../../.github/RECORD.md) must be updated in the same commit.
 
+## What you may change
+
+This package, and the shared configuration it genuinely needs: `envs/.env.example`
+and `envs/CATALOGUE.md` for key names, and `scripts/dev/*` for a helper that does
+not exist yet.
+
+Name every out-of-package edit in the pull request description. BHUVNESH reviews
+all of them and needs to see the shared-file changes without hunting.
+
 ## Do not
 
+- **Write a real secret value anywhere.** Placeholders only, no exceptions.
+- **Edit `.github/workflows/`, `CODEOWNERS`, `RULES.md`, or `AGENT_PROMPT.md`.**
+  Those decide what gets merged and what the rules are. Propose changes instead
+  of making them.
+- **Edit `infra/helm/`, `infra/terraform/`, or `infra/kubernetes/`.**
 - Add a dependency without asking. Seven other services inherit it.
 - Break an existing export. Every service imports this package.
 - Put anything service-specific in here. If only one service needs it, it belongs
   in that service.
-- Touch `infra/`, `docker/`, `envs/`, `scripts/`, or `.github/`.
+- Weaken or delete a test to make a build pass.

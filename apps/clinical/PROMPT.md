@@ -96,10 +96,40 @@ section 5. The short form:
 6. The matching rows in [`RECORD.md`](../../.github/RECORD.md) are updated in the
    same commit.
 
+## What you may change
+
+Your own directory, obviously. Beyond it, **change whatever you genuinely need to
+make this service build, run, and be tested** — including these, which used to be
+off limits:
+
+| Path | What you may do |
+|---|---|
+| `apps/<yours>/Dockerfile` | Fix it, rewrite it, whatever makes it build |
+| `docker/compose/*.yml` | Add or correct **your** service's entry and its dependencies |
+| `docker/all-in-one.mjs` | Register your service so the combined image boots it |
+| `envs/.env.example`, `envs/CATALOGUE.md` | Add the **key names** your service reads, with placeholder values |
+| `scripts/dev/*` | Add a helper you need, if one does not already exist |
+
+Anything you change outside your own directory must be **named in the pull
+request description**, with a sentence on why. BHUVNESH reviews every pull
+request and needs to see the shared-file edits without hunting for them.
+
+If a shared file fights you, say so in the pull request rather than working
+around it. A workaround inside your service becomes seven workarounds once the
+other services hit the same wall.
+
 ## Do not
 
+- **Write a real secret value anywhere.** Not in `.env.example`, not in a compose
+  file, not in a Postman collection, not in a test fixture. Placeholders and
+  obviously fake values only. This one has no exceptions.
+- **Edit `.github/workflows/`, `CODEOWNERS`, `RULES.md`, or `AGENT_PROMPT.md`.**
+  Those decide what gets merged and what the rules are. Changing them to make
+  your branch pass defeats the point of having them. Propose the change instead.
+- **Edit `infra/helm/`, `infra/terraform/`, or `infra/kubernetes/`.** Those are
+  the deployment profiles, they are BHUVNESH's, and they are not built yet.
 - Touch another service's directory, schema, or migrations.
 - Read another service's tables. Use its API or an event.
 - Modify a shared package to make this service compile — raise it instead.
-- Touch `infra/`, `docker/`, `envs/`, `scripts/`, or `.github/`.
+- Weaken or delete a test to make a build pass.
 - Claim it works without running it.

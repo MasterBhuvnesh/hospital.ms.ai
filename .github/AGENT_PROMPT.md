@@ -291,14 +291,46 @@ a step, say which. Never describe something as working when you have not run it.
 
 ---
 
-## 7. What "do not do" means here
+## 7. Scope: what you may and may not change
 
-- Do not touch `infra/`, `docker/`, `envs/`, `scripts/`, `.github/`, or the root
-  configuration. Those are BHUVNESH's, enforced by
-  [`CODEOWNERS`](./CODEOWNERS).
+You own your directory. Outside it, **change what you genuinely need** to make
+the thing build, run, and be tested. You are not expected to stop and ask before
+touching a shared file that is standing between you and a working service.
+
+### Allowed, and expected
+
+| Path | What you may do |
+|---|---|
+| `apps/<yours>/Dockerfile` | Fix it, rewrite it, whatever makes it build |
+| `docker/compose/*.yml` | Add or correct **your** service's entry and its dependencies |
+| `docker/all-in-one.mjs` | Register your service so the combined image boots it |
+| `envs/.env.example`, `envs/CATALOGUE.md` | Add the **key names** your service reads, with placeholder values |
+| `scripts/dev/*` | Add a helper you need, if one does not already exist |
+
+**Name every out-of-directory edit in the pull request description**, with a
+sentence on why. BHUVNESH reviews every pull request and needs to see the
+shared-file changes without hunting for them.
+
+If a shared file fights you, say so rather than working around it inside your own
+service. One workaround becomes seven the moment the other services hit the same
+wall.
+
+### Not allowed
+
+- **Never write a real secret value.** Not in `.env.example`, not in a compose
+  file, not in a Postman collection, not in a test fixture. Placeholders and
+  obviously fake values only. **This one has no exceptions**, and it is the
+  reason the allowance above says *key names*.
+- **Never edit `.github/workflows/`, `CODEOWNERS`, `RULES.md`, or this file.**
+  Those decide what gets merged and what the rules are. Editing them so your
+  branch passes is not a fix, it is removing the thing that would have caught
+  you. Propose the change in the pull request and let BHUVNESH make it.
+- **Never edit `infra/helm/`, `infra/terraform/`, or `infra/kubernetes/`.** Those
+  are the deployment profiles. They belong to BHUVNESH, they are not built yet,
+  and they are not on the path to a working backend.
 - Do not edit another service's directory. If you need something from it, you
   need an API call or an event.
-- Do not modify a shared package to make your service compile. Raise it instead
-  — a change in `packages/` affects seven other services.
+- Do not modify a shared package to make your service compile. Raise it instead —
+  a change in `packages/` affects seven other services.
 - Do not add a migration for another service's schema.
-- Do not weaken a test to make it pass.
+- Do not weaken or delete a test to make a build pass.
