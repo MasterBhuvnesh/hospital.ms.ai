@@ -2,13 +2,14 @@
 %  PROJECT SYNOPSIS - AI-AUGMENTED HOSPITAL MANAGEMENT SYSTEM
 %  Build:  pdflatex synopsis.tex  (run twice for stable page numbers)
 % ============================================================================
-\documentclass[11pt,a4paper]{article}
+\documentclass[12pt,a4paper]{article}
 
-\usepackage[a4paper,top=20mm,bottom=20mm,left=22mm,right=22mm]{geometry}
+\usepackage[a4paper,margin=1in,includeheadfoot]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-\usepackage[table]{xcolor}
+\usepackage{newtxtext,newtxmath}   % Times New Roman (metric-compatible)
+\usepackage{setspace}
+\usepackage[table]{xcolor}   % [table] -> colortbl, for \arrayrulecolor
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{array}
@@ -21,21 +22,24 @@
 \usepackage{graphicx}
 
 % ---------------------------------------------------------------- colours ---
-\definecolor{accent}{HTML}{0B4F6C}
-\definecolor{rule}{HTML}{9FB3BE}
-\definecolor{headrow}{HTML}{E8EFF3}
 \definecolor{soft}{HTML}{4A5A63}
+\definecolor{rowline}{HTML}{CFCFCF}
+
+% light grey separator between table rows
+\newcommand{\rowsep}{\arrayrulecolor{rowline}\midrule\arrayrulecolor{black}}
 
 % ---------------------------------------------------------------- spacing ---
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{4pt}
+\setlength{\parskip}{6pt}
+\onehalfspacing                    % line spacing 1.5
 \renewcommand{\arraystretch}{1.15}
 \setlist[itemize]{leftmargin=14pt,itemsep=2pt,topsep=3pt,parsep=0pt}
 \setlist[enumerate]{leftmargin=16pt,itemsep=2pt,topsep=3pt,parsep=0pt}
 
+% section headings: 14 pt, bold
 \titleformat{\section}
-  {\normalfont\large\bfseries\color{accent}}{\thesection.}{0.5em}{}
-\titlespacing*{\section}{0pt}{12pt}{6pt}
+  {\normalfont\fontsize{14}{16.8}\selectfont\bfseries}{\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{14pt}{8pt}
 
 % ------------------------------------------------------- header and footer ---
 \pagestyle{fancy}
@@ -47,39 +51,64 @@
 \fancyfoot[C]{\footnotesize\color{soft} Page \thepage\ of \pageref{LastPage}}
 \usepackage{lastpage}
 
-\newcommand{\lab}[1]{\textbf{\color{accent}#1}}
-\newcommand{\hd}[1]{\textbf{\color{accent}#1}}
+\newcommand{\lab}[1]{\textbf{#1}}
+\newcommand{\hd}[1]{\textbf{#1}}
 
 \begin{document}
 
 % ================================================================ TITLE PAGE ==
 \begin{titlepage}
 \thispagestyle{empty}
-\begin{center}
-  \vspace*{4mm}
-  {\Large\bfseries RAMDEOBABA UNIVERSITY}\\[10pt]
-  \includegraphics[width=26mm]{assets/logo.jpg}\\[10pt]
-  {\itshape\large Department of Computer Science and Engineering}\\[16pt]
-  {\LARGE\bfseries PROJECT SYNOPSIS}\\[10pt]
-  {\itshape Session: \underline{\hspace{22mm}} \quad|\quad Semester: \underline{\hspace{14mm}} \quad|\quad Programme: \underline{\hspace{34mm}}}\\[26pt]
+\setlength{\parskip}{0pt}
+\singlespacing
+\centering
 
-  {\Large\bfseries AI-Augmented Smart Hospital Ecosystem for Clinical Intelligence,\\ Resource Optimization and Patient Care Management}\\[4pt]
-  {\large\itshape A Queue-First, Cloud-Agnostic Platform for Multi-Hospital Operations}\\[30pt]
+\vspace*{0mm}
 
-  {\bfseries Submitted by:}\\[4pt]
-  \begin{tabular}{c}
-    01 -- Aarsh Vaidya \\
-    03 -- Abhay Mishra \\
-    22 -- Aryan Bokde \\
-    28 -- Bhuvnesh Verma
-  \end{tabular}\\[24pt]
+{\fontsize{16}{19.2}\selectfont\bfseries SHRI RAMDEOBABA COLLEGE OF\\[3pt]
+ENGINEERING AND MANAGEMENT\par}
 
-  {\bfseries Under the Guidance of:}\\[4pt]
-  \textit{Prof. Abhinay Gudadhe}\\[24pt]
+\vspace{5mm}
+\includegraphics[width=28mm]{assets/logo.png}
 
-  {\bfseries Date:}\\[2pt]
-  \underline{\hspace{6mm}} / \underline{\hspace{6mm}} / \underline{\hspace{12mm}}
-\end{center}
+\vspace{5mm}
+{\large\itshape School/Department of Computer Science and Engineering}
+
+\vspace{10mm}
+{\fontsize{14}{16.8}\selectfont\bfseries PROJECT SYNOPSIS}
+
+\vspace{3mm}
+{\itshape Session: 2026--27 \quad$|$\quad Semester: VII \quad$|$\quad Programme: B.~Tech CSE~(AIML)}
+
+\vspace{10mm}
+{\fontsize{16}{19.2}\selectfont\bfseries AI-AUGMENTED SMART HOSPITAL ECOSYSTEM\\[3pt]
+FOR CLINICAL INTELLIGENCE, RESOURCE\\[3pt]
+OPTIMIZATION AND PATIENT CARE MANAGEMENT\par}
+
+\vfill
+
+{\bfseries Submitted by}
+
+\vspace{3mm}
+\begin{tabular}{r@{\hspace{2mm}--\hspace{2mm}}l}
+  01 & Aarsh Vaidya \\[2pt]
+  03 & Abhay Mishra \\[2pt]
+  22 & Aryan Bokde \\[2pt]
+  28 & Bhuvnesh Verma \\
+\end{tabular}
+
+\vspace{9mm}
+{\bfseries Under the Guidance of}
+
+\vspace{3mm}
+{\large\itshape Prof. Abhinay R Gudadhe}\\[2pt]
+{\itshape Assistant Professor}
+
+\vspace{9mm}
+{\bfseries Date:}\quad 20 / 08 / 2026
+
+\vspace{2mm}
+
 \end{titlepage}
 
 \setcounter{page}{1}
@@ -115,43 +144,41 @@ Queue state is invisible to everyone who depends on it, so waiting rooms are man
 \clearpage
 \section{Literature Review}
 
-{\footnotesize
+{\footnotesize\singlespacing
 \begin{xltabular}{\linewidth}{@{}>{\raggedright\arraybackslash}p{28mm}>{\raggedright\arraybackslash}p{30mm}X@{}}
 \toprule
-\rowcolor{headrow}
 \hd{Work / Source} & \hd{Focus} & \hd{Key Contribution and Limitation} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-Bailey (1952)~[1] & Queueing and appointment systems in outpatient departments & Established that patient waiting time and doctor idle time are jointly optimisable through appointment scheduling policy. Purely analytical and offline; no mechanism for propagating live queue state to patients or staff. \\
-Wolfe et al. (2006), OpenMRS~[2] & Open-source modular electronic medical record & Demonstrated a deployable, extensible EMR usable across low-resource institutions. Record-keeping oriented; no real-time queue subsystem or native multi-tenancy across hospitals. \\
-Bahga and Madisetti (2013)~[3] & Cloud-based interoperable EHR & Showed that cloud-hosted EHR with standardised exchange is technically and economically viable. Assumes a single managed cloud provider; data residency and vendor lock-in remain unresolved. \\
-Bender and Sartipi (2013), HL7 FHIR~[4] & RESTful healthcare interoperability standard & Defined resource-oriented, agile exchange of clinical data between systems. Standardises the exchange format only, not queue, billing or dispensing orchestration. \\
-Van Buchem et al. (2021)~[5]; Tierney et al. (2024)~[6] & Digital and ambient AI scribes & Evidence that automated documentation measurably reduces clinician documentation burden. Evaluated as an isolated tool, not integrated with queueing, prescribing or billing. \\
-Singhal et al. (2023), Med-PaLM~[7] & Clinical knowledge in large language models & Showed LLMs can reach high accuracy on clinical question answering benchmarks. Generative output is not grounded in the individual patient's record, so hallucination remains a safety risk. \\
-Lewis et al. (2020)~[8] & Retrieval-Augmented Generation & Grounding generated output in retrieved source documents materially reduces fabrication. Generic retrieval, with no notion of per-record authorization at the tool level. \\
+Bailey (1952)~[1] & Queueing and appointment systems in outpatient departments & Established that patient waiting time and doctor idle time are jointly optimisable through appointment scheduling policy. Purely analytical and offline; no mechanism for propagating live queue state to patients or staff. \\ \rowsep
+Wolfe et al. (2006), OpenMRS~[2] & Open-source modular electronic medical record & Demonstrated a deployable, extensible EMR usable across low-resource institutions. Record-keeping oriented; no real-time queue subsystem or native multi-tenancy across hospitals. \\ \rowsep
+Bahga and Madisetti (2013)~[3] & Cloud-based interoperable EHR & Showed that cloud-hosted EHR with standardised exchange is technically and economically viable. Assumes a single managed cloud provider; data residency and vendor lock-in remain unresolved. \\ \rowsep
+Bender and Sartipi (2013), HL7 FHIR~[4] & RESTful healthcare interoperability standard & Defined resource-oriented, agile exchange of clinical data between systems. Standardises the exchange format only, not queue, billing or dispensing orchestration. \\ \rowsep
+Van Buchem et al. (2021)~[5]; Tierney et al. (2024)~[6] & Digital and ambient AI scribes & Evidence that automated documentation measurably reduces clinician documentation burden. Evaluated as an isolated tool, not integrated with queueing, prescribing or billing. \\ \rowsep
+Singhal et al. (2023), Med-PaLM~[7] & Clinical knowledge in large language models & Showed LLMs can reach high accuracy on clinical question answering benchmarks. Generative output is not grounded in the individual patient's record, so hallucination remains a safety risk. \\ \rowsep
+Lewis et al. (2020)~[8] & Retrieval-Augmented Generation & Grounding generated output in retrieved source documents materially reduces fabrication. Generic retrieval, with no notion of per-record authorization at the tool level. \\ \rowsep
 Chong and Carraro (2006)~[9]; Garcia-Molina and Salem (1987)~[10] & Multi-tenant data architecture; Saga pattern for long-lived transactions & Defined tenancy isolation models and compensating-transaction consistency across service boundaries. Domain-agnostic; do not address global patient identity against tenant-scoped clinical records. \\
 \end{xltabular}}
 
 % =========================================================== RES GAP ==
-\needspace{3\baselineskip}
+\clearpage
 \section{Research Gap}
 
-{\footnotesize
+{\footnotesize\singlespacing
 \begin{xltabular}{\linewidth}{@{}>{\raggedright\arraybackslash}p{50mm}X@{}}
 \toprule
-\rowcolor{headrow}
 \hd{Identified Gap} & \hd{How This Project Addresses It} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-Queue state exists only at the reception desk and is not shared with the patient or the clinician~[1,2] & Real-time queue synchronised across patient phone, doctor workstation and reception within two seconds via WebSocket fanout with a polling fallback \\
-Patient context is reassembled verbally at consultation time instead of being pre-delivered~[2,4] & Deterministic consolidated patient sheet generated and delivered to the doctor before the patient enters the room \\
-Queueing, clinical documentation, billing and pharmacy are solved as separate products~[5,6,4] & Eight bounded-context services composing one auditable visit loop from check-in to signed prescription to dispensing \\
-Cloud EHR designs assume a single provider, which many institutions cannot accept for data-residency reasons~[3] & Cloud-agnostic deployment: one image, one Helm chart, running unmodified on managed cloud, hospital Kubernetes or a single server \\
-AI clinical output is not reliably grounded in the patient's own record, and accountability for it is unclear~[7,8] & Clinical facts retrieved at request time through typed, authorization-enforcing tools; no AI output enters the record without a clinician's signature, with full model and tool-call audit \\
+Queue state exists only at the reception desk and is not shared with the patient or the clinician~[1,2] & Real-time queue synchronised across patient phone, doctor workstation and reception within two seconds via WebSocket fanout with a polling fallback \\ \rowsep
+Patient context is reassembled verbally at consultation time instead of being pre-delivered~[2,4] & Deterministic consolidated patient sheet generated and delivered to the doctor before the patient enters the room \\ \rowsep
+Queueing, clinical documentation, billing and pharmacy are solved as separate products~[5,6,4] & Eight bounded-context services composing one auditable visit loop from check-in to signed prescription to dispensing \\ \rowsep
+Cloud EHR designs assume a single provider, which many institutions cannot accept for data-residency reasons~[3] & Cloud-agnostic deployment: one image, one Helm chart, running unmodified on managed cloud, hospital Kubernetes or a single server \\ \rowsep
+AI clinical output is not reliably grounded in the patient's own record, and accountability for it is unclear~[7,8] & Clinical facts retrieved at request time through typed, authorization-enforcing tools; no AI output enters the record without a clinician's signature, with full model and tool-call audit \\ \rowsep
 Multi-tenancy is retrofitted rather than designed in, and cross-service consistency is left informal~[9,10] & Global patient identity with hospital-scoped visit records from the first commit; database-per-service isolation with idempotent consumers and dead-letter queues \\
 \end{xltabular}}
 
@@ -166,22 +193,21 @@ Synchronous HTTP is used only where the caller needs a result to respond, such a
 Each service owns a dedicated database schema and reads no other, giving database-per-service isolation. Patient identity is global while every visit-scoped record carries a hospital identifier, producing true multi-tenancy from the first commit. Clinical facts are never generated by AI; they are retrieved from the owning service at request time through typed, authorization-enforcing tools, and the deterministic patient sheet ships first as the measured baseline any AI-generated sheet must beat before it may replace it.
 
 \vspace{2pt}
-{\footnotesize
+{\footnotesize\singlespacing
 \begin{xltabular}{\linewidth}{@{}>{\raggedright\arraybackslash}p{22mm}X@{}}
 \toprule
-\rowcolor{headrow}
 \hd{Service} & \hd{Responsibility} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-gateway    & Sole public entry point: JWT verification, identity-header stripping, rate limiting, WebSocket fanout \\
-identity   & Users, credentials, roles, sessions, devices, OTP, token signing \\
-directory  & Hospitals, departments, doctors, schedules, attendance, leave, computed availability \\
-scheduling & Appointments, waitlists, queue tokens, priority ordering, consultation state \\
-clinical   & Patient records, consultation content, prescriptions, laboratory orders and results, consent \\
-commerce   & Billing, invoices, payments, refunds, pharmacy catalogue, inventory, dispensing \\
-comms      & In-app, push, SMS, email and WhatsApp delivery behind one notification interface \\
+gateway    & Sole public entry point: JWT verification, identity-header stripping, rate limiting, WebSocket fanout \\ \rowsep
+identity   & Users, credentials, roles, sessions, devices, OTP, token signing \\ \rowsep
+directory  & Hospitals, departments, doctors, schedules, attendance, leave, computed availability \\ \rowsep
+scheduling & Appointments, waitlists, queue tokens, priority ordering, consultation state \\ \rowsep
+clinical   & Patient records, consultation content, prescriptions, laboratory orders and results, consent \\ \rowsep
+commerce   & Billing, invoices, payments, refunds, pharmacy catalogue, inventory, dispensing \\ \rowsep
+comms      & In-app, push, SMS, email and WhatsApp delivery behind one notification interface \\ \rowsep
 ai         & Agents, per-user memory, typed tool execution, evaluation harness \\
 \end{xltabular}}
 
@@ -224,21 +250,20 @@ The system targets multi-speciality hospitals and clinic chains running outpatie
 Incremental delivery with a demonstrable workflow at the end of every phase. Verification is a real clinical run rather than a passing test suite.
 
 \vspace{2pt}
-{\footnotesize
+{\footnotesize\singlespacing
 \begin{xltabular}{\linewidth}{@{}p{16mm}>{\raggedright\arraybackslash}p{30mm}X>{\raggedright\arraybackslash}p{14mm}@{}}
 \toprule
-\rowcolor{headrow}
 \hd{Phase} & \hd{Focus} & \hd{Milestone / Deliverable} & \hd{Duration} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-P0 & Foundation and identity      & A patient registers by phone, receives an OTP and authenticates; a forged identity header is rejected & 3 wk \\
-P1 & The visit loop               & A walk-in registered at reception reaches the patient's phone in two seconds and advances everywhere at once & 9 wk \\
-P2 & Clinical workflow            & The patient sheet reaches the doctor first; the consultation produces a signed prescription & 6 wk \\
-P3 & Commerce and laboratory      & Consultation to invoice to payment to dispensing, with stock decremented exactly once & 6 wk \\
-P4 & AI platform                  & The AI sheet matches or beats the deterministic baseline on allergy and medication recall & 5 wk \\
-P5 & Communications, analytics    & Every queue change reaches the correct channel per patient preference & 2 wk \\
+P0 & Foundation and identity      & A patient registers by phone, receives an OTP and authenticates; a forged identity header is rejected & 3 wk \\ \rowsep
+P1 & The visit loop               & A walk-in registered at reception reaches the patient's phone in two seconds and advances everywhere at once & 9 wk \\ \rowsep
+P2 & Clinical workflow            & The patient sheet reaches the doctor first; the consultation produces a signed prescription & 6 wk \\ \rowsep
+P3 & Commerce and laboratory      & Consultation to invoice to payment to dispensing, with stock decremented exactly once & 6 wk \\ \rowsep
+P4 & AI platform                  & The AI sheet matches or beats the deterministic baseline on allergy and medication recall & 5 wk \\ \rowsep
+P5 & Communications, analytics    & Every queue change reaches the correct channel per patient preference & 2 wk \\ \rowsep
 P6 & Hardening                    & Penetration test closed, 500 concurrent watchers sustained, recovery inside one hour & 3 wk \\
 \midrule
 \multicolumn{3}{@{}r}{\textbf{Total, with the deployable release at the end of P3}} & \textbf{34 wk} \\
@@ -268,22 +293,22 @@ P6 & Hardening                    & Penetration test closed, 500 concurrent watc
 \clearpage
 \section{Group Member Details}
 
-{\small
+{\small\singlespacing
 \begin{tabularx}{\linewidth}{@{}>{\centering\arraybackslash}p{20mm}X@{}}
 \toprule
-\rowcolor{headrow}
 \hd{Roll No.} & \hd{Name and Signature of Student} \\
 \midrule
-01 & Aarsh Vaidya \\
-03 & Abhay Mishra \\
-22 & Aryan Bokde \\
+01 & Aarsh Vaidya \\ \rowsep
+03 & Abhay Mishra \\ \rowsep
+22 & Aryan Bokde \\ \rowsep
 28 & Bhuvnesh Verma \\
 \bottomrule
 \end{tabularx}}
 
 \vspace{18pt}
 {\bfseries Approved by:}\\[2pt]
-\textit{Prof. Abhinay Gudadhe}\\
+\textit{Prof. Abhinay R Gudadhe}\\
+\textit{Assistant Professor}\\
 {\footnotesize\color{soft} (Name of Guide and Signature)}
 
 \end{document}
