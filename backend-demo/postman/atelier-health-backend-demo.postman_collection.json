@@ -1,0 +1,1486 @@
+{
+  "info": {
+    "_postman_id": "b7f3d9c1-2a4e-4c6b-9d18-atelierdem001",
+    "name": "Atelier Health - backend-demo",
+    "description": "All microservice routes merged into one demo backend.\n\nRun top-to-bottom inside each folder. Tokens and IDs are captured automatically into collection variables by test scripts.\n\nDemo quirks:\n- SMS/WhatsApp print to console until TWILIO_* env vars are set.\n- OTP devCode is returned because DEMO_EXPOSE_OTP=true.\n- Payments use a mock-capture endpoint (no Razorpay keys).\n- Dispensing consumes real stock rows; re-running the whole collection twice needs `data/` wiped or a new walk-in.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "patToken", "value": "" },
+    { "key": "recToken", "value": "" },
+    { "key": "docToken", "value": "" },
+    { "key": "phaToken", "value": "" },
+    { "key": "labToken", "value": "" },
+    { "key": "hadmToken", "value": "" },
+    { "key": "admToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "otp", "value": "" },
+    { "key": "seedPhone", "value": "+919810000001" },
+    { "key": "patientUserId", "value": "" },
+    { "key": "doctorUserId", "value": "" },
+    { "key": "hadmUserId", "value": "" },
+    { "key": "hospitalId", "value": "" },
+    { "key": "departmentId", "value": "" },
+    { "key": "doctorId", "value": "" },
+    { "key": "newDoctorId", "value": "" },
+    { "key": "appointmentId", "value": "" },
+    { "key": "tokenId", "value": "" },
+    { "key": "consultationId", "value": "" },
+    { "key": "patientId", "value": "" },
+    { "key": "selfPatientId", "value": "" },
+    { "key": "allergyId", "value": "" },
+    { "key": "prescriptionId", "value": "" },
+    { "key": "labOrderId", "value": "" },
+    { "key": "documentId", "value": "" },
+    { "key": "invoiceId", "value": "" },
+    { "key": "paymentId", "value": "" },
+    { "key": "itemId", "value": "" },
+    { "key": "dispenseId", "value": "" },
+    { "key": "lastNotificationId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "0 Health",
+      "item": [
+        {
+          "name": "Health live",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health/live" }
+        },
+        {
+          "name": "Health ready",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health/ready" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.test('ready', () => pm.expect(j.data.ready).to.eql(true));",
+                  "console.log('components:', j.data.components);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1 Identity & Auth",
+      "item": [
+        {
+          "name": "Register demo patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201', () => pm.expect(pm.response.code).to.eql(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('patToken', j.data.tokens.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', j.data.tokens.refreshToken);",
+                  "pm.collectionVariables.set('patientUserId', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Postman Demo Patient\",\n  \"email\": \"pdemo_{{$timestamp}}@example.com\",\n  \"password\": \"Demo@12345\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login receptionist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('recToken', j.data.tokens.accessToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"reception@atelier.local\",\n  \"password\": \"Demo@12345\"\n}" }
+          }
+        },
+        {
+          "name": "Login doctor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('docToken', j.data.tokens.accessToken);",
+                  "pm.collectionVariables.set('doctorUserId', j.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"asha@atelier.local\",\n  \"password\": \"Demo@12345\"\n}" }
+          }
+        },
+        {
+          "name": "Login pharmacist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('phaToken', j.data.tokens.accessToken);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"pharmacy@atelier.local\",\n  \"password\": \"Demo@12345\"\n}" }
+          }
+        },
+        {
+          "name": "Login lab tech",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('labToken', j.data.tokens.accessToken);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"lab@atelier.local\",\n  \"password\": \"Demo@12345\"\n}" }
+          }
+        },
+        {
+          "name": "Login platform admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('admToken', j.data.tokens.accessToken);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"admin@atelier.local\",\n  \"password\": \"Admin@12345\"\n}" }
+          }
+        },
+        {
+          "name": "Register demo hospital admin",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('hadmEmail', 'hadmdemo_' + Date.now() + '@example.com');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.data && j.data.user) {",
+                  "  pm.collectionVariables.set('hadmUserId', j.data.user.id);",
+                  "} else { console.log('register conflict - reusing prior run user'); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Hospital Admin Demo\",\n  \"email\": \"{{hadmEmail}}\",\n  \"password\": \"Demo@12345\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Grant HOSPITAL_ADMIN role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('role granted or duplicate', () => pm.expect([201,409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/admin/users/{{hadmUserId}}/roles",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"HOSPITAL_ADMIN\",\n  \"hospitalId\": \"{{hospitalId}}\",\n  \"isPrimary\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Login demo hospital admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('hadmToken', j.data.tokens.accessToken);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"{{hadmEmail}}\",\n  \"password\": \"Demo@12345\"\n}" }
+          }
+        },
+        {
+          "name": "OTP request (seeded patient phone)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('202', () => pm.expect(pm.response.code).to.eql(202));",
+                  "const j = pm.response.json();",
+                  "if (j.data.devCode) pm.collectionVariables.set('otp', j.data.devCode);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/otp/request",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destination\": \"{{seedPhone}}\",\n  \"purpose\": \"LOGIN\"\n}"
+            }
+          }
+        },
+        {
+          "name": "OTP verify (LOGIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200', () => pm.expect(pm.response.code).to.eql(200));",
+                  "console.log('logged in via OTP for seeded patient');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/otp/verify",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destination\": \"{{seedPhone}}\",\n  \"purpose\": \"LOGIN\",\n  \"code\": \"{{otp}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get my profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        },
+        {
+          "name": "Refresh (rotation)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.data && j.data.tokens) {",
+                  "  pm.collectionVariables.set('refreshToken', j.data.tokens.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/refresh",
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/logout",
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 Directory",
+      "item": [
+        {
+          "name": "Create hospital",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201', () => pm.expect(pm.response.code).to.eql(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('hospitalId', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/directory/hospitals",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman General Hospital\",\n  \"city\": \"Mumbai\",\n  \"timezone\": \"Asia/Kolkata\",\n  \"address\": \"Linking Road 42\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List hospitals (search)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/directory/hospitals?q=postman" }
+        },
+        {
+          "name": "Get hospital",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/directory/hospitals/{{hospitalId}}"
+          }
+        },
+        {
+          "name": "Create department",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('departmentId', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/directory/hospitals/{{hospitalId}}/departments",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Dermatology\"\n}" }
+          }
+        },
+        {
+          "name": "List doctors (pick cardiology)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// uses seeded hospital via list-all; falls back gracefully"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "const cardio = j.data.items.find(d => d.specializations.includes('CARDIOLOGY'));",
+                  "if (cardio) {",
+                  "  pm.collectionVariables.set('doctorId', cardio.id);",
+                  "  if (cardio.userId) pm.collectionVariables.set('doctorUserId', cardio.userId);",
+                  "}",
+                  "pm.test('found cardiology doctor', () => pm.expect(cardio).to.not.be.undefined);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/directory/doctors?specialization=cardiology"
+          }
+        },
+        {
+          "name": "Create doctor (demo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('newDoctorId', j.data.id);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/api/directory/doctors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Dr. Demo Dermatologist\",\n  \"specializations\": [\"DERMATOLOGY\"],\n  \"registrationNumber\": \"MMC-DEMO-0001\",\n  \"experienceYears\": 5,\n  \"hospitalIds\": [\"{{hospitalId}}\"],\n  \"departmentId\": \"{{departmentId}}\",\n  \"feeAmount\": 450,\n  \"feeCurrency\": \"INR\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get doctor + schedule",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/directory/doctors/{{doctorId}}"
+          }
+        },
+        {
+          "name": "Set weekly schedule",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/directory/doctors/{{doctorId}}/schedule",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slotMinutes\": 15,\n  \"weekly\": [\n    { \"dayOfWeek\": \"MON\", \"start\": \"09:00\", \"end\": \"13:00\" },\n    { \"dayOfWeek\": \"TUE\", \"start\": \"09:00\", \"end\": \"13:00\" }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Availability for today",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('today', new Date().toISOString().slice(0,10));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/directory/doctors/{{doctorId}}/availability?date={{today}}"
+          }
+        },
+        {
+          "name": "Attendance check-in",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/directory/doctors/{{doctorId}}/attendance/check-in",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Leave request (next month)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const d = new Date(); d.setMonth(d.getMonth()+1); d.setDate(10);",
+                  "const e = new Date(d); e.setDate(12);",
+                  "pm.collectionVariables.set('leaveFrom', d.toISOString().slice(0,10));",
+                  "pm.collectionVariables.set('leaveTo', e.toISOString().slice(0,10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "if (j.data) pm.collectionVariables.set('leaveId', j.data.id);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/directory/doctors/{{doctorId}}/leave",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"{{leaveFrom}}\",\n  \"to\": \"{{leaveTo}}\",\n  \"reason\": \"Conference attendance\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve leave",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/directory/leaves/{{leaveId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"APPROVED\"\n}" }
+          }
+        },
+        {
+          "name": "Global search",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/directory/search?q=cardio"
+          }
+        },
+        {
+          "name": "Update hospital",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/directory/hospitals/{{hospitalId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"address\": \"Linking Road 42, Bandra West\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 Scheduling",
+      "item": [
+        {
+          "name": "Book appointment (idempotent)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const s = new Date(Date.now() + 24*3600*1000);",
+                  "s.setHours(10,0,0,0);",
+                  "pm.collectionVariables.set('startsAt', s.toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('created', () => pm.expect([200,201]).to.include(pm.response.code));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('appointmentId', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{patToken}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "postman-book-{{$timestamp}}" }
+            ],
+            "url": "{{baseUrl}}/api/scheduling/appointments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"{{doctorId}}\",\n  \"startsAt\": \"{{startsAt}}\",\n  \"reason\": \"Follow-up chest discomfort\"\n}"
+            }
+          }
+        },
+        {
+          "name": "My appointments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/scheduling/appointments"
+          }
+        },
+        {
+          "name": "Reschedule appointment",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const s = new Date(Date.now() + 24*3600*1000);",
+                  "s.setHours(11,30,0,0);",
+                  "pm.collectionVariables.set('newStartsAt', s.toISOString());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/appointments/{{appointmentId}}/reschedule",
+            "body": { "mode": "raw", "raw": "{\n  \"startsAt\": \"{{newStartsAt}}\"\n}" }
+          }
+        },
+        {
+          "name": "Mint token from appointment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('tokenId', j.data.id);",
+                  "pm.collectionVariables.set('consultationId', j.data.consultationId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens",
+            "body": { "mode": "raw", "raw": "{\n  \"appointmentId\": \"{{appointmentId}}\"\n}" }
+          }
+        },
+        {
+          "name": "WALK-IN registration (flow target)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('tokenId', j.data.id);",
+                  "pm.collectionVariables.set('consultationId', j.data.consultationId);",
+                  "pm.collectionVariables.set('patientId', j.data.patientId);",
+                  "pm.collectionVariables.set('tokenNumber', j.data.tokenNumber);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/walkins",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": \"{{doctorId}}\",\n  \"fullName\": \"Ramesh Kulkarni\",\n  \"phone\": \"+919820000002\",\n  \"priority\": \"NORMAL\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Queue view",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/scheduling/queue?doctorId={{doctorId}}"
+          }
+        },
+        {
+          "name": "Token position (staff)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}"
+          }
+        },
+        {
+          "name": "Call next",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}/call",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Skip (then recall)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}/skip",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Recall",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}/recall",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Start consultation",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}/start",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Mark no-show (reference)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}/no-show",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Complete consultation -> invoice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.test('completed with invoice', () => pm.expect(j.data.token.status).to.eql('COMPLETED'));",
+                  "pm.collectionVariables.set('invoiceId', j.data.invoice.id);",
+                  "console.log('invoice:', j.data.invoice.invoiceNo, j.data.invoice.total, j.data.invoice.currency);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}/complete",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 Clinical",
+      "item": [
+        {
+          "name": "My patient record",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.data) pm.collectionVariables.set('selfPatientId', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/patients/me"
+          }
+        },
+        {
+          "name": "Register patient at hospital",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/register-at",
+            "body": { "mode": "raw", "raw": "{\n  \"hospitalId\": \"{{hospitalId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Add allergy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('allergyId', j.data.id);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/allergies",
+            "body": { "mode": "raw", "raw": "{\n  \"substance\": \"Penicillin\",\n  \"severity\": \"SEVERE\",\n  \"reaction\": \"Urticaria\"\n}" }
+          }
+        },
+        {
+          "name": "List allergies",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/allergies"
+          }
+        },
+        {
+          "name": "Add condition",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/conditions",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Hypertension\",\n  \"since\": \"2023\",\n  \"active\": true\n}" }
+          }
+        },
+        {
+          "name": "Add medication",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/medications",
+            "body": { "mode": "raw", "raw": "{\n  \"drug\": \"Amlodipine 5mg\",\n  \"dose\": \"5mg\",\n  \"frequency\": \"1-0-0\",\n  \"active\": true\n}" }
+          }
+        },
+        {
+          "name": "Delete allergy",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/allergies/{{allergyId}}"
+          }
+        },
+        {
+          "name": "Save consultation content (SOAP)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/consultations/{{consultationId}}/content",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"complaint\": \"Chest pain on exertion for 2 weeks\",\n  \"vitals\": { \"bp\": \"130/85\", \"pulse\": 88, \"spo2\": 98 },\n  \"examination\": \"S1S2 normal, no murmur\",\n  \"assessment\": \"Stable angina suspected\",\n  \"diagnosis\": \"I20.9 Angina pectoris\",\n  \"plan\": \"ECG, TMT; start aspirin 75mg od\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get consultation content",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/consultations/{{consultationId}}/content"
+          }
+        },
+        {
+          "name": "Deterministic patient sheet",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/sheet"
+          }
+        },
+        {
+          "name": "Patient grants consent to doctor",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/consents",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grantToUserId\": \"{{doctorUserId}}\",\n  \"scope\": [\"RECORDS\", \"LABS\", \"PRESCRIPTIONS\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Create prescription (draft)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('prescriptionId', j.data.id);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/consultations/{{consultationId}}/prescriptions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"drug\": \"Paracetamol 500mg Tablet\", \"dose\": \"500mg\", \"frequency\": \"1-0-1\", \"durationDays\": 5, \"instructions\": \"after food\" },\n    { \"drug\": \"Amoxicillin 500mg Capsule\", \"dose\": \"500mg\", \"frequency\": \"1-1-1\", \"durationDays\": 5, \"instructions\": \"complete course\" }\n  ],\n  \"notes\": \"Return immediately if chest pain worsens\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Sign prescription (PDF -> S3)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.test('signed immutably', () => pm.expect(j.data.status).to.eql('SIGNED'));",
+                  "console.log('pdf:', j.data.pdfUrl);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/prescriptions/{{prescriptionId}}/sign",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Get signed prescription",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/prescriptions/{{prescriptionId}}"
+          }
+        },
+        {
+          "name": "Create lab order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('labOrderId', j.data.id);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/consultations/{{consultationId}}/lab-orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tests\": [ { \"code\": \"TROP\", \"name\": \"Troponin-I\" } ],\n  \"priority\": \"URGENT\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Collect sample",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{labToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/lab-orders/{{labOrderId}}/collect",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Enter results",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{labToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/lab-orders/{{labOrderId}}/results",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"results\": [ { \"parameter\": \"Troponin-I\", \"value\": \"0.02\", \"unit\": \"ng/mL\", \"referenceRange\": \"<0.04\", \"flag\": \"NORMAL\" } ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Release results",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{labToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/lab-orders/{{labOrderId}}/release",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Upload document (base64)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "pm.collectionVariables.set('documentId', j.data.id);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/clinical/documents",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"fileName\": \"ecg-note.txt\",\n  \"contentType\": \"text/plain\",\n  \"label\": \"ECG summary\",\n  \"dataBase64\": \"RUNHIG5vcm1hbCBzaW51cyByYXRlIDcyLg==\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get document (presigned URL)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/documents/{{documentId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 Commerce",
+      "item": [
+        {
+          "name": "List invoices",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }],
+            "url": "{{baseUrl}}/api/commerce/invoices"
+          }
+        },
+        {
+          "name": "Get invoice + PDF url",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }],
+            "url": "{{baseUrl}}/api/commerce/invoices/{{invoiceId}}"
+          }
+        },
+        {
+          "name": "Payment intent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('paymentId', j.data.id);",
+                  "console.log('order:', j.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/commerce/payments/intent",
+            "body": { "mode": "raw", "raw": "{\n  \"invoiceId\": \"{{invoiceId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Mock capture payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.test('captured', () => pm.expect(j.data.status).to.eql('CAPTURED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/commerce/payments/mock-capture",
+            "body": { "mode": "raw", "raw": "{\n  \"paymentId\": \"{{paymentId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Refund (partial)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/commerce/refunds",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"amount\": 100,\n  \"reason\": \"Goodwill adjustment\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create pharmacy item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["const j = pm.response.json();", "if (j.data) pm.collectionVariables.set('itemId', j.data.id);"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{phaToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/commerce/pharmacy/items",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cetirizine 10mg Tablet\",\n  \"form\": \"TABLET\",\n  \"strength\": \"10mg\",\n  \"price\": 20,\n  \"currency\": \"INR\",\n  \"sku\": \"CETIRIZINE-{{$timestamp}}\",\n  \"lowStockThreshold\": 15\n}"
+            }
+          }
+        },
+        {
+          "name": "Stock-in",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{phaToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/commerce/inventory/stock-in",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": \"{{itemId}}\",\n  \"qty\": 80,\n  \"batchNo\": \"B-CET-001\",\n  \"expiryDate\": \"2027-06-30\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Catalog search",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/commerce/pharmacy/catalog?q=paracetamol"
+          }
+        },
+        {
+          "name": "Stock levels",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{phaToken}}" }],
+            "url": "{{baseUrl}}/api/commerce/inventory/stock?itemId={{itemId}}"
+          }
+        },
+        {
+          "name": "Dispense prescription",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.data) pm.collectionVariables.set('dispenseId', j.data.id);",
+                  "pm.test('dispensed or clear conflict', () => pm.expect([201,409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{phaToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/commerce/dispense",
+            "body": { "mode": "raw", "raw": "{\n  \"prescriptionId\": \"{{prescriptionId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Get dispense record",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{phaToken}}" }],
+            "url": "{{baseUrl}}/api/commerce/dispenses/{{dispenseId}}"
+          }
+        },
+        {
+          "name": "Low stock report",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{phaToken}}" }],
+            "url": "{{baseUrl}}/api/commerce/inventory/low-stock"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 Comms",
+      "item": [
+        {
+          "name": "My notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "console.log('total:', j.data.total, 'unread:', j.data.unreadCount);",
+                  "if (j.data.items.length) pm.collectionVariables.set('lastNotificationId', j.data.items[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }],
+            "url": "{{baseUrl}}/api/comms/notifications"
+          }
+        },
+        {
+          "name": "Mark notification read",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/comms/notifications/{{lastNotificationId}}/read",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "Get channel preferences",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/comms/preferences"
+          }
+        },
+        {
+          "name": "Update channel preferences",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/comms/preferences",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categories\": {\n    \"QUEUE\": [\"INAPP\", \"SMS\", \"WHATSAPP\"],\n    \"BILLING\": [\"INAPP\", \"EMAIL\"]\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Test send (admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/comms/test-send",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"channel\": \"EMAIL\",\n  \"subject\": \"Postman smoke\",\n  \"body\": \"If configured, this arrived via Gmail SMTP.\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7 AI (NVIDIA Nemotron + pgvector)",
+      "item": [
+        {
+          "name": "AI status",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/ai/status" }
+        },
+        {
+          "name": "Copilot chat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "console.log('finishReason:', j.data.finishReason);",
+                  "console.log(String(j.data.content).slice(0, 300));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "timeout": 180000,
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/ai/chat",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"I have mild fever since yesterday. What should I do before seeing a doctor?\"\n}"
+            }
+          }
+        },
+        {
+          "name": "AI patient-sheet agent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "console.log('summary:', String(JSON.stringify(j.data.draft.summary)).slice(0,300));",
+                  "if (j.data.draft.alerts) console.log('alerts:', j.data.draft.alerts.join(' | '));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "timeout": 180000,
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/ai/patients/{{patientId}}/sheet-draft",
+            "body": { "mode": "raw", "raw": "{}" }
+          }
+        },
+        {
+          "name": "AI scribe (transcript -> SOAP draft)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "console.log('assessment:', String(j.data.draft.assessment).slice(0,300));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "timeout": 180000,
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/ai/consultations/{{consultationId}}/scribe",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transcript\": \"Patient reports chest tightness climbing stairs, relieved by rest, no radiation. BP 130/85, pulse 88 regular, SpO2 98 percent. ECG shows nonspecific ST changes. Family history of CAD.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Memory add",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/ai/memory",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"PREFERENCE\",\n  \"content\": \"Prefers morning appointments and SMS reminders over email\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Memory vector search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "console.log('mode:', j.data.mode, 'hits:', j.data.results.length);",
+                  "if (j.data.results.length) console.log('top score:', j.data.results[0].score);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "timeout": 120000,
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/ai/memory/search",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"how does the patient like appointment reminders?\",\n  \"k\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Memory list",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/ai/memory"
+          }
+        },
+        {
+          "name": "Memory erase all (DPDP)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/ai/memory"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8 Admin, audit & break-glass",
+      "item": [
+        {
+          "name": "Audit log query",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admToken}}" }],
+            "url": "{{baseUrl}}/api/admin/audit?action=phi&limit=50"
+          }
+        },
+        {
+          "name": "Recent domain events",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admToken}}" }],
+            "url": "{{baseUrl}}/api/admin/events"
+          }
+        },
+        {
+          "name": "Break-glass WITHOUT reason (must 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('rejected', () => pm.expect(pm.response.code).to.eql(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/admin/break-glass",
+            "body": { "mode": "raw", "raw": "{\n  \"patientId\": \"{{patientId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Break-glass grant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/admin/break-glass",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"reason\": \"Billing dispute - verifying visit record\",\n  \"ttlMinutes\": 10\n}"
+            }
+          }
+        },
+        {
+          "name": "Sheet read under break-glass",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/sheet"
+          }
+        },
+        {
+          "name": "PLATFORM_ADMIN clinical read (must 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('forbidden', () => pm.expect(pm.response.code).to.eql(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/sheet"
+          }
+        },
+        {
+          "name": "Active break-glass grants",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }],
+            "url": "{{baseUrl}}/api/admin/break-glass"
+          }
+        },
+        {
+          "name": "Patient administrative summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{hadmToken}}" }],
+            "url": "{{baseUrl}}/api/admin/patients/{{patientId}}/summary"
+          }
+        }
+      ]
+    }
+  ]
+}
