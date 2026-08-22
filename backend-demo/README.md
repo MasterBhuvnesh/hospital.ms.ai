@@ -1,5 +1,9 @@
 # backend-demo
 
+> **Live demo:** https://backend-demo-hms.onrender.com (Render free tier — first request after idle may take ~60s to wake)
+>
+> Standalone repo: https://github.com/MasterBhuvnesh/backend-demo-hms
+
 Single-process demo of the **Atelier Health** platform. All eight microservices' routes merged into one Fastify app, with demo-grade infrastructure swapped in:
 
 | Production design | This demo |
