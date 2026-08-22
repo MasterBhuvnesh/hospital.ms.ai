@@ -1,0 +1,14 @@
+node_modules
+.env
+.env.*
+!.env.example
+*.log
+.serverpid
+.smoke.env
+postman
+CURL-CHEATSHEET.md
+README.md
+smoke.ps1
+ai-smoke.ps1
+verify-curl.sh
+debug-queue.sh
