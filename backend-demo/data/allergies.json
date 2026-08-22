@@ -1,0 +1,66 @@
+[
+  {
+    "id": "cc232b13-fa06-4491-8631-1c8df494a182",
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "substance": "Penicillin",
+    "severity": "SEVERE",
+    "reaction": "Urticaria and angioedema",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "008b8aad-8225-44b1-829c-c8f201f3ddbe",
+    "patientId": "bc70a9f6-85d1-49f8-a3c1-77c39bea6dc0",
+    "substance": "Dust mites",
+    "severity": "MILD",
+    "reaction": "Sneezing, watery eyes",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "6d03f2f8-8f2d-4f93-9373-881f99178631",
+    "patientId": "261134ac-4517-4c7d-af19-4ec978e40176",
+    "substance": "Aspirin",
+    "severity": "MODERATE",
+    "reaction": "Gastric upset",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "9ef57117-1514-44a5-9e3c-feeced3b9278",
+    "patientId": "4c1c5cf0-2e98-4cd4-a72c-01edec07d97c",
+    "substance": "Penicillin",
+    "severity": "SEVERE",
+    "reaction": "Urticaria and angioedema",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "c7d8f692-0582-44ec-86a9-5de98f65366e",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "substance": "Dust mites",
+    "severity": "MILD",
+    "reaction": "Sneezing, watery eyes",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "0969ba54-be77-4fcc-8d87-bb20e6762f03",
+    "patientId": "38cfa0d2-9a03-4fd7-864b-f5c66dc3c945",
+    "substance": "Aspirin",
+    "severity": "MODERATE",
+    "reaction": "Gastric upset",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "b53ccebf-053d-4c74-8032-e9f173af26ca",
+    "patientId": "08be1e8a-fb8e-48ec-99fa-da83dbb35ad4",
+    "substance": "Penicillin",
+    "severity": "SEVERE",
+    "reaction": "Urticaria and angioedema",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "70110bec-90d3-4d27-89d3-4281c28ba59d",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "substance": "Dust mites",
+    "severity": "MILD",
+    "reaction": "Sneezing, watery eyes",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "d5cf4a36-280b-4cce-a019-0d52d09053d6",
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "name": "Type 2 Diabetes Mellitus",
+    "since": "2019",
+    "notes": "On oral hypoglycemics",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "dfd1c624-18fc-4399-9890-c8f120809e37",
+    "patientId": "b04f33e2-b4d5-4fc8-bc1c-f6619ee1ec73",
+    "name": "Essential Hypertension",
+    "since": "2021",
+    "notes": "Controlled on amlodipine",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "0d95f149-186a-4456-8586-32054487891e",
+    "patientId": "bc8c2a58-3213-4776-bc08-1f44b7c15d24",
+    "name": "Bronchial Asthma",
+    "since": "2016",
+    "notes": "Seasonal exacerbations",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "e08627aa-77f8-47f4-a0a0-36c7bffb01ed",
+    "patientId": "261134ac-4517-4c7d-af19-4ec978e40176",
+    "name": "Chronic Migraine",
+    "since": "-",
+    "notes": "Episodic, photophobia",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "270ae41b-7269-4c6a-b957-06dff98099be",
+    "patientId": "4c1c5cf0-2e98-4cd4-a72c-01edec07d97c",
+    "name": "Type 2 Diabetes Mellitus",
+    "since": "2019",
+    "notes": "On oral hypoglycemics",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "ff495133-a363-4ee2-9a0c-a32a1e2cb613",
+    "patientId": "6caaee89-2747-4bea-8746-074877db3710",
+    "name": "Essential Hypertension",
+    "since": "2021",
+    "notes": "Controlled on amlodipine",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "0a370b84-1480-4ccb-a7c5-1329cc2d7ad9",
+    "patientId": "dd0b7823-63d1-462d-b4b1-864ef7facbcc",
+    "name": "Bronchial Asthma",
+    "since": "2016",
+    "notes": "Seasonal exacerbations",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "941eefce-ecc9-4fc4-a746-7e81a795036c",
+    "patientId": "38cfa0d2-9a03-4fd7-864b-f5c66dc3c945",
+    "name": "Chronic Migraine",
+    "since": "-",
+    "notes": "Episodic, photophobia",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "b7afc5c1-3ce1-4ed3-ba7e-c3fc1bd69403",
+    "patientId": "08be1e8a-fb8e-48ec-99fa-da83dbb35ad4",
+    "name": "Type 2 Diabetes Mellitus",
+    "since": "2019",
+    "notes": "On oral hypoglycemics",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "5156f992-eb86-4d82-a80f-da52440fc4b4",
+    "patientId": "4ac4c5c2-f21c-4093-8cb5-12d9efad2c4a",
+    "name": "Essential Hypertension",
+    "since": "2021",
+    "notes": "Controlled on amlodipine",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  }
+]

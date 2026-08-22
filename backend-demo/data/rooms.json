@@ -1,0 +1,194 @@
+[
+  {
+    "id": "ebe24dfc-6837-41f7-83a7-2c491caa5421",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-C-100",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "46931cb3-6ecf-4727-a9cd-c61e7cec60b8",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-B-101",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "8497bea1-165a-479c-88c0-51ec5c041f86",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-E-102",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "0bb934af-bc0f-488c-add9-a8cc7f112306",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-E-103",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "0a71ee0f-4391-408d-8c47-9d007589a568",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-D-104",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "8f44a0c7-7971-4872-8916-1160fc216463",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-E-105",
+    "type": "CONSULTATION",
+    "status": "OCCUPIED",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "dfb29dee-ff75-4f49-bea3-bab15fe8fa40",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-E-106",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "85175a1c-fc04-49a1-8f3a-740327fef195",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-A-107",
+    "type": "CONSULTATION",
+    "status": "OCCUPIED",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "e3658c85-8166-4775-a9fb-8c98dd9fa618",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-B-108",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "6e7b135d-5239-4dc5-b23e-3c4a22651905",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-B-109",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "a4bf55a3-171a-4eb2-b288-1788403faac7",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-A-110",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "7e7970c7-9962-4170-9959-bee1362c2730",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "OPD-C-111",
+    "type": "CONSULTATION",
+    "status": "OCCUPIED",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "ff95b4d8-7ee6-454a-ae46-a9901d07994b",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-E-112",
+    "type": "CONSULTATION",
+    "status": "OCCUPIED",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "efb82d09-f1b9-4a21-9ea8-1a0d9c3690a1",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-E-113",
+    "type": "CONSULTATION",
+    "status": "OCCUPIED",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "16a3e7e8-3073-4089-b620-568801178ada",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-A-114",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "a34abda0-8d47-44d3-ad94-a7823b30689a",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-B-115",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "d05284f5-7f9c-44fe-b8a3-d05fab539e58",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-A-116",
+    "type": "CONSULTATION",
+    "status": "OCCUPIED",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "98db8424-f40c-4f87-b365-b0bf0fe90aac",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-C-117",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "97080bbb-c5bd-458e-b58b-6d51b84eb7b2",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-A-118",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "6868391c-299f-4aaf-abe1-9765b90fbf1e",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-E-119",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "d9ea60ad-b744-4000-936d-4a5552836b20",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-E-120",
+    "type": "CONSULTATION",
+    "status": "OCCUPIED",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "c876c514-8128-4e22-854e-d21bf7b56268",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-D-121",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "aaf8eb9d-c1a9-4c9b-9832-0c49dcdf5ced",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-E-122",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "badb095d-c30b-40c9-ac5e-c86664a7e77e",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "OPD-A-123",
+    "type": "CONSULTATION",
+    "status": "FREE",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  }
+]

@@ -1,0 +1,325 @@
+[
+  {
+    "id": "817f4038-a7c4-46e1-b3e5-d14616c4a69e",
+    "fullName": "Platform Admin",
+    "email": "admin@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$ac9a0f79942b88c779a66ca4eafcff14$c53721e1d707d892bb2db8eb8ec033dc3982887faf1798bf459a8c90622d126801832e5d140377c95f12c5066dc485449bab65a57d77fabd64e84018cf077953",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "8fff1a3d-66a5-4f54-995d-408c1a094c4a",
+        "hospitalId": null,
+        "role": "PLATFORM_ADMIN",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.385Z"
+  },
+  {
+    "id": "48233b9e-01c0-4a10-aa92-d57f41085421",
+    "fullName": "Dr. Asha Rao",
+    "email": "asha@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$9b1598f3555f682d9322bc0628d24415$df56c056fd096507b46fb962d255a04b7938412f7232957b3eb9ade139327500a658e24a90d03b6323931e16d23adb8f5d1142ae7692af0516dd89c92f731d18",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "08f7ab8f-c2f2-40aa-ad7f-b4c09333cde6",
+        "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+        "role": "DOCTOR",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.421Z"
+  },
+  {
+    "id": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "fullName": "Dr. Rahul Mehta",
+    "email": "rahul@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$88f974e5c226c8fba34c802c5b2443fc$dd0d2b5ff05b62b1b5c8028ab69c0f48b2e4e69d8777918ad8f9268c9edce609cdfa5ec202fb84f6105586adebad100e000bc9d385bb26553b0a9fb996e288ae",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "4f0d90dc-ad80-4702-927a-32dcad0657ad",
+        "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+        "role": "DOCTOR",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.453Z"
+  },
+  {
+    "id": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "fullName": "Reception Desk",
+    "email": "reception@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$35f6189a158741d89323836740f2da1d$779db106780194a4b11cd289bdcae7a694a054626fbff61999700608068f7b398da3b15795095548060bb58208caf30292d20e7b936daa40aa88190700d8f9d9",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "80f53290-a0fc-488d-a5b0-7c3f6ca9e266",
+        "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+        "role": "RECEPTIONIST",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.484Z"
+  },
+  {
+    "id": "e7cb3424-5a9e-4699-ae36-d5b24f23a1ce",
+    "fullName": "Pharmacy Counter",
+    "email": "pharmacy@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$1c04bdf92e992b95d59eb0ea40178251$01a0f65dcd349bf7dc97fc153aec2b7a3362aa768241cb8a882a15a2aeb6c047fe33b99177ac43aadd8c8dfccfc33218515037fee2e2062a57d3d700dee0cd45",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "e16b69eb-5a54-4eb6-8c23-46e8adecc4fb",
+        "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+        "role": "PHARMACIST",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.514Z"
+  },
+  {
+    "id": "6c0b6388-dd53-477c-b08e-43d4c654fccf",
+    "fullName": "Lab Bench",
+    "email": "lab@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$cca2304c1202e3e46566a0a6f5ce9617$cfd18ee4de09310c437b58848a185db7662abbf724ce6cebfb4d6914c7ab356cb9649653d8d6147ccd97347d9f61f0de21fa550e8bdce70aea0b7d9d90100c0e",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "4d01a997-31d5-467e-8fc2-81c32a690578",
+        "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+        "role": "LAB_TECH",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.545Z"
+  },
+  {
+    "id": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "fullName": "Priya Sharma",
+    "email": "patient@atelier.local",
+    "phone": "+919810000001",
+    "passwordHash": "scrypt$af399a16c562ffcf63250623ee359e36$5604ada36a838af58c7a44ce72dbd790592b69e60aae7bf273f80b03677a6ef2b6495270f8782dd4ce2185c90fbcc4b2c563d66a0dd61ba9b2d9d49083a1c7bf",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": true,
+    "roles": [
+      {
+        "id": "8856f25b-0298-471b-958f-0fff27f34023",
+        "hospitalId": null,
+        "role": "PATIENT",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.575Z"
+  },
+  {
+    "id": "9bfbb08d-9a0c-4bfa-a28c-f65f79493420",
+    "fullName": "Hospital Admin",
+    "email": "hospadmin@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$beaaa4dad758a5aa90a7779f01d7309a$c7ab992bda7e8bd89ae7966f38fd936fa1285501867904d3b051b8ac2292e6e18a5691df489be8c5bbf9e29c32df67393dcdabf74fc462bff9cc58488b20b88f",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "23af3a61-7a48-4efc-84f6-3d77e977b525",
+        "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+        "role": "HOSPITAL_ADMIN",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.612Z"
+  },
+  {
+    "id": "143b8d54-fb4f-49fe-980a-e4f2f5902687",
+    "fullName": "Nurse Station",
+    "email": "nurse@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$a4f00247bc642b80a9224dfa7fab1858$8947145338dbbae0b51c39183f97ff975c7dfd4a5a6519d702fe106964ff91f3b0df98b7118051eaef4eef295b6a43b55dba0e6dafa183f4c4d8d317754d2169",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "43f94e70-a62d-4bce-8112-993120913981",
+        "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+        "role": "NURSE",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.643Z"
+  },
+  {
+    "id": "71cae86b-32ae-41a3-92b6-9dbfd094084f",
+    "fullName": "Sunrise Reception",
+    "email": "mumbai.reception@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$a84a9599bc4eb6b83202161bb4e4cc9e$95ecd0310913072580d67aae20672f0e6fcaac0294b152fff899c8bf2be10c543b37cfd0d28149604c8fb748101ba765ab141811934be9aaac65f0f4c194342b",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "234efd3c-ab39-4dc0-93c7-8067424027f7",
+        "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+        "role": "RECEPTIONIST",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.672Z"
+  },
+  {
+    "id": "4cf8ca22-c516-4308-a034-18197aecac2e",
+    "fullName": "Sunrise Pharmacy",
+    "email": "mumbai.pharmacy@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$8e7c6f5d631907be3ddf2f307c3a525c$4fab86a2303ee86e7fde8848ddf41c088b2cac11e2d62bb3f9f09bad251edfc86966baa14a5dc6e0c470944d5b50301c06a640e17a39ed0e2919c52af3b01284",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "94841781-b7f5-49d3-a690-d22fd8f804c5",
+        "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+        "role": "PHARMACIST",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.702Z"
+  },
+  {
+    "id": "d2864b75-b9d7-458e-91b6-5c8202cf4b52",
+    "fullName": "Sunrise Lab",
+    "email": "mumbai.lab@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$c845967076865a1f5d32cd1da2fe59fe$2caba779940e212ceeade5ec2d18e33e5e7552a5f78d78ab03991c95df2e9df487c9138e9b49d8f114e38654e1a79b3af63b6e34959d4b2f7c1363e3c0eb648f",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "d3e67497-26e8-4f52-a567-5f41d064aba4",
+        "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+        "role": "LAB_TECH",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.732Z"
+  },
+  {
+    "id": "378d131f-09d0-4976-b55f-80042c59ab2c",
+    "fullName": "Arjun Reddy",
+    "email": "arjun@atelier.local",
+    "phone": "+919810000011",
+    "passwordHash": "scrypt$a40766321315fd332bea9cf2ffb6f879$4f686bda9ea3d6ca965b1984391d15b3d866c07f27fa075e9a855bb620f625fe4bb70f38592a7e806118f67e51225cee7738ea5f74580a7d5793c7f435a61b4a",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": true,
+    "roles": [
+      {
+        "id": "e6e98153-68d8-448b-b250-cf514284614c",
+        "hospitalId": null,
+        "role": "PATIENT",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.764Z"
+  },
+  {
+    "id": "4a41fb2f-a144-4d8c-ac95-12dda16cf81a",
+    "fullName": "Meera Nair",
+    "email": "meera@atelier.local",
+    "phone": "+919810000012",
+    "passwordHash": "scrypt$7074de36de8de5dc4836054b983e30c1$dfbef48e80db552ee9a044819e1cedcf0ed68212bf687bc229f7efab91b86a870c85695b1f7aac3aff58a7f39cfc2780ed9f3b8bf2308aab34dca0fd2c78d0c6",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": true,
+    "roles": [
+      {
+        "id": "39f4fbf3-0ba2-4b62-8a53-af4147641c46",
+        "hospitalId": null,
+        "role": "PATIENT",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.794Z"
+  },
+  {
+    "id": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485",
+    "fullName": "Dr. Kavita Menon",
+    "email": "kavita@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$2f21d3a3e1570aae3be6e8cebf722b6a$cc9741d5730f2f88019bb614cb3bfab8d2bbe1276495acfa8c590293d4b3ef0f0ba30e1959afcd436961dca13d5817f23f3ea80e8405f842447bc0e43d29ae3a",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "51f18361-d77e-4bcc-a099-481851ae0d5e",
+        "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+        "role": "DOCTOR",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.825Z"
+  },
+  {
+    "id": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "fullName": "Dr. Neha Verma",
+    "email": "neha@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$1e28cb705e0d15e9c36e1d179573bed0$f4298486bef427c11c4756bc447204aa9a7cc7f4d68992bb64a5e700d10b38f4cc01841c8f34d963d8234a0c8c5095fe47013d442d0fef0d79cd56ebd1332663",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "38be1260-06e6-43e2-a8b6-f4046a98b3ce",
+        "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+        "role": "DOCTOR",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.855Z"
+  },
+  {
+    "id": "586ac5e5-501c-4d5b-99df-3294260ab766",
+    "fullName": "Dr. Imran Khan",
+    "email": "imran@atelier.local",
+    "phone": null,
+    "passwordHash": "scrypt$fdea43409f0f9652678812ed55c9fec6$6057f4d2f9cc99a3df3b3431ebb2cf0c367443a2f487bf9d57d520a3a75e883e9ecbb8c2ddcd84921195565b8e8db0e7e05ee017bc5e6a040808a46191797b49",
+    "isActive": true,
+    "emailVerified": true,
+    "phoneVerified": false,
+    "roles": [
+      {
+        "id": "0ee60314-4057-4a5d-b1ee-05c33f50c93d",
+        "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+        "role": "DOCTOR",
+        "isPrimary": true
+      }
+    ],
+    "createdAt": "2026-08-22T18:50:38.888Z"
+  }
+]

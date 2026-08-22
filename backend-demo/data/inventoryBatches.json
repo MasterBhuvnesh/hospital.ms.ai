@@ -1,0 +1,128 @@
+[
+  {
+    "id": "c396ad77-4bf3-4b71-bd4b-2dac5c89648e",
+    "itemId": "7173a9e7-dd94-4626-a17e-61057f42d4dc",
+    "batchNo": "B-PARA-001",
+    "expiryDate": "2027-12-31",
+    "qtyOriginal": 100,
+    "qtyRemaining": 100,
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "495c5647-5ffe-4204-b19d-7e3daa53a6c3",
+    "itemId": "82075f32-c794-4056-b820-cfd3928e7839",
+    "batchNo": "B-AMOX-001",
+    "expiryDate": "2027-12-31",
+    "qtyOriginal": 60,
+    "qtyRemaining": 60,
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "ca1906ca-10c5-4904-81e9-73b106885cfa",
+    "itemId": "02b376dd-35ef-4b1d-83a0-1c151e5caffe",
+    "batchNo": "B-CETI-001",
+    "expiryDate": "2026-09-30",
+    "qtyOriginal": 90,
+    "qtyRemaining": 90,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "14d4a462-785e-4d9f-af53-8c8218e751a0",
+    "itemId": "712d3f3d-43d9-4f34-b9ec-8d304f5d0e0f",
+    "batchNo": "B-METF-002",
+    "expiryDate": "2026-12-15",
+    "qtyOriginal": 120,
+    "qtyRemaining": 120,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "3e28f242-5acd-4bb1-afe1-f8184638f738",
+    "itemId": "1dde2215-bd6e-4022-be9d-cfe498e1f4cb",
+    "batchNo": "B-AMLO-003",
+    "expiryDate": "2027-03-31",
+    "qtyOriginal": 80,
+    "qtyRemaining": 80,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "64a1e684-ca93-452b-8623-fb360ab7c2a2",
+    "itemId": "4a010d58-adae-42e4-bbba-06127bf03d52",
+    "batchNo": "B-ATOR-004",
+    "expiryDate": "2027-06-30",
+    "qtyOriginal": 60,
+    "qtyRemaining": 60,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "efb35792-5029-4d37-89fa-175897d14bff",
+    "itemId": "0cfecfb5-f451-460f-98ec-a9d99d4f7835",
+    "batchNo": "B-PANT-005",
+    "expiryDate": "2027-12-31",
+    "qtyOriginal": 70,
+    "qtyRemaining": 70,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "8de11b88-a43c-4614-ab24-b64743329103",
+    "itemId": "f5cf1b7a-8ab5-42ce-b866-ede7e43a0385",
+    "batchNo": "B-AZIT-006",
+    "expiryDate": "2026-09-30",
+    "qtyOriginal": 42,
+    "qtyRemaining": 42,
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "0b3fc690-65c6-4b93-9ad0-bf3ab0d35f99",
+    "itemId": "cc8a3b56-6883-4ae7-9449-3a25b7c15e21",
+    "batchNo": "B-IBUP-007",
+    "expiryDate": "2026-12-15",
+    "qtyOriginal": 100,
+    "qtyRemaining": 100,
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "83175559-50c5-4fc1-9705-4c1670008ada",
+    "itemId": "a2b31e5c-97f6-4dda-990d-d28e844957d4",
+    "batchNo": "B-ORS--008",
+    "expiryDate": "2027-03-31",
+    "qtyOriginal": 150,
+    "qtyRemaining": 150,
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "b2ec1b74-3941-40b6-8d7f-3496f20f115d",
+    "itemId": "cb23709d-aee4-4840-b06a-575fb09f3b77",
+    "batchNo": "B-VITD-009",
+    "expiryDate": "2027-06-30",
+    "qtyOriginal": 26,
+    "qtyRemaining": 26,
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "6c867279-1a0b-41fe-8dfe-230f22a37d85",
+    "itemId": "68259a68-d147-4959-80c7-d383b9bbf3b3",
+    "batchNo": "B-SALB-010",
+    "expiryDate": "2027-12-31",
+    "qtyOriginal": 14,
+    "qtyRemaining": 14,
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "3cbc0ae4-c732-46d9-bdb0-dba7033ffc71",
+    "itemId": "fab8fb3a-7c63-4815-b089-e5adbd1623c0",
+    "batchNo": "B-ONDA-011",
+    "expiryDate": "2026-09-30",
+    "qtyOriginal": 34,
+    "qtyRemaining": 34,
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "3c8e59f0-f557-4a0f-9fb8-112621b9e054",
+    "itemId": "04f59100-5773-4be3-98fa-6fda5b6e835e",
+    "batchNo": "B-BETA-012",
+    "expiryDate": "2026-12-15",
+    "qtyOriginal": 22,
+    "qtyRemaining": 22,
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  }
+]

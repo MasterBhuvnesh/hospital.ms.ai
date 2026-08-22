@@ -24,6 +24,8 @@ pnpm dev                          # tsx watch; auto-seeds if data/ is empty
 
 Server listens on **http://localhost:8080**. Health: `/health/live`, `/health/ready` (shows which integrations are configured).
 
+> `data/` is committed pre-seeded with the rich demo world, so a fresh clone boots straight into populated data (live queue is dated to the last seed run — re-run `pnpm seed:rich` after wiping `data/` to refresh "today"). Delete `data/*.json` for a factory reset; auto-seed rebuilds it on boot.
+
 ### Seeded accounts
 
 All staff/patient passwords are `Demo@12345`; platform admin is `Admin@12345`.

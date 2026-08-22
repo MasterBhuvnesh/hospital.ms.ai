@@ -1,0 +1,128 @@
+[
+  {
+    "id": "25c88815-f02f-4fb7-9c59-842c7a6b141e",
+    "itemId": "7173a9e7-dd94-4626-a17e-61057f42d4dc",
+    "batchId": "c396ad77-4bf3-4b71-bd4b-2dac5c89648e",
+    "deltaQty": 100,
+    "reason": "STOCK_IN",
+    "refId": "c396ad77-4bf3-4b71-bd4b-2dac5c89648e",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "917a83da-388b-44a5-82a5-f929950755b8",
+    "itemId": "82075f32-c794-4056-b820-cfd3928e7839",
+    "batchId": "495c5647-5ffe-4204-b19d-7e3daa53a6c3",
+    "deltaQty": 60,
+    "reason": "STOCK_IN",
+    "refId": "495c5647-5ffe-4204-b19d-7e3daa53a6c3",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "17b8390a-dcef-47ae-857b-aed31c4d67f9",
+    "itemId": "02b376dd-35ef-4b1d-83a0-1c151e5caffe",
+    "batchId": "ca1906ca-10c5-4904-81e9-73b106885cfa",
+    "deltaQty": 90,
+    "reason": "STOCK_IN",
+    "refId": "ca1906ca-10c5-4904-81e9-73b106885cfa",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "47d9dc6c-13ea-4a56-9dad-1707feb8a8b5",
+    "itemId": "712d3f3d-43d9-4f34-b9ec-8d304f5d0e0f",
+    "batchId": "14d4a462-785e-4d9f-af53-8c8218e751a0",
+    "deltaQty": 120,
+    "reason": "STOCK_IN",
+    "refId": "14d4a462-785e-4d9f-af53-8c8218e751a0",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "a42ffab4-1e13-4972-b7eb-a0ede036096d",
+    "itemId": "1dde2215-bd6e-4022-be9d-cfe498e1f4cb",
+    "batchId": "3e28f242-5acd-4bb1-afe1-f8184638f738",
+    "deltaQty": 80,
+    "reason": "STOCK_IN",
+    "refId": "3e28f242-5acd-4bb1-afe1-f8184638f738",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "08e9d9f6-081e-4869-8f5f-110805d12bd5",
+    "itemId": "4a010d58-adae-42e4-bbba-06127bf03d52",
+    "batchId": "64a1e684-ca93-452b-8623-fb360ab7c2a2",
+    "deltaQty": 60,
+    "reason": "STOCK_IN",
+    "refId": "64a1e684-ca93-452b-8623-fb360ab7c2a2",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "081f6716-44a4-4de8-a1cb-1d47b7480249",
+    "itemId": "0cfecfb5-f451-460f-98ec-a9d99d4f7835",
+    "batchId": "efb35792-5029-4d37-89fa-175897d14bff",
+    "deltaQty": 70,
+    "reason": "STOCK_IN",
+    "refId": "efb35792-5029-4d37-89fa-175897d14bff",
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "ef0e7b61-f65c-46ce-911e-30dca280cd61",
+    "itemId": "f5cf1b7a-8ab5-42ce-b866-ede7e43a0385",
+    "batchId": "8de11b88-a43c-4614-ab24-b64743329103",
+    "deltaQty": 42,
+    "reason": "STOCK_IN",
+    "refId": "8de11b88-a43c-4614-ab24-b64743329103",
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "88ab2027-1820-4601-a8d5-61374d063f5d",
+    "itemId": "cc8a3b56-6883-4ae7-9449-3a25b7c15e21",
+    "batchId": "0b3fc690-65c6-4b93-9ad0-bf3ab0d35f99",
+    "deltaQty": 100,
+    "reason": "STOCK_IN",
+    "refId": "0b3fc690-65c6-4b93-9ad0-bf3ab0d35f99",
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "4465c5c8-a88e-427f-a97d-3759be603b1f",
+    "itemId": "a2b31e5c-97f6-4dda-990d-d28e844957d4",
+    "batchId": "83175559-50c5-4fc1-9705-4c1670008ada",
+    "deltaQty": 150,
+    "reason": "STOCK_IN",
+    "refId": "83175559-50c5-4fc1-9705-4c1670008ada",
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "8dd2d9ac-c2fa-49df-a1b4-e3ac7af0a5c0",
+    "itemId": "cb23709d-aee4-4840-b06a-575fb09f3b77",
+    "batchId": "b2ec1b74-3941-40b6-8d7f-3496f20f115d",
+    "deltaQty": 26,
+    "reason": "STOCK_IN",
+    "refId": "b2ec1b74-3941-40b6-8d7f-3496f20f115d",
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "62b63883-b980-43e8-9eed-7d282e3589db",
+    "itemId": "68259a68-d147-4959-80c7-d383b9bbf3b3",
+    "batchId": "6c867279-1a0b-41fe-8dfe-230f22a37d85",
+    "deltaQty": 14,
+    "reason": "STOCK_IN",
+    "refId": "6c867279-1a0b-41fe-8dfe-230f22a37d85",
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "abfe57e0-a3cc-42e3-b01e-320e40972107",
+    "itemId": "fab8fb3a-7c63-4815-b089-e5adbd1623c0",
+    "batchId": "3cbc0ae4-c732-46d9-bdb0-dba7033ffc71",
+    "deltaQty": 34,
+    "reason": "STOCK_IN",
+    "refId": "3cbc0ae4-c732-46d9-bdb0-dba7033ffc71",
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  },
+  {
+    "id": "f91ceaef-13fb-496d-ac1b-7766fb8e2f55",
+    "itemId": "04f59100-5773-4be3-98fa-6fda5b6e835e",
+    "batchId": "3c8e59f0-f557-4a0f-9fb8-112621b9e054",
+    "deltaQty": 22,
+    "reason": "STOCK_IN",
+    "refId": "3c8e59f0-f557-4a0f-9fb8-112621b9e054",
+    "createdAt": "2026-08-22T18:50:38.890Z"
+  }
+]

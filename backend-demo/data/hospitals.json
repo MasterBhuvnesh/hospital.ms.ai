@@ -1,0 +1,22 @@
+[
+  {
+    "id": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "City Care Hospital",
+    "city": "Pune",
+    "address": "12 FC Road, Pune 411005",
+    "phone": "+912012345678",
+    "email": "hello@citycare.example",
+    "timezone": "Asia/Kolkata",
+    "createdAt": "2026-08-22T18:50:38.387Z"
+  },
+  {
+    "id": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "Sunrise Multispecialty Hospital",
+    "city": "Mumbai",
+    "address": "Bandra Kurla Complex, Mumbai 400051",
+    "phone": "+912266778899",
+    "email": "hello@sunrise.example",
+    "timezone": "Asia/Kolkata",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  }
+]

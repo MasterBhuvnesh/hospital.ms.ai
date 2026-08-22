@@ -1,0 +1,202 @@
+[
+  {
+    "id": "99cf7793-945e-4efc-86d6-8eba47547b52",
+    "userId": "48233b9e-01c0-4a10-aa92-d57f41085421",
+    "fullName": "Dr. Asha Rao",
+    "specializations": [
+      "CARDIOLOGY"
+    ],
+    "qualification": "MBBS, MD, DM Cardiology",
+    "registrationNumber": "MMC-2011-45231",
+    "experienceYears": 14,
+    "hospitalIds": [
+      "c13bd3ca-def9-4c7f-8049-4e1c7b178049"
+    ],
+    "departmentId": "d7f04135-a304-4a64-bec3-b19f94eaa65c",
+    "roomNumber": "C-204",
+    "feeConfig": {
+      "version": 1,
+      "amount": 500,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.545Z"
+    },
+    "feeHistory": [],
+    "isActive": true,
+    "createdAt": "2026-08-22T18:50:38.545Z"
+  },
+  {
+    "id": "57a95231-1944-4a59-904d-347c261ca365",
+    "userId": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "fullName": "Dr. Rahul Mehta",
+    "specializations": [
+      "GENERAL MEDICINE"
+    ],
+    "qualification": "MBBS, MD",
+    "registrationNumber": "MMC-2015-77120",
+    "experienceYears": 9,
+    "hospitalIds": [
+      "c13bd3ca-def9-4c7f-8049-4e1c7b178049"
+    ],
+    "departmentId": "360e0f7f-364a-4dd7-be2e-4e4ad380aca0",
+    "roomNumber": "G-101",
+    "feeConfig": {
+      "version": 1,
+      "amount": 350,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.545Z"
+    },
+    "feeHistory": [],
+    "isActive": true,
+    "createdAt": "2026-08-22T18:50:38.545Z"
+  },
+  {
+    "id": "bce71ea2-877e-4f3d-b43e-29c633d1058d",
+    "userId": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485",
+    "fullName": "Dr. Kavita Menon",
+    "specializations": [
+      "PEDIATRICS"
+    ],
+    "qualification": "MBBS, MD",
+    "registrationNumber": "MMC-2009-33417",
+    "experienceYears": 16,
+    "hospitalIds": [
+      "c13bd3ca-def9-4c7f-8049-4e1c7b178049"
+    ],
+    "departmentId": "a2bfacb5-e818-4ba3-8a03-0580e5a9e0d6",
+    "roomNumber": null,
+    "feeConfig": {
+      "version": 1,
+      "amount": 400,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "feeHistory": [],
+    "isActive": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "324b13e1-bf0b-44fd-91ec-b86a2264619a",
+    "userId": null,
+    "fullName": "Dr. Suresh Patil",
+    "specializations": [
+      "ORTHOPEDICS"
+    ],
+    "qualification": "MBBS, MD",
+    "registrationNumber": "MMC-2012-50982",
+    "experienceYears": 13,
+    "hospitalIds": [
+      "c13bd3ca-def9-4c7f-8049-4e1c7b178049"
+    ],
+    "departmentId": "0b37a581-fae6-4803-8541-6808f4287348",
+    "roomNumber": null,
+    "feeConfig": {
+      "version": 1,
+      "amount": 600,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "feeHistory": [],
+    "isActive": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "1cfc73b0-23df-4e7e-92ae-d8828ee7529e",
+    "userId": null,
+    "fullName": "Dr. Anjali Deshmukh",
+    "specializations": [
+      "DERMATOLOGY"
+    ],
+    "qualification": "MBBS, MD",
+    "registrationNumber": "MMC-2016-61873",
+    "experienceYears": 9,
+    "hospitalIds": [
+      "c13bd3ca-def9-4c7f-8049-4e1c7b178049"
+    ],
+    "departmentId": "17597a7d-183d-4eb9-8f02-18b43fdab057",
+    "roomNumber": null,
+    "feeConfig": {
+      "version": 1,
+      "amount": 500,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "feeHistory": [],
+    "isActive": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "d65db70e-9aaf-4d2d-b697-102adcebb5ef",
+    "userId": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "fullName": "Dr. Neha Verma",
+    "specializations": [
+      "DERMATOLOGY"
+    ],
+    "qualification": "MBBS, MD",
+    "registrationNumber": "MMC-2014-44290",
+    "experienceYears": 11,
+    "hospitalIds": [
+      "914f7ceb-41a4-44bb-ab54-de49b8a996ff"
+    ],
+    "departmentId": "fdca9684-aae5-46d2-94b5-aeb5b923f171",
+    "roomNumber": null,
+    "feeConfig": {
+      "version": 1,
+      "amount": 550,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "feeHistory": [],
+    "isActive": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "5cc57fe4-a096-4d42-bcda-cd71602e746c",
+    "userId": "586ac5e5-501c-4d5b-99df-3294260ab766",
+    "fullName": "Dr. Imran Khan",
+    "specializations": [
+      "GENERAL MEDICINE"
+    ],
+    "qualification": "MBBS, MD",
+    "registrationNumber": "MMC-2010-27654",
+    "experienceYears": 15,
+    "hospitalIds": [
+      "914f7ceb-41a4-44bb-ab54-de49b8a996ff"
+    ],
+    "departmentId": "fdca9684-aae5-46d2-94b5-aeb5b923f171",
+    "roomNumber": null,
+    "feeConfig": {
+      "version": 1,
+      "amount": 350,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "feeHistory": [],
+    "isActive": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "a12060df-bdf4-47a4-b2ea-92d5fbce8d1c",
+    "userId": null,
+    "fullName": "Dr. Lakshmi Iyer",
+    "specializations": [
+      "GYNECOLOGY"
+    ],
+    "qualification": "MBBS, MD",
+    "registrationNumber": "MMC-2008-19023",
+    "experienceYears": 18,
+    "hospitalIds": [
+      "914f7ceb-41a4-44bb-ab54-de49b8a996ff"
+    ],
+    "departmentId": "d164c73e-68ef-48cc-a136-9356d937e7fb",
+    "roomNumber": null,
+    "feeConfig": {
+      "version": 1,
+      "amount": 700,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "feeHistory": [],
+    "isActive": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  }
+]

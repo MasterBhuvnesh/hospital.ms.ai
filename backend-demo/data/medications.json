@@ -1,0 +1,65 @@
+[
+  {
+    "id": "a5a4877e-bb24-413d-a13f-d72026dff8eb",
+    "patientId": "b04f33e2-b4d5-4fc8-bc1c-f6619ee1ec73",
+    "drug": "Amlodipine 5mg Tablet",
+    "dose": "5mg",
+    "frequency": "1-0-0",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "fc191c33-85eb-4623-8c95-4660bba9ccaf",
+    "patientId": "bc8c2a58-3213-4776-bc08-1f44b7c15d24",
+    "drug": "Salbutamol Inhaler",
+    "dose": "100mcg/puff",
+    "frequency": "2 puffs PRN",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "775f3392-6a25-4409-b1d5-cadfa2f1d4b7",
+    "patientId": "de176954-f0f2-4e2d-a7dc-868f27635603",
+    "drug": "Pantoprazole 40mg Tablet",
+    "dose": "40mg",
+    "frequency": "1-0-0 before food",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "d25f4068-d7b7-4bec-8260-b9fd6f222582",
+    "patientId": "6caaee89-2747-4bea-8746-074877db3710",
+    "drug": "Amlodipine 5mg Tablet",
+    "dose": "5mg",
+    "frequency": "1-0-0",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "8b06d9e4-11bc-4416-b9f3-9b8ce8e8c9fa",
+    "patientId": "dd0b7823-63d1-462d-b4b1-864ef7facbcc",
+    "drug": "Salbutamol Inhaler",
+    "dose": "100mcg/puff",
+    "frequency": "2 puffs PRN",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "ff901f52-f98f-4742-8bea-3a6864ad9175",
+    "patientId": "320f6ddd-27f0-4c47-b4af-9a109901f47b",
+    "drug": "Pantoprazole 40mg Tablet",
+    "dose": "40mg",
+    "frequency": "1-0-0 before food",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "d05cac2b-f059-4192-a326-86b591a6627b",
+    "patientId": "4ac4c5c2-f21c-4093-8cb5-12d9efad2c4a",
+    "drug": "Amlodipine 5mg Tablet",
+    "dose": "5mg",
+    "frequency": "1-0-0",
+    "active": true,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  }
+]

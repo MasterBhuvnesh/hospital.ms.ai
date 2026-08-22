@@ -1,0 +1,116 @@
+[
+  {
+    "id": "0dce41c0-5e92-4132-a628-4c5a39eca7c3",
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "doctorId": "99cf7793-945e-4efc-86d6-8eba47547b52",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "startsAt": "2026-08-24T04:30:00.000Z",
+    "date": "2026-08-24",
+    "status": "BOOKED",
+    "reason": "Follow-up visit",
+    "priority": null,
+    "feeSnapshot": {
+      "version": 1,
+      "amount": 500,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.545Z"
+    },
+    "tokenId": null,
+    "createdAt": "2026-08-22T18:50:38.910Z"
+  },
+  {
+    "id": "148ac643-a48d-4df1-a56c-d57213d5c1ee",
+    "patientId": "b04f33e2-b4d5-4fc8-bc1c-f6619ee1ec73",
+    "doctorId": "bce71ea2-877e-4f3d-b43e-29c633d1058d",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "startsAt": "2026-08-24T06:00:00.000Z",
+    "date": "2026-08-24",
+    "status": "BOOKED",
+    "reason": "Routine check-up",
+    "priority": null,
+    "feeSnapshot": {
+      "version": 1,
+      "amount": 400,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "tokenId": null,
+    "createdAt": "2026-08-22T18:50:38.910Z"
+  },
+  {
+    "id": "ccfe3a92-f4bb-4e14-99dc-2a98d5f94e0d",
+    "patientId": "bc70a9f6-85d1-49f8-a3c1-77c39bea6dc0",
+    "doctorId": "d65db70e-9aaf-4d2d-b697-102adcebb5ef",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "startsAt": "2026-08-24T06:30:00.000Z",
+    "date": "2026-08-24",
+    "status": "BOOKED",
+    "reason": "Routine check-up",
+    "priority": null,
+    "feeSnapshot": {
+      "version": 1,
+      "amount": 550,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "tokenId": null,
+    "createdAt": "2026-08-22T18:50:38.910Z"
+  },
+  {
+    "id": "82951a28-df8f-4eeb-ab7c-c5c50fd70e8c",
+    "patientId": "38cfa0d2-9a03-4fd7-864b-f5c66dc3c945",
+    "doctorId": "57a95231-1944-4a59-904d-347c261ca365",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "startsAt": "2026-08-25T04:00:00.000Z",
+    "date": "2026-08-25",
+    "status": "BOOKED",
+    "reason": "First consultation",
+    "priority": null,
+    "feeSnapshot": {
+      "version": 1,
+      "amount": 350,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.545Z"
+    },
+    "tokenId": null,
+    "createdAt": "2026-08-22T18:50:38.910Z"
+  },
+  {
+    "id": "c768a20f-4220-4a19-a65f-d6d5e01895f8",
+    "patientId": "bc8c2a58-3213-4776-bc08-1f44b7c15d24",
+    "doctorId": "5cc57fe4-a096-4d42-bcda-cd71602e746c",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "startsAt": "2026-08-25T10:15:00.000Z",
+    "date": "2026-08-25",
+    "status": "BOOKED",
+    "reason": "Routine check-up",
+    "priority": null,
+    "feeSnapshot": {
+      "version": 1,
+      "amount": 350,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "tokenId": null,
+    "createdAt": "2026-08-22T18:50:38.910Z"
+  },
+  {
+    "id": "4bda6b93-7657-4952-8953-8ce345069b06",
+    "patientId": "4c1c5cf0-2e98-4cd4-a72c-01edec07d97c",
+    "doctorId": "a12060df-bdf4-47a4-b2ea-92d5fbce8d1c",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "startsAt": "2026-08-25T10:45:00.000Z",
+    "date": "2026-08-25",
+    "status": "BOOKED",
+    "reason": "Report review",
+    "priority": null,
+    "feeSnapshot": {
+      "version": 1,
+      "amount": 700,
+      "currency": "INR",
+      "effectiveFrom": "2026-08-22T18:50:38.889Z"
+    },
+    "tokenId": null,
+    "createdAt": "2026-08-22T18:50:38.910Z"
+  }
+]

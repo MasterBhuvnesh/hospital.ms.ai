@@ -1,0 +1,62 @@
+[
+  {
+    "id": "bb52f9d6-1dcb-4f26-9c38-c07488e68d60",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "familyId": "bcf10f96-a338-4f34-ae03-938ddb5cbac5",
+    "tokenHash": "ecd94d05e4c8c5b5c1d580812a499b68c51f7461c309986461788ab50e8d74de",
+    "expiresAt": "2026-09-21T18:50:46.610Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-22T18:50:46.612Z"
+  },
+  {
+    "id": "143a3628-ad98-4a50-8beb-eded4c0f660a",
+    "userId": "9bfbb08d-9a0c-4bfa-a28c-f65f79493420",
+    "familyId": "b4b285b4-4f88-4530-b1e0-044dc6277cb3",
+    "tokenHash": "a03ad3f0adf57f68cf78278d0cc3d233d500ef035ed741f6d6ed792831ca7f59",
+    "expiresAt": "2026-09-21T18:50:47.779Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-22T18:50:47.779Z"
+  },
+  {
+    "id": "74e8a959-20eb-4f99-b634-d1f01ece9514",
+    "userId": "e7cb3424-5a9e-4699-ae36-d5b24f23a1ce",
+    "familyId": "fad1103c-207f-4772-a455-4026490eaf52",
+    "tokenHash": "139d6f7604dc1cf969c27a4d8349fb3e72ce6c7ec43d23ac230414b365b6477f",
+    "expiresAt": "2026-09-21T18:50:48.653Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-22T18:50:48.653Z"
+  },
+  {
+    "id": "a232aece-faf3-4d36-b6b1-b7fd02c14218",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "familyId": "a9c51028-e58c-451f-b0fd-f48f0276d75d",
+    "tokenHash": "57c3fe5f35e11ee6234d16796367d6218ad25f27c574000fdcf82863c4e69692",
+    "expiresAt": "2026-09-21T18:56:01.677Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-22T18:56:01.678Z"
+  },
+  {
+    "id": "14af58ac-bbe4-477b-a738-4f089ee7a089",
+    "userId": "9bfbb08d-9a0c-4bfa-a28c-f65f79493420",
+    "familyId": "5b2227ad-7348-4606-91e4-05fcdaeb1e0d",
+    "tokenHash": "f4b778eb981df8eb95f51d361ae53bccde0583a1667ac95cb50d8f48d70d0769",
+    "expiresAt": "2026-09-21T18:56:02.794Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-22T18:56:02.794Z"
+  },
+  {
+    "id": "7a53c597-6ce4-4dbf-8a28-231646f64da3",
+    "userId": "e7cb3424-5a9e-4699-ae36-d5b24f23a1ce",
+    "familyId": "b4c85c47-7a9c-4a58-bf0f-74ae258c6927",
+    "tokenHash": "e6c7b17468675877cb7f3b66f31b0b3efa463072923754ae1d7ac3842ff743e3",
+    "expiresAt": "2026-09-21T18:56:03.590Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-22T18:56:03.590Z"
+  }
+]

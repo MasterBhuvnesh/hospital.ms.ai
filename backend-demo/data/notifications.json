@@ -1,0 +1,87 @@
+[
+  {
+    "id": "ff682e31-7d36-4df9-a9fe-b9ae2e8496da",
+    "createdAt": "2026-08-22T18:50:38.910Z",
+    "userId": "e7cb3424-5a9e-4699-ae36-d5b24f23a1ce",
+    "category": "ALERT",
+    "subject": "Low stock",
+    "body": "Ibuprofen 200mg Tablet is at or below reorder threshold.",
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "status": "DELIVERED",
+        "provider": "inapp",
+        "at": "2026-08-22T18:50:38.910Z"
+      }
+    ]
+  },
+  {
+    "id": "0450aa4d-6c91-419b-850e-78b5a9e23b36",
+    "createdAt": "2026-08-22T18:50:38.910Z",
+    "userId": "e7cb3424-5a9e-4699-ae36-d5b24f23a1ce",
+    "category": "ALERT",
+    "subject": "Low stock",
+    "body": "Vitamin D3 60000 IU Capsule is at or below reorder threshold.",
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "status": "DELIVERED",
+        "provider": "inapp",
+        "at": "2026-08-22T18:50:38.910Z"
+      }
+    ]
+  },
+  {
+    "id": "2c747c59-5d3c-4b12-a2e0-841a68d58c80",
+    "createdAt": "2026-08-22T18:50:38.910Z",
+    "userId": "378d131f-09d0-4976-b55f-80042c59ab2c",
+    "category": "SYSTEM",
+    "subject": "Welcome to Atelier Health",
+    "body": "Your account is ready.",
+    "readAt": "2026-08-22T18:50:38.910Z",
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "status": "DELIVERED",
+        "provider": "inapp",
+        "at": "2026-08-22T18:50:38.910Z"
+      }
+    ]
+  },
+  {
+    "id": "1403ea68-f9b0-4683-bc7c-608620fd6712",
+    "createdAt": "2026-08-22T18:50:38.910Z",
+    "userId": "4a41fb2f-a144-4d8c-ac95-12dda16cf81a",
+    "category": "APPOINTMENT",
+    "subject": "Appointment confirmed",
+    "body": "Your appointment tomorrow has been confirmed.",
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "status": "DELIVERED",
+        "provider": "inapp",
+        "at": "2026-08-22T18:50:38.910Z"
+      }
+    ]
+  },
+  {
+    "id": "ae7bfdb6-d113-4fb4-a3da-73be3248f2a1",
+    "createdAt": "2026-08-22T18:50:38.910Z",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "category": "QUEUE",
+    "subject": "Almost your turn",
+    "body": "You are 2 away. Please head to the consulting area.",
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "status": "DELIVERED",
+        "provider": "inapp",
+        "at": "2026-08-22T18:50:38.910Z"
+      }
+    ]
+  }
+]

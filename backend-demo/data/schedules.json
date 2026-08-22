@@ -1,0 +1,402 @@
+[
+  {
+    "id": "3943b11d-b484-47cf-9a7e-66ed541a5a48",
+    "doctorId": "99cf7793-945e-4efc-86d6-8eba47547b52",
+    "weekly": [
+      {
+        "dayOfWeek": "MON",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "TUE",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "WED",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "THU",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "FRI",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "SAT",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      }
+    ],
+    "slotMinutes": 15,
+    "createdAt": "2026-08-22T18:50:38.545Z"
+  },
+  {
+    "id": "41fabdd2-b78e-43f7-896a-6929f560bdfb",
+    "doctorId": "57a95231-1944-4a59-904d-347c261ca365",
+    "weekly": [
+      {
+        "dayOfWeek": "MON",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "TUE",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "WED",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "THU",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "FRI",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "SAT",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      }
+    ],
+    "slotMinutes": 15,
+    "createdAt": "2026-08-22T18:50:38.545Z"
+  },
+  {
+    "id": "9921a084-fff1-4505-8b39-819f436b14e0",
+    "doctorId": "bce71ea2-877e-4f3d-b43e-29c633d1058d",
+    "weekly": [
+      {
+        "dayOfWeek": "MON",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "TUE",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "WED",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "THU",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "FRI",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "SAT",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      }
+    ],
+    "slotMinutes": 15,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "e0036b25-9758-4212-abbb-376ead5b9652",
+    "doctorId": "324b13e1-bf0b-44fd-91ec-b86a2264619a",
+    "weekly": [
+      {
+        "dayOfWeek": "MON",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "TUE",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "WED",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "THU",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "FRI",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "SAT",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      }
+    ],
+    "slotMinutes": 15,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "15b7afb3-0c12-4c3a-b200-96b628e604fd",
+    "doctorId": "1cfc73b0-23df-4e7e-92ae-d8828ee7529e",
+    "weekly": [
+      {
+        "dayOfWeek": "MON",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "TUE",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "WED",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "THU",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "FRI",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "SAT",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      }
+    ],
+    "slotMinutes": 15,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "7d8ef4a9-291d-4bf7-aa17-5410ac4d8d40",
+    "doctorId": "d65db70e-9aaf-4d2d-b697-102adcebb5ef",
+    "weekly": [
+      {
+        "dayOfWeek": "MON",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "TUE",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "WED",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "THU",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "FRI",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "SAT",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      }
+    ],
+    "slotMinutes": 15,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "36de93dd-4791-47a6-9b33-6505414e71b2",
+    "doctorId": "5cc57fe4-a096-4d42-bcda-cd71602e746c",
+    "weekly": [
+      {
+        "dayOfWeek": "MON",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "TUE",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "WED",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "THU",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "FRI",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "SAT",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      }
+    ],
+    "slotMinutes": 15,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  },
+  {
+    "id": "1948f93c-0984-4609-8f2c-7a953bd7e87d",
+    "doctorId": "a12060df-bdf4-47a4-b2ea-92d5fbce8d1c",
+    "weekly": [
+      {
+        "dayOfWeek": "MON",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "TUE",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "WED",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "THU",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "FRI",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      },
+      {
+        "dayOfWeek": "SAT",
+        "start": "09:00",
+        "end": "17:00",
+        "breakStart": "13:00",
+        "breakEnd": "14:00"
+      }
+    ],
+    "slotMinutes": 15,
+    "createdAt": "2026-08-22T18:50:38.889Z"
+  }
+]

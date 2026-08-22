@@ -1,0 +1,426 @@
+[
+  {
+    "id": "0c58f537-5016-49d7-9a7b-ae93f3eb06cb",
+    "consultationId": "81cd06b7-e009-4fe2-b91e-c313c75b3057",
+    "patientId": "4ac4c5c2-f21c-4093-8cb5-12d9efad2c4a",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "orderedBy": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485",
+    "tests": [
+      {
+        "code": "LIPID",
+        "name": "Lipid Profile"
+      }
+    ],
+    "priority": "URGENT",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "LDL Cholesterol",
+        "value": "148",
+        "unit": "mg/dL",
+        "referenceRange": "<100",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-07-30T13:30:00.000Z",
+    "releasedAt": "2026-09-15T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.904Z"
+  },
+  {
+    "id": "d90c8904-dfe1-4ae4-8770-81579de161cd",
+    "consultationId": "432ab992-7e21-46ad-8019-3a1596ccdacc",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "orderedBy": "seed-doctor",
+    "tests": [
+      {
+        "code": "CBC",
+        "name": "Complete Blood Count"
+      }
+    ],
+    "priority": "URGENT",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "Total Leucocyte Count",
+        "value": "8200",
+        "unit": "/uL",
+        "referenceRange": "4000-11000",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-01T13:30:00.000Z",
+    "releasedAt": "2026-09-13T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.904Z"
+  },
+  {
+    "id": "1ef1bd05-aaa9-44c6-b2f2-3217ff35d583",
+    "consultationId": "003f4718-873f-4e1d-be9a-d7ce82df208d",
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "orderedBy": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "tests": [
+      {
+        "code": "CBC",
+        "name": "Complete Blood Count"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "Haemoglobin",
+        "value": "13.8",
+        "unit": "g/dL",
+        "referenceRange": "13-17",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-06T13:30:00.000Z",
+    "releasedAt": "2026-09-08T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.905Z"
+  },
+  {
+    "id": "f29a8355-aaf3-4f0b-abec-61a849ebbdc6",
+    "consultationId": "0f2f8acf-138a-48c8-88d6-f0a8f7b7e44d",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "orderedBy": "586ac5e5-501c-4d5b-99df-3294260ab766",
+    "tests": [
+      {
+        "code": "LIPID",
+        "name": "Lipid Profile"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "Triglycerides",
+        "value": "176",
+        "unit": "mg/dL",
+        "referenceRange": "<150",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-06T13:30:00.000Z",
+    "releasedAt": "2026-09-08T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.906Z"
+  },
+  {
+    "id": "4995455d-6de9-4d3f-9297-c756cc76aa2c",
+    "consultationId": "d7e8474b-fdf2-4809-8708-9db1e8296b0f",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "orderedBy": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "tests": [
+      {
+        "code": "HBA1C",
+        "name": "HBA1C"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "HbA1c",
+        "value": "7.4",
+        "unit": "%",
+        "referenceRange": "<5.7",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-07T13:30:00.000Z",
+    "releasedAt": "2026-09-07T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.906Z"
+  },
+  {
+    "id": "3b9f44c9-9eb3-40be-8126-f435cd44235a",
+    "consultationId": "925c1c04-f11f-4c34-9001-95004e8197fa",
+    "patientId": "bc70a9f6-85d1-49f8-a3c1-77c39bea6dc0",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "orderedBy": "48233b9e-01c0-4a10-aa92-d57f41085421",
+    "tests": [
+      {
+        "code": "LIPID",
+        "name": "Lipid Profile"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "Triglycerides",
+        "value": "176",
+        "unit": "mg/dL",
+        "referenceRange": "<150",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-09T13:30:00.000Z",
+    "releasedAt": "2026-09-05T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.906Z"
+  },
+  {
+    "id": "8a06ed20-7db9-47e8-a4d5-41d5ffc06bf2",
+    "consultationId": "2d1428dd-9551-416b-820c-5c7d6df5c7a9",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "orderedBy": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "tests": [
+      {
+        "code": "LIPID",
+        "name": "Lipid Profile"
+      }
+    ],
+    "priority": "URGENT",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "Triglycerides",
+        "value": "176",
+        "unit": "mg/dL",
+        "referenceRange": "<150",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-09T13:30:00.000Z",
+    "releasedAt": "2026-09-05T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.906Z"
+  },
+  {
+    "id": "c9405f2c-930c-4a6d-bdc5-fe9c71d7eafd",
+    "consultationId": "c861dcc1-a629-4b94-8079-47007ee5606e",
+    "patientId": "bc8c2a58-3213-4776-bc08-1f44b7c15d24",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "orderedBy": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "tests": [
+      {
+        "code": "LIPID",
+        "name": "Lipid Profile"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "Triglycerides",
+        "value": "176",
+        "unit": "mg/dL",
+        "referenceRange": "<150",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-10T13:30:00.000Z",
+    "releasedAt": "2026-09-04T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "0636e760-b6ad-4723-ac54-65050b1f5181",
+    "consultationId": "444f5fc3-14af-4c53-81e1-14684d47c2ba",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "orderedBy": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "tests": [
+      {
+        "code": "TSH",
+        "name": "TSH"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "TSH",
+        "value": "4.9",
+        "unit": "uIU/mL",
+        "referenceRange": "0.4-4.0",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-11T13:30:00.000Z",
+    "releasedAt": "2026-09-03T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "6de75c0b-ecfd-4fbd-97e3-2d8d75fa0153",
+    "consultationId": "705ed08e-f53e-4a42-8f94-a61e267b9db5",
+    "patientId": "b04f33e2-b4d5-4fc8-bc1c-f6619ee1ec73",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "orderedBy": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "tests": [
+      {
+        "code": "CBC",
+        "name": "Complete Blood Count"
+      }
+    ],
+    "priority": "URGENT",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "Haemoglobin",
+        "value": "13.8",
+        "unit": "g/dL",
+        "referenceRange": "13-17",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-13T13:30:00.000Z",
+    "releasedAt": "2026-09-01T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "ad9f3cbd-07cf-4a7d-a032-05fda9faaa5f",
+    "consultationId": "57c0e4a7-00bd-4db1-b21c-1a5bd14c346f",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "orderedBy": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "tests": [
+      {
+        "code": "CBC",
+        "name": "Complete Blood Count"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "RELEASED",
+    "results": [
+      {
+        "parameter": "Total Leucocyte Count",
+        "value": "8200",
+        "unit": "/uL",
+        "referenceRange": "4000-11000",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-14T13:30:00.000Z",
+    "releasedAt": "2026-08-31T04:30:00.000Z",
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "cabb7873-283d-48ac-888a-de2b6ab06fab",
+    "consultationId": "dd44f4d9-f304-44f8-99fc-23ff58976418",
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "orderedBy": "48233b9e-01c0-4a10-aa92-d57f41085421",
+    "tests": [
+      {
+        "code": "CBC",
+        "name": "Complete Blood Count"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "ORDERED",
+    "results": [
+      {
+        "parameter": "Total Leucocyte Count",
+        "value": "8200",
+        "unit": "/uL",
+        "referenceRange": "4000-11000",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": null,
+    "releasedAt": null,
+    "createdAt": "2026-08-22T18:50:38.908Z",
+    "updatedAt": "2026-08-22T18:50:38.909Z"
+  },
+  {
+    "id": "5f23ca18-b876-41df-82b2-0b1174096bec",
+    "consultationId": "6f08664e-078d-40d2-bf0f-a9dbfad9caed",
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "orderedBy": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "tests": [
+      {
+        "code": "LIPID",
+        "name": "Lipid Profile"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "COLLECTED",
+    "results": [
+      {
+        "parameter": "LDL Cholesterol",
+        "value": "148",
+        "unit": "mg/dL",
+        "referenceRange": "<100",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-22T18:50:38.909Z",
+    "releasedAt": null,
+    "createdAt": "2026-08-22T18:50:38.908Z",
+    "updatedAt": "2026-08-22T18:50:38.909Z"
+  },
+  {
+    "id": "bcbe47f0-59da-4aeb-8845-cea70d118b3e",
+    "consultationId": "203be7bc-9528-47fb-8eca-0adee8c2b72d",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "orderedBy": "seed-doctor",
+    "tests": [
+      {
+        "code": "CBC",
+        "name": "Complete Blood Count"
+      }
+    ],
+    "priority": "ROUTINE",
+    "notes": null,
+    "status": "ENTERED",
+    "results": [
+      {
+        "parameter": "Haemoglobin",
+        "value": "13.8",
+        "unit": "g/dL",
+        "referenceRange": "13-17",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-22T18:50:38.909Z",
+    "releasedAt": null,
+    "createdAt": "2026-08-22T18:50:38.908Z",
+    "updatedAt": "2026-08-22T18:50:38.909Z"
+  },
+  {
+    "id": "705aa33f-09c7-418a-a104-6a17371b072d",
+    "consultationId": "909ec6fd-56cf-43c8-a445-9ef836f1d968",
+    "patientId": "dd0b7823-63d1-462d-b4b1-864ef7facbcc",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "orderedBy": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "tests": [
+      {
+        "code": "LIPID",
+        "name": "Lipid Profile"
+      }
+    ],
+    "priority": "URGENT",
+    "notes": null,
+    "status": "ENTERED",
+    "results": [
+      {
+        "parameter": "LDL Cholesterol",
+        "value": "148",
+        "unit": "mg/dL",
+        "referenceRange": "<100",
+        "flag": "NORMAL"
+      }
+    ],
+    "collectedAt": "2026-08-22T18:50:38.909Z",
+    "releasedAt": null,
+    "createdAt": "2026-08-22T18:50:38.909Z",
+    "updatedAt": "2026-08-22T18:50:38.909Z"
+  }
+]

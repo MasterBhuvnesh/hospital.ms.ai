@@ -1,0 +1,50 @@
+[
+  {
+    "id": "360e0f7f-364a-4dd7-be2e-4e4ad380aca0",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "General Medicine",
+    "createdAt": "2026-08-22T18:50:38.387Z"
+  },
+  {
+    "id": "d7f04135-a304-4a64-bec3-b19f94eaa65c",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "Cardiology",
+    "createdAt": "2026-08-22T18:50:38.387Z"
+  },
+  {
+    "id": "0b37a581-fae6-4803-8541-6808f4287348",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "Orthopedics",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "a2bfacb5-e818-4ba3-8a03-0580e5a9e0d6",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "Pediatrics",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "17597a7d-183d-4eb9-8f02-18b43fdab057",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "name": "Dermatology",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "fdca9684-aae5-46d2-94b5-aeb5b923f171",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "General Medicine",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "4d123710-cc3e-42ef-ab4e-c5df9b193ce4",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "Cardiology",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  },
+  {
+    "id": "d164c73e-68ef-48cc-a136-9356d937e7fb",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "name": "Gynecology",
+    "createdAt": "2026-08-22T18:50:38.576Z"
+  }
+]

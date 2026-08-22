@@ -1,0 +1,725 @@
+[
+  {
+    "id": "7a1fcbeb-c06c-4ad1-b021-a6bfb6386cc6",
+    "consultationId": "10500a21-9cd8-41ec-8e49-d489e824326f",
+    "patientId": "b04f33e2-b4d5-4fc8-bc1c-f6619ee1ec73",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "seed-doctor",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Ibuprofen 200mg Tablet",
+        "dose": "500mg",
+        "frequency": "1-0-1",
+        "durationDays": 7,
+        "instructions": "after food"
+      }
+    ],
+    "notes": null,
+    "contentHash": "ae1d391ad6abfef42ec9d50188a5f82a034dfdda1203a984084d920c5f153683",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-07-31T09:45:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Anjali Deshmukh",
+      "registrationNumber": "MMC-2016-61873",
+      "qualification": "MBBS, MD",
+      "signedBy": "seed-doctor"
+    },
+    "createdAt": "2026-08-22T18:50:38.904Z"
+  },
+  {
+    "id": "cdaa041b-5e31-4e16-82a1-786fdf4e1620",
+    "consultationId": "d58040e2-d4a2-4fc1-9e1a-c6e9b3da70ff",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "seed-doctor",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Amlodipine 5mg Tablet",
+        "dose": "250mg",
+        "frequency": "SOS",
+        "durationDays": 7,
+        "instructions": "complete the course"
+      },
+      {
+        "drug": "Amlodipine 5mg Tablet",
+        "dose": "500mg",
+        "frequency": "1-1-1",
+        "durationDays": 5,
+        "instructions": "before food"
+      }
+    ],
+    "notes": null,
+    "contentHash": "04da7d6b732a18d93eb4ca5b1aecefe8bc85b190bd5390d70a20958d00ac560b",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-07-31T05:45:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Lakshmi Iyer",
+      "registrationNumber": "MMC-2008-19023",
+      "qualification": "MBBS, MD",
+      "signedBy": "seed-doctor"
+    },
+    "createdAt": "2026-08-22T18:50:38.904Z"
+  },
+  {
+    "id": "a0eddb0a-9096-490c-9bef-af93819c15dc",
+    "consultationId": "fd49557f-db68-4f2a-a1b8-d21a46931990",
+    "patientId": "de176954-f0f2-4e2d-a7dc-868f27635603",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "seed-doctor",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Cetirizine 10mg Tablet",
+        "dose": "10mg",
+        "frequency": "SOS",
+        "durationDays": 3,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": null,
+    "contentHash": "5b1e2ebbb2f63799074f4a026689345a42a142a1123db94dd64641aad4b1ce5a",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-01T08:00:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Lakshmi Iyer",
+      "registrationNumber": "MMC-2008-19023",
+      "qualification": "MBBS, MD",
+      "signedBy": "seed-doctor"
+    },
+    "createdAt": "2026-08-22T18:50:38.904Z"
+  },
+  {
+    "id": "43687efd-9d1b-48d5-8930-35762044b941",
+    "consultationId": "432ab992-7e21-46ad-8019-3a1596ccdacc",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "seed-doctor",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Salbutamol Inhaler",
+        "dose": "10mg",
+        "frequency": "1-1-1",
+        "durationDays": 5,
+        "instructions": "before food"
+      },
+      {
+        "drug": "Metformin 500mg Tablet",
+        "dose": "250mg",
+        "frequency": "1-0-1",
+        "durationDays": 5,
+        "instructions": "before food"
+      }
+    ],
+    "notes": null,
+    "contentHash": "62cda07fa8abc24a7b420d444d569ef6b8b01e27f7da58ee9f32cfb067e637c6",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-01T10:00:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Lakshmi Iyer",
+      "registrationNumber": "MMC-2008-19023",
+      "qualification": "MBBS, MD",
+      "signedBy": "seed-doctor"
+    },
+    "createdAt": "2026-08-22T18:50:38.904Z"
+  },
+  {
+    "id": "373cd3fe-bbd7-40ee-9b59-0c7131165789",
+    "consultationId": "a9a482e4-b7aa-4adc-bba5-e053277aa1e6",
+    "patientId": "320f6ddd-27f0-4c47-b4af-9a109901f47b",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "586ac5e5-501c-4d5b-99df-3294260ab766",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Ondansetron 4mg Injection",
+        "dose": "250mg",
+        "frequency": "0-0-1",
+        "durationDays": 3,
+        "instructions": "complete the course"
+      },
+      {
+        "drug": "Ibuprofen 200mg Tablet",
+        "dose": "500mg",
+        "frequency": "SOS",
+        "durationDays": 7,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": null,
+    "contentHash": "509bc080789a2ac81e4a0c11bf61f40eab68721019096f2e81f4f3ea6e957de4",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-05T03:45:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Imran Khan",
+      "registrationNumber": "MMC-2010-27654",
+      "qualification": "MBBS, MD",
+      "signedBy": "586ac5e5-501c-4d5b-99df-3294260ab766"
+    },
+    "createdAt": "2026-08-22T18:50:38.905Z"
+  },
+  {
+    "id": "22db1a30-2477-4594-950f-ff17e3218a34",
+    "consultationId": "003f4718-873f-4e1d-be9a-d7ce82df208d",
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Azithromycin 500mg Tablet",
+        "dose": "250mg",
+        "frequency": "0-0-1",
+        "durationDays": 7,
+        "instructions": "before food"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "76dc60c446438311d50942cbacb4a605636d01a5dea57e23ade6ee3a7cc9b916",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-06T06:30:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Rahul Mehta",
+      "registrationNumber": "MMC-2015-77120",
+      "qualification": "MBBS, MD",
+      "signedBy": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d"
+    },
+    "createdAt": "2026-08-22T18:50:38.905Z"
+  },
+  {
+    "id": "71ebe3dd-ad6b-446e-90b2-6a07e0f45398",
+    "consultationId": "0f2f8acf-138a-48c8-88d6-f0a8f7b7e44d",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "586ac5e5-501c-4d5b-99df-3294260ab766",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Pantoprazole 40mg Tablet",
+        "dose": "500mg",
+        "frequency": "0-0-1",
+        "durationDays": 5,
+        "instructions": "before food"
+      },
+      {
+        "drug": "Metformin 500mg Tablet",
+        "dose": "10mg",
+        "frequency": "1-1-1",
+        "durationDays": 3,
+        "instructions": "before food"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "6778b42750229b8b8c87509f70908483cf6f5b782a3d5552ae1a6519c646282d",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-06T03:45:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Imran Khan",
+      "registrationNumber": "MMC-2010-27654",
+      "qualification": "MBBS, MD",
+      "signedBy": "586ac5e5-501c-4d5b-99df-3294260ab766"
+    },
+    "createdAt": "2026-08-22T18:50:38.905Z"
+  },
+  {
+    "id": "1381d463-e0dd-412a-a7c1-e63eee711084",
+    "consultationId": "bfafa2a8-e433-4313-88b2-7ef7bfa2649d",
+    "patientId": "6caaee89-2747-4bea-8746-074877db3710",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Paracetamol 500mg Tablet",
+        "dose": "500mg",
+        "frequency": "SOS",
+        "durationDays": 5,
+        "instructions": "before food"
+      }
+    ],
+    "notes": null,
+    "contentHash": "66ee1d4cde417f5801ae0765c5d3514477090d3f68b3a764fc15a7ea60366161",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-07T08:15:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Kavita Menon",
+      "registrationNumber": "MMC-2009-33417",
+      "qualification": "MBBS, MD",
+      "signedBy": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485"
+    },
+    "createdAt": "2026-08-22T18:50:38.906Z"
+  },
+  {
+    "id": "32154f25-8e19-4d88-83bd-740b5b94519e",
+    "consultationId": "d7e8474b-fdf2-4809-8708-9db1e8296b0f",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Betadine Ointment 20g",
+        "dose": "250mg",
+        "frequency": "1-0-1",
+        "durationDays": 5,
+        "instructions": "complete the course"
+      },
+      {
+        "drug": "Cetirizine 10mg Tablet",
+        "dose": "250mg",
+        "frequency": "0-0-1",
+        "durationDays": 7,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "86276bf2bce8fcaaa44d5f8570df6caf17c87e11ae869968defdf373d7dd21e8",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-07T08:45:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Neha Verma",
+      "registrationNumber": "MMC-2014-44290",
+      "qualification": "MBBS, MD",
+      "signedBy": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb"
+    },
+    "createdAt": "2026-08-22T18:50:38.906Z"
+  },
+  {
+    "id": "53017578-0fef-4f66-9304-2d26950106d2",
+    "consultationId": "e611ec91-82ab-41e3-b3ab-4bb94d22af1d",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "seed-doctor",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Salbutamol Inhaler",
+        "dose": "500mg",
+        "frequency": "SOS",
+        "durationDays": 5,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": null,
+    "contentHash": "b3b9fa177f317e8e982b86f6b95bd61471b15d734a9ac5f08bc34a0a695b7822",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-08T08:30:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Lakshmi Iyer",
+      "registrationNumber": "MMC-2008-19023",
+      "qualification": "MBBS, MD",
+      "signedBy": "seed-doctor"
+    },
+    "createdAt": "2026-08-22T18:50:38.906Z"
+  },
+  {
+    "id": "ebfc66fb-d007-4e64-a71c-64df2be8b3bd",
+    "consultationId": "2d1428dd-9551-416b-820c-5c7d6df5c7a9",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Pantoprazole 40mg Tablet",
+        "dose": "500mg",
+        "frequency": "1-1-1",
+        "durationDays": 7,
+        "instructions": "after food"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "45f00b848b34106ab040c59b54f3299abd86138cb0e5ba1bb599b7e5dbf2f651",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-09T05:15:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Neha Verma",
+      "registrationNumber": "MMC-2014-44290",
+      "qualification": "MBBS, MD",
+      "signedBy": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb"
+    },
+    "createdAt": "2026-08-22T18:50:38.906Z"
+  },
+  {
+    "id": "068e29ca-4e45-41ac-a276-537f0c9a3480",
+    "consultationId": "444f5fc3-14af-4c53-81e1-14684d47c2ba",
+    "patientId": "c63443c3-07e8-4d7a-b285-9347abfecdea",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Betadine Ointment 20g",
+        "dose": "250mg",
+        "frequency": "SOS",
+        "durationDays": 5,
+        "instructions": "after food"
+      },
+      {
+        "drug": "Cetirizine 10mg Tablet",
+        "dose": "10mg",
+        "frequency": "1-0-1",
+        "durationDays": 5,
+        "instructions": "before food"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "a150d50fd11f70bfb4d0d2c175b829f9ae87c957f3c864751dd2ff90622024ed",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-11T07:15:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Neha Verma",
+      "registrationNumber": "MMC-2014-44290",
+      "qualification": "MBBS, MD",
+      "signedBy": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb"
+    },
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "2337c627-4f49-4472-a20c-c17a549895ca",
+    "consultationId": "a7c662fc-ebf6-48ab-9617-18562e438672",
+    "patientId": "b04f33e2-b4d5-4fc8-bc1c-f6619ee1ec73",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Paracetamol 500mg Tablet",
+        "dose": "500mg",
+        "frequency": "SOS",
+        "durationDays": 3,
+        "instructions": "before food"
+      },
+      {
+        "drug": "Vitamin D3 60000 IU Capsule",
+        "dose": "500mg",
+        "frequency": "1-1-1",
+        "durationDays": 7,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "3e99f2b734af2a2aefe71d6d1e23b9df120e509ea7e15fd1f28dd71469554afa",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-12T08:00:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Kavita Menon",
+      "registrationNumber": "MMC-2009-33417",
+      "qualification": "MBBS, MD",
+      "signedBy": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485"
+    },
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "80885c3e-4503-4830-bce2-6eed6173b4e8",
+    "consultationId": "c195b2ea-c95c-4a5b-9e76-6e62de0705b7",
+    "patientId": "bc8c2a58-3213-4776-bc08-1f44b7c15d24",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Ibuprofen 200mg Tablet",
+        "dose": "250mg",
+        "frequency": "1-1-1",
+        "durationDays": 5,
+        "instructions": "after food"
+      }
+    ],
+    "notes": null,
+    "contentHash": "d7faeb25e6277cfa64c27c0f8d270d1ce13116388b151e2caed50c61491f730a",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-12T10:00:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Kavita Menon",
+      "registrationNumber": "MMC-2009-33417",
+      "qualification": "MBBS, MD",
+      "signedBy": "33fe5ea0-7ebe-4f19-935e-6cb891fc6485"
+    },
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "b98d2df7-3712-4b9d-8c4b-3268653e2551",
+    "consultationId": "705ed08e-f53e-4a42-8f94-a61e267b9db5",
+    "patientId": "b04f33e2-b4d5-4fc8-bc1c-f6619ee1ec73",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Ondansetron 4mg Injection",
+        "dose": "10mg",
+        "frequency": "1-1-1",
+        "durationDays": 3,
+        "instructions": "before food"
+      }
+    ],
+    "notes": null,
+    "contentHash": "2fd3f7640ce0ae8cea7acb805e1c0f14c4cbae7b7ff2e7918b9116e74a78deaf",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-13T08:15:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Rahul Mehta",
+      "registrationNumber": "MMC-2015-77120",
+      "qualification": "MBBS, MD",
+      "signedBy": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d"
+    },
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "96033924-a41b-4060-a3f5-2559b7e2260b",
+    "consultationId": "57c0e4a7-00bd-4db1-b21c-1a5bd14c346f",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Pantoprazole 40mg Tablet",
+        "dose": "500mg",
+        "frequency": "SOS",
+        "durationDays": 3,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "89bcef144504f188dfb24e5939792c8c871a954e5b79be5b0db228d23a68ad0e",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-14T08:15:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Neha Verma",
+      "registrationNumber": "MMC-2014-44290",
+      "qualification": "MBBS, MD",
+      "signedBy": "4f9cf307-cd69-4d9e-b7e2-276b416a52eb"
+    },
+    "createdAt": "2026-08-22T18:50:38.907Z"
+  },
+  {
+    "id": "2b0760e7-21c3-41e4-a932-9c1f52fa79c9",
+    "consultationId": "dd44f4d9-f304-44f8-99fc-23ff58976418",
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "48233b9e-01c0-4a10-aa92-d57f41085421",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Azithromycin 500mg Tablet",
+        "dose": "250mg",
+        "frequency": "SOS",
+        "durationDays": 7,
+        "instructions": "after food"
+      }
+    ],
+    "notes": null,
+    "contentHash": "41c5be966b90120b242aa2c9633ebb1ff794a22a7be256a1accdcac5ec501b17",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-14T08:30:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Asha Rao",
+      "registrationNumber": "MMC-2011-45231",
+      "qualification": "MBBS, MD, DM Cardiology",
+      "signedBy": "48233b9e-01c0-4a10-aa92-d57f41085421"
+    },
+    "createdAt": "2026-08-22T18:50:38.908Z"
+  },
+  {
+    "id": "303ecdc7-f202-45aa-9113-419b5524ecdf",
+    "consultationId": "7c8b5025-4fbc-47e4-9aea-e19511d550b9",
+    "patientId": "7af3ca44-0939-4e4f-8ad7-df810da281a9",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "seed-doctor",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Ibuprofen 200mg Tablet",
+        "dose": "500mg",
+        "frequency": "SOS",
+        "durationDays": 7,
+        "instructions": "before food"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "948615f92a0b34372cc511f97dcd629cfbd01c9f03b94575af15ef39eb589a6a",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-16T03:45:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Lakshmi Iyer",
+      "registrationNumber": "MMC-2008-19023",
+      "qualification": "MBBS, MD",
+      "signedBy": "seed-doctor"
+    },
+    "createdAt": "2026-08-22T18:50:38.908Z"
+  },
+  {
+    "id": "632a1e8b-ffa4-48e8-bca1-7dcf87e0f54e",
+    "consultationId": "ade47816-ceef-44b6-b0ac-f0bdaa57e0c8",
+    "patientId": "bc70a9f6-85d1-49f8-a3c1-77c39bea6dc0",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "48233b9e-01c0-4a10-aa92-d57f41085421",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Pantoprazole 40mg Tablet",
+        "dose": "10mg",
+        "frequency": "0-0-1",
+        "durationDays": 5,
+        "instructions": "after food"
+      },
+      {
+        "drug": "Pantoprazole 40mg Tablet",
+        "dose": "250mg",
+        "frequency": "1-0-1",
+        "durationDays": 7,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "a65c785743b49d257fe095b04c52200a8a544dc1b8ff110f1c8888f966ecb5f1",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-17T03:30:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Asha Rao",
+      "registrationNumber": "MMC-2011-45231",
+      "qualification": "MBBS, MD, DM Cardiology",
+      "signedBy": "48233b9e-01c0-4a10-aa92-d57f41085421"
+    },
+    "createdAt": "2026-08-22T18:50:38.908Z"
+  },
+  {
+    "id": "946556de-f95b-4fa2-9d48-dfc668b75cff",
+    "consultationId": "4bccf78b-4a49-49c0-9dcb-22952d868ba0",
+    "patientId": "de176954-f0f2-4e2d-a7dc-868f27635603",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "doctorUserId": "586ac5e5-501c-4d5b-99df-3294260ab766",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Pantoprazole 40mg Tablet",
+        "dose": "500mg",
+        "frequency": "0-0-1",
+        "durationDays": 5,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "ef74fa8edef70495415dcaea4546122962e4cd38e0e413d82d0c203b8dead643",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-18T04:00:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Imran Khan",
+      "registrationNumber": "MMC-2010-27654",
+      "qualification": "MBBS, MD",
+      "signedBy": "586ac5e5-501c-4d5b-99df-3294260ab766"
+    },
+    "createdAt": "2026-08-22T18:50:38.908Z"
+  },
+  {
+    "id": "a5fe412a-1818-49b8-bedc-91758df231c3",
+    "consultationId": "7b3906fd-6ae8-45a9-9804-70bf231fb7d1",
+    "patientId": "6caaee89-2747-4bea-8746-074877db3710",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "seed-doctor",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Salbutamol Inhaler",
+        "dose": "250mg",
+        "frequency": "0-0-1",
+        "durationDays": 7,
+        "instructions": "after food"
+      },
+      {
+        "drug": "Pantoprazole 40mg Tablet",
+        "dose": "250mg",
+        "frequency": "SOS",
+        "durationDays": 5,
+        "instructions": "complete the course"
+      }
+    ],
+    "notes": null,
+    "contentHash": "f60ca98c79b66e3a2cf7999fdec08058aa0dd6d2ed874c61d2d89b3b678a3eec",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-20T04:00:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Suresh Patil",
+      "registrationNumber": "MMC-2012-50982",
+      "qualification": "MBBS, MD",
+      "signedBy": "seed-doctor"
+    },
+    "createdAt": "2026-08-22T18:50:38.908Z"
+  },
+  {
+    "id": "d986fd66-ce07-4f44-95c4-cb474b6b85ef",
+    "consultationId": "909ec6fd-56cf-43c8-a445-9ef836f1d968",
+    "patientId": "dd0b7823-63d1-462d-b4b1-864ef7facbcc",
+    "hospitalId": "c13bd3ca-def9-4c7f-8049-4e1c7b178049",
+    "doctorUserId": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d",
+    "status": "SIGNED",
+    "items": [
+      {
+        "drug": "Pantoprazole 40mg Tablet",
+        "dose": "10mg",
+        "frequency": "0-0-1",
+        "durationDays": 3,
+        "instructions": "before food"
+      }
+    ],
+    "notes": "Review with reports",
+    "contentHash": "aa2665b8581ec3314d0f1ec37d225babfdc22922a2aa90e4527d652cd3a5d95f",
+    "pdfKey": null,
+    "pdfUrl": null,
+    "signedAt": "2026-08-21T06:30:00.000Z",
+    "fulfilledAt": null,
+    "doctorSnapshot": {
+      "name": "Dr. Rahul Mehta",
+      "registrationNumber": "MMC-2015-77120",
+      "qualification": "MBBS, MD",
+      "signedBy": "41a6a5bd-0b3e-4c2c-b30d-5fa89600d52d"
+    },
+    "createdAt": "2026-08-22T18:50:38.909Z"
+  }
+]
