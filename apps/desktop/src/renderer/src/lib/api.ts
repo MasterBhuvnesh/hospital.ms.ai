@@ -567,7 +567,7 @@ export const api = {
       tokenId: string,
       action: "call" | "start" | "skip" | "recall" | "complete" | "no-show"
     ): Promise<Token> {
-      return request<Token>(`/api/scheduling/tokens/${tokenId}/${action}`, { method: "POST" });
+      return request<Token>(`/api/scheduling/tokens/${tokenId}/${action}`, { method: "POST", body: JSON.stringify({}) });
     },
     async mintToken(appointmentId: string) {
       return request<Token>("/api/scheduling/tokens", {
