@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -35,13 +35,13 @@ import {
 } from "@/components/ui/sidebar";
 
 const PATIENT_NAV = [
-  { href: "/app/dashboard", label: "Dashboard", icon: House },
-  { href: "/app/appointments", label: "Appointments", icon: CalendarDays },
-  { href: "/app/records", label: "Records", icon: FolderOpen },
-  { href: "/app/prescriptions", label: "Prescriptions", icon: FileText },
-  { href: "/app/payments", label: "Bills & payments", icon: ReceiptText },
-  { href: "/app/notifications", label: "Notifications", icon: Bell },
-  { href: "/app/copilot", label: "Copilot", icon: Sparkles },
+  { href: "/dashboard", label: "Dashboard", icon: House },
+  { href: "/appointments", label: "Appointments", icon: CalendarDays },
+  { href: "/records", label: "Records", icon: FolderOpen },
+  { href: "/prescriptions", label: "Prescriptions", icon: FileText },
+  { href: "/payments", label: "Bills & payments", icon: ReceiptText },
+  { href: "/notifications", label: "Notifications", icon: Bell },
+  { href: "/copilot", label: "Copilot", icon: Sparkles },
 ];
 
 const ADMIN_NAV = [
@@ -76,7 +76,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href={isAdminArea ? "/admin" : "/app/dashboard"}>
+              <Link href={isAdminArea ? "/admin" : "/dashboard"}>
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
                   <LineChart className="size-4" />
                 </div>
@@ -154,3 +154,4 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 }
 
 export const sidebarIconClass = cn();
+
