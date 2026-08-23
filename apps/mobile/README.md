@@ -1,56 +1,56 @@
-# Welcome to your Expo app 👋
+# Atelier Health — patient app
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo SDK 57 · Expo Router · NativeWind 4 (Tailwind 3) · lucide-react-native.
 
-## Get started
+Talks to the live demo backend (`EXPO_PUBLIC_API_URL`, default
+`https://backend-demo-hms.onrender.com`). Free-tier Render sleeps — the first
+request after idle can take ~60s; screens show a friendly error meanwhile.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run
 
 ```bash
-npm run reset-project
+bun install
+bun start          # Expo Go QR, or press a / i for emulators
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Demo login: `patient@atelier.local` / `Demo@12345` (password tab), or Phone OTP
+tab — with `DEMO_EXPOSE_OTP=true` on the server the code is returned in the API
+response and shown inline.
 
-### Other setup steps
+## What's implemented
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+| Area | Details |
+|---|---|
+| Auth | Email+password, **phone OTP login**, password reset via OTP code |
+| Home | Live-queue banner, next visit card, quick actions (Book / Bills / Ask AI), unread badge |
+| Booking | Hospital → doctor → live availability slots → confirm, idempotency key on submit |
+| Visits | Upcoming/history, mint queue token, reschedule against live availability, cancel |
+| Live queue | SSE realtime stream with automatic **5s polling fallback**, position + ETA, near-turn banner, status stepper incl. skipped |
+| Records | Allergies / conditions / medications, released lab results, document upload to S3 |
+| Prescriptions | List signed Rx, open PDF, save to device, share |
+| Payments | Invoices, line-item detail, invoice PDF, demo checkout (mock capture) |
+| Copilot | AI chat over own records + DPDP memory erase |
+| Notifications | Inbox w/ read state, push token registration (Expo push), deep links into `/queue/[id]`, Android channels |
+| Profile | Avatar upload, emergency contact + insurance, device list w/ revoke, per-category channel preferences |
+| Updates | Server-driven `minSupportedVersion` blocking gate |
 
-## Learn more
+## Config
 
-To learn more about developing your project with Expo, look at the following resources:
+Copy `.env.example` → `.env`. Keys are public client values only:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+EXPO_PUBLIC_API_URL=https://backend-demo-hms.onrender.com
+EXPO_PUBLIC_APP_VERSION=1.0.0
+```
 
-## Join the community
+## Checks
 
-Join our community of developers creating universal apps.
+```bash
+bunx tsc --noEmit     # typecheck
+bunx expo lint        # eslint
+bunx expo export -p android   # full bundle smoke test
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Push notifications require an EAS build (`eas init` then `eas build`) — Expo Go
+cannot receive them; registration degrades silently and SMS remains the
+fallback channel.

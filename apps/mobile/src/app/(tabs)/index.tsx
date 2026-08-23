@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import { router, Stack } from "expo-router";
-import { CalendarDays, Ticket, ChevronRight, BellRing } from "lucide-react-native";
-import { Screen, Card, Badge, Skeleton } from "@/components/ui";
+import {
+  CalendarDays,
+  Ticket,
+  ChevronRight,
+  BellRing,
+  CalendarPlus,
+  Wallet,
+  Sparkles,
+} from "lucide-react-native";
+import { Screen, Card, Badge } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
 import { api, type Appointment, type Token, type Doctor } from "@/lib/api";
 import { greeting, firstName, fmtDate, fmtTime, isToday } from "@/lib/format";
@@ -21,9 +29,9 @@ export default function Home() {
     try {
       setError(null);
       const [appts, docs, notifs] = await Promise.all([
-        api.appointments(),
-        api.doctors(),
-        api.notifications().catch(() => null),
+        api.scheduling.appointments(),
+        api.directory.doctors(),
+        api.comms.notifications().catch(() => null),
       ]);
       setAppointments(appts);
       const map: Record<string, Doctor> = {};
@@ -35,7 +43,7 @@ export default function Home() {
         .filter((a) => a.tokenId && ["BOOKED", "CONFIRMED"].includes(a.status))
         .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0];
       if (upcomingWithToken?.tokenId) {
-        const t = await api.token(upcomingWithToken.tokenId).catch(() => null);
+        const t = await api.scheduling.token(upcomingWithToken.tokenId).catch(() => null);
         if (t && !["COMPLETED", "NO_SHOW", "CANCELLED"].includes(t.status)) setLiveToken(t);
         else setLiveToken(null);
       } else {
@@ -60,6 +68,12 @@ export default function Home() {
     .filter((a) => ["BOOKED", "CONFIRMED"].includes(a.status))
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0];
 
+  const actions = [
+    { icon: CalendarPlus, label: "Book", onPress: () => router.push("/book") },
+    { icon: Wallet, label: "Bills", onPress: () => router.push("/payments") },
+    { icon: Sparkles, label: "Ask AI", onPress: () => router.push("/ai") },
+  ];
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -69,40 +83,61 @@ export default function Home() {
           contentContainerClassName="px-5 pb-8"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#208AEF" />}
         >
-          <View className="flex-row items-start justify-between mt-2 mb-6">
+          <View className="mb-6 mt-2 flex-row items-start justify-between">
             <View>
               <Text className="text-sm text-zinc-500">{greeting()},</Text>
-              <Text className="text-[26px] font-bold text-zinc-900 leading-tight">{firstName(user?.fullName)}</Text>
+              <Text className="text-[26px] font-bold leading-tight text-zinc-900">
+                {firstName(user?.fullName)}
+              </Text>
             </View>
-            {unread > 0 && (
-              <View className="bg-white rounded-full p-3 border border-zinc-100">
-                <View>
-                  <BellRing size={20} color="#208AEF" />
-                  <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[16px] h-4 items-center justify-center px-1">
+            <TouchableOpacity
+              onPress={() => router.push("/notifications")}
+              className="rounded-full border border-zinc-100 bg-white p-3"
+            >
+              <View>
+                <BellRing size={20} color="#208AEF" />
+                {unread > 0 && (
+                  <View className="absolute -right-1 -top-1 h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1">
                     <Text className="text-[9px] font-bold text-white">{unread}</Text>
                   </View>
-                </View>
+                )}
               </View>
-            )}
+            </TouchableOpacity>
+          </View>
+
+          <View className="mb-4 flex-row gap-2.5">
+            {actions.map((a) => (
+              <TouchableOpacity
+                key={a.label}
+                activeOpacity={0.8}
+                onPress={a.onPress}
+                className="flex-1 items-center rounded-2xl border border-zinc-100 bg-white py-3.5"
+              >
+                <a.icon size={20} color="#208AEF" />
+                <Text className="mt-1.5 text-[11px] font-bold text-zinc-700">{a.label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           {liveToken && (
             <TouchableOpacity activeOpacity={0.85} onPress={() => router.push(`/queue/${liveToken.id}`)}>
-              <Card className="p-4 mb-4 border-primary/20">
+              <Card className="mb-4 border-primary/20 p-4">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1 pr-3">
                     <View className="flex-row items-center gap-2">
-                      <View className="w-2 h-2 rounded-full bg-green-500" />
-                      <Text className="text-xs font-bold text-green-600 tracking-wide">LIVE QUEUE</Text>
+                      <View className="h-2 w-2 rounded-full bg-green-500" />
+                      <Text className="text-xs font-bold tracking-wide text-green-600">LIVE QUEUE</Text>
                     </View>
-                    <Text className="text-zinc-900 font-bold text-lg mt-1">
+                    <Text className="mt-1 text-lg font-bold text-zinc-900">
                       {typeof liveToken.position === "number" && liveToken.position > 0
                         ? `${liveToken.position} ${liveToken.position === 1 ? "person" : "people"} ahead of you`
                         : "It's your turn!"}
                     </Text>
-                    <Text className="text-xs text-zinc-500 mt-0.5">
+                    <Text className="mt-0.5 text-xs text-zinc-500">
                       Dr. {liveToken.doctorName.replace(/^Dr\.\s*/, "")} · token #{liveToken.tokenNumber}
-                      {typeof liveToken.etaMinutes === "number" && liveToken.position ? ` · ~${liveToken.etaMinutes} min` : ""}
+                      {typeof liveToken.etaMinutes === "number" && liveToken.position
+                        ? ` · ~${liveToken.etaMinutes} min`
+                        : ""}
                     </Text>
                   </View>
                   <ChevronRight size={20} color="#d4d4d8" />
@@ -111,24 +146,24 @@ export default function Home() {
             </TouchableOpacity>
           )}
 
-          <Text className="text-xs font-bold text-zinc-400 tracking-widest mb-2">NEXT VISIT</Text>
+          <Text className="mb-2 text-xs font-bold tracking-widest text-zinc-400">NEXT VISIT</Text>
 
           {!nextVisit ? (
-            <Card className="p-5 items-center">
+            <Card className="items-center p-5">
               <CalendarDays size={26} color="#d4d4d8" />
-              <Text className="text-zinc-500 text-sm mt-2">No upcoming visits</Text>
-              <Text className="text-zinc-400 text-xs mt-1 text-center">
-                Booking opens soon — your appointments will appear here.
-              </Text>
+              <Text className="mt-2 text-sm text-zinc-500">No upcoming visits</Text>
+              <TouchableOpacity onPress={() => router.push("/book")} className="mt-3">
+                <Text className="text-sm font-bold text-primary">Book an appointment →</Text>
+              </TouchableOpacity>
             </Card>
           ) : (
             <Card className="p-4">
-              <View className="flex-row justify-between items-start">
+              <View className="flex-row items-start justify-between">
                 <View className="flex-1">
-                  <Text className="text-zinc-900 font-bold text-base">
+                  <Text className="text-base font-bold text-zinc-900">
                     {doctors[nextVisit.doctorId]?.fullName ?? "Doctor"}
                   </Text>
-                  <Text className="text-xs text-zinc-500 mt-0.5">
+                  <Text className="mt-0.5 text-xs text-zinc-500">
                     {(doctors[nextVisit.doctorId]?.specializations ?? []).join(", ") || "General"}
                   </Text>
                 </View>
@@ -136,9 +171,9 @@ export default function Home() {
                   <Badge label={`${nextVisit.feeSnapshot.amount} ${nextVisit.feeSnapshot.currency}`} />
                 )}
               </View>
-              <View className="flex-row items-center mt-3 pt-3 border-t border-zinc-100">
+              <View className="mt-3 flex-row items-center border-t border-zinc-100 pt-3">
                 <Ticket size={14} color="#208AEF" />
-                <Text className="text-xs text-zinc-600 ml-1.5 flex-1">
+                <Text className="ml-1.5 flex-1 text-xs text-zinc-600">
                   {fmtDate(nextVisit.startsAt)} · {fmtTime(nextVisit.startsAt)}
                   {isToday(nextVisit.startsAt) ? " · today" : ""}
                 </Text>
@@ -149,10 +184,6 @@ export default function Home() {
                 )}
               </View>
             </Card>
-          )}
-
-          {!nextVisit && (
-            <Skeleton className="h-24 mt-4" />
           )}
         </ScrollView>
       </Screen>

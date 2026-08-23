@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { House, Ticket, User } from "lucide-react-native";
+import { House, Ticket, FileText, User } from "lucide-react-native";
 
 export default function TabsLayout() {
   return (
@@ -14,24 +14,19 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => <House size={22} color={color} />,
-        }}
+        options={{ title: "Home", tabBarIcon: ({ color }) => <House size={22} color={color} /> }}
       />
       <Tabs.Screen
         name="visits"
-        options={{
-          title: "My visits",
-          tabBarIcon: ({ color }) => <Ticket size={22} color={color} />,
-        }}
+        options={{ title: "Visits", tabBarIcon: ({ color }) => <Ticket size={22} color={color} /> }}
+      />
+      <Tabs.Screen
+        name="records"
+        options={{ title: "Records", tabBarIcon: ({ color }) => <FileText size={22} color={color} /> }}
       />
       <Tabs.Screen
         name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color }) => <User size={22} color={color} />,
-        }}
+        options={{ title: "Profile", tabBarIcon: ({ color }) => <User size={22} color={color} /> }}
       />
     </Tabs>
   );

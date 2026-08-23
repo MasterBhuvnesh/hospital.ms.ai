@@ -1,10 +1,13 @@
-import "../../global.css";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Stack, useRouter, useSegments, useRootNavigationState } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { NotificationsProvider } from "@/context/NotificationsContext";
+import { AlertProvider } from "@/components/CustomAlert";
+import { UpdateGate } from "@/components/UpdateGate";
+import "../../global.css";
 
 function AuthGate() {
   const { user, loading } = useAuth();
@@ -30,9 +33,15 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
-          <StatusBar style="dark" />
-          <AuthGate />
-          <Stack screenOptions={{ headerShown: false }} />
+          <AlertProvider>
+            <NotificationsProvider>
+              <StatusBar style="dark" />
+              <AuthGate />
+              <UpdateGate>
+                <Stack screenOptions={{ headerShown: false }} />
+              </UpdateGate>
+            </NotificationsProvider>
+          </AlertProvider>
         </AuthProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
