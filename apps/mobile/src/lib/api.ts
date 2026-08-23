@@ -58,7 +58,12 @@ export type Token = {
   position?: number | null;
   etaMinutes?: number | null;
   paymentStatus?: string;
+  calledAt?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
 };
+
+export type DoctorFeeEntry = { amount: number; currency: string; effectiveFrom?: string };
 
 export type Doctor = {
   id: string;
@@ -69,9 +74,33 @@ export type Doctor = {
   registrationNumber?: string;
   hospitalIds: string[];
   feeConfig: { version: number; amount: number; currency: string };
+  feeHistory?: DoctorFeeEntry[] | null;
+  userId?: string | null;
+  roomNumber?: string | null;
 };
 
 export type Hospital = { id: string; name: string; city: string };
+
+export type DoctorScheduleWindow = {
+  from?: string | null;
+  start?: string | null;
+  to?: string | null;
+  end?: string | null;
+};
+
+export type DoctorSchedule = {
+  weekly?: Record<string, DoctorScheduleWindow | null>;
+};
+
+export type ConsentRow = {
+  id: string;
+  grantorUserId: string;
+  grantToUserId: string;
+  scope: string[];
+  expiresAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+};
 
 export type Availability = {
   doctorId: string;
@@ -330,6 +359,9 @@ export const api = {
     async availability(doctorId: string, date: string): Promise<Availability> {
       return request<Availability>(`/api/directory/doctors/${doctorId}/availability?date=${date}`);
     },
+    async schedule(doctorId: string): Promise<DoctorSchedule> {
+      return request<DoctorSchedule>(`/api/directory/doctors/${doctorId}/schedule`);
+    },
   },
 
   scheduling: {
@@ -421,6 +453,19 @@ export const api = {
     },
     async deleteDocument(id: string) {
       return request<null>(`/api/clinical/documents/${id}`, { method: "DELETE" });
+    },
+    async consentsMine(): Promise<{ given: ConsentRow[]; received: ConsentRow[] }> {
+      return request<{ given: ConsentRow[]; received: ConsentRow[] }>("/api/clinical/consents/mine");
+    },
+    async grantConsent(input: {
+      grantToUserId: string;
+      scope: ("RECORDS" | "LABS" | "PRESCRIPTIONS")[];
+      expiresAt?: string;
+    }): Promise<ConsentRow> {
+      return request<ConsentRow>("/api/clinical/consents", { method: "POST", body: JSON.stringify(input) });
+    },
+    async revokeConsent(id: string): Promise<ConsentRow> {
+      return request<ConsentRow>(`/api/clinical/consents/${id}`, { method: "DELETE" });
     },
   },
 

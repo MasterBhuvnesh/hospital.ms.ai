@@ -12,6 +12,7 @@ import {
   Wallet,
   FileText,
   Smartphone,
+  KeyRound,
 } from "lucide-react-native";
 import { Screen, Card } from "@/components/ui";import { useAuth } from "@/context/AuthContext";
 import { useAlert } from "@/components/CustomAlert";
@@ -59,6 +60,7 @@ export default function Profile() {
   const rows = [
     { icon: UserCog, label: "Edit profile & health details", onPress: () => router.push("/edit-profile") },
     { icon: Bell, label: "Notification preferences", onPress: () => router.push("/preferences") },
+    { icon: KeyRound, label: "Doctor access & consents", onPress: () => router.push("/consents") },
     { icon: Wallet, label: "Bills & payments", onPress: () => router.push("/payments") },
     { icon: FileText, label: "Prescriptions", onPress: () => router.push("/prescriptions") },
   ];

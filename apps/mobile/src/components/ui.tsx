@@ -4,22 +4,27 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export function Screen({
   title,
   subtitle,
+  titleRight,
   children,
   loading = false,
   error,
 }: {
   title?: string;
   subtitle?: string;
+  titleRight?: React.ReactNode;
   children?: React.ReactNode;
   loading?: boolean;
   error?: string | null;
 }) {
   return (
     <SafeAreaView className="flex-1 bg-zinc-50" edges={["top"]}>
-      {(title || subtitle) && (
-        <View className="px-5 pt-4 pb-2">
-          {title && <Text className="text-2xl font-bold text-zinc-900">{title}</Text>}
-          {subtitle && <Text className="text-sm text-zinc-500 mt-0.5">{subtitle}</Text>}
+      {(title || subtitle || titleRight) && (
+        <View className="flex-row items-start justify-between px-5 pt-4 pb-2">
+          <View className="flex-1 pr-3">
+            {title && <Text className="text-2xl font-bold text-zinc-900">{title}</Text>}
+            {subtitle && <Text className="text-sm text-zinc-500 mt-0.5">{subtitle}</Text>}
+          </View>
+          {titleRight}
         </View>
       )}
       {loading ? (

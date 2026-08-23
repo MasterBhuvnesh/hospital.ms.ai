@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
-import { router, Stack } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Check } from "lucide-react-native";
 import { Screen, Card } from "@/components/ui";
 import { SlotPicker } from "@/components/SlotPicker";
@@ -20,7 +20,30 @@ export default function Book() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (step === 0 && hospitals.length === 0 && !error) {
+  const params = useLocalSearchParams<{ doctorId?: string }>();
+  const preselectId = typeof params.doctorId === "string" ? params.doctorId : undefined;
+  const bootstrapped = useRef(false);
+
+  useEffect(() => {
+    if (!preselectId || bootstrapped.current) return;
+    bootstrapped.current = true;
+    Promise.all([api.directory.doctors(), api.directory.hospitals()])
+      .then(([docs, hsps]) => {
+        const doc = docs.find((d) => d.id === preselectId);
+        if (!doc) {
+          setError("We could not find that doctor.");
+          return;
+        }
+        setDoctors(docs);
+        setHospitals(hsps);
+        setHospitalId(doc.hospitalIds[0] ?? null);
+        setDoctorId(doc.id);
+        setStep(2);
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : "Could not load doctor"));
+  }, [preselectId]);
+
+  if (step === 0 && !preselectId && hospitals.length === 0 && !error) {
     api.directory
       .hospitals()
       .then(setHospitals)

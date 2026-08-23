@@ -83,11 +83,22 @@ export default function Visits() {
     [appointments],
   );
 
+  const headerActions = (
+    <View className="mt-1.5 flex-row items-center gap-4">
+      <TouchableOpacity onPress={() => router.push("/walkin")}>
+        <Text className="text-xs font-bold text-primary">Walk-in</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/history")}>
+        <Text className="text-xs font-bold text-primary">History</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   if (loading) {
     return (
       <>
         <Stack.Screen options={{ headerShown: false }} />
-        <Screen title="My visits" subtitle="Appointments and live queue tokens" loading />
+        <Screen title="My visits" subtitle="Appointments and live queue tokens" titleRight={headerActions} loading />
       </>
     );
   }
@@ -95,7 +106,12 @@ export default function Visits() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <Screen title="My visits" subtitle="Appointments and live queue tokens" error={error}>
+      <Screen
+        title="My visits"
+        subtitle="Appointments and live queue tokens"
+        titleRight={headerActions}
+        error={error}
+      >
         <SectionList
           sections={sections}
           keyExtractor={(a) => a.id}
@@ -122,7 +138,14 @@ export default function Visits() {
               <Card className="mb-3 p-4">
                 <View className="flex-row items-start justify-between">
                   <View className="flex-1 pr-2">
-                    <Text className="font-bold text-zinc-900">{doctor?.fullName ?? "Doctor"}</Text>
+                    <TouchableOpacity
+                      disabled={!item.doctorId}
+                      onPress={() =>
+                        router.push({ pathname: "/doctor/[doctorId]", params: { doctorId: item.doctorId } })
+                      }
+                    >
+                      <Text className="font-bold text-zinc-900">{doctor?.fullName ?? "Doctor"}</Text>
+                    </TouchableOpacity>
                     <Text className="mt-0.5 text-xs text-zinc-500">
                       {(doctor?.specializations ?? []).join(", ") || "General"}
                       {item.feeSnapshot ? ` · ${item.feeSnapshot.amount} ${item.feeSnapshot.currency}` : ""}

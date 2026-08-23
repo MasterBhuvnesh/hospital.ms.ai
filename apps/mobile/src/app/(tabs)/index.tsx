@@ -9,6 +9,7 @@ import {
   CalendarPlus,
   Wallet,
   Sparkles,
+  Zap,
 } from "lucide-react-native";
 import { Screen, Card, Badge } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
@@ -69,6 +70,7 @@ export default function Home() {
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0];
 
   const actions = [
+    { icon: Zap, label: "Walk-in", onPress: () => router.push("/walkin") },
     { icon: CalendarPlus, label: "Book", onPress: () => router.push("/book") },
     { icon: Wallet, label: "Bills", onPress: () => router.push("/payments") },
     { icon: Sparkles, label: "Ask AI", onPress: () => router.push("/ai") },
@@ -160,9 +162,16 @@ export default function Home() {
             <Card className="p-4">
               <View className="flex-row items-start justify-between">
                 <View className="flex-1">
-                  <Text className="text-base font-bold text-zinc-900">
-                    {doctors[nextVisit.doctorId]?.fullName ?? "Doctor"}
-                  </Text>
+                  <TouchableOpacity
+                    disabled={!nextVisit.doctorId}
+                    onPress={() =>
+                      router.push({ pathname: "/doctor/[doctorId]", params: { doctorId: nextVisit.doctorId } })
+                    }
+                  >
+                    <Text className="text-base font-bold text-zinc-900">
+                      {doctors[nextVisit.doctorId]?.fullName ?? "Doctor"}
+                    </Text>
+                  </TouchableOpacity>
                   <Text className="mt-0.5 text-xs text-zinc-500">
                     {(doctors[nextVisit.doctorId]?.specializations ?? []).join(", ") || "General"}
                   </Text>

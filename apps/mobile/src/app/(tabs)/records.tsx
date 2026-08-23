@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import { router, Stack } from "expo-router";
-import { ChevronRight, Upload, ShieldAlert, Activity, Pill, FolderOpen } from "lucide-react-native";
+import { ChevronRight, Upload, ShieldAlert, Activity, Pill, FolderOpen, TrendingUp } from "lucide-react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { Screen, Card } from "@/components/ui";
 import { useAlert } from "@/components/CustomAlert";
@@ -120,6 +120,13 @@ export default function Records() {
             >
               <FolderOpen size={16} color="#208AEF" />
               <Text className="text-xs font-bold text-zinc-700">Files ({docCount})</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/labs-trends")}
+              className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white py-3"
+            >
+              <TrendingUp size={16} color="#208AEF" />
+              <Text className="text-xs font-bold text-zinc-700">Trends</Text>
             </TouchableOpacity>
           </View>
 
