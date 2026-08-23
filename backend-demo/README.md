@@ -110,9 +110,11 @@ Either way, failed deliveries never break flows: every attempt is recorded per-c
   `GET /scheduling/queue?doctorId&date` · `GET /scheduling/tokens/:id` (+position/ETA) · `POST /scheduling/tokens/:id/call|start|skip|recall|no-show|complete`
 - **Realtime:** `GET /api/scheduling/tokens/:id/stream` — SSE stream emitting `snapshot` then `update` events on the six queue/consultation topics, heartbeat every 20s, patient-scoped like the REST route
 - Near-turn sweep publishes `queue.patient.near_turn` at position ≤ 3; `tokenDate` derives from hospital timezone; fee snapshot captured at booking; completion generates the invoice inline then publishes `consultation.completed`.
+- **Waitlist** (`waitlist.routes.ts`): `POST /scheduling/waitlists {doctorId}` (PATIENT callers join their own record; staff pass patientId; deduped per patient+doctor) · `GET /scheduling/waitlists/mine` · `DELETE /scheduling/waitlists/:id` (leave) · `POST /scheduling/waitlists/:id/convert {appointmentId}` — cancelling an appointment auto-offers the freed slot to the oldest WAITING entry (QUEUE notification with `waitlistId`)
+- **Reminders:** booking/rescheduling schedules delayed publishes of `appointment.reminder.due {phase: 24h|2h}` at T-24h and T-2h (≤14-day horizon); on fire, patients still BOOKED/CONFIRMED get an APPOINTMENT notification
 
 **clinical.routes.ts**
-- Patients: `POST /clinical/patients` · `GET /clinical/patients/me` · `GET|PATCH /clinical/patients/:id` · `POST /clinical/patients/:id/register-at` (MRN) — records carry `photoUrl`, `emergencyContact {name, phone}`, `insurance {provider, number}` (PAT-1.08/10/12)
+- Patients: `POST /clinical/patients` · `GET /clinical/patients/me` · `GET|PATCH /clinical/patients/:id` · `POST /clinical/patients/:id/register-at` (MRN) — records carry `photoUrl`, `emergencyContact {name, phone}`, `insurance {provider, number}`, ABHA identity fields `abhaAddress`/`abhaNumber` (PAT-1.08/10/12)
 - Records (shared guard = active consultation ∨ consent ∨ break-glass): allergies / conditions / medications nested `GET|POST|DELETE`
 - Consultation content: `GET|PUT /clinical/consultations/:cid/content` (must be IN_CONSULTATION)
 - Deterministic sheet: `GET /clinical/patients/:id/sheet` (+ every PHI read audited, break-glass notifies patient)
@@ -126,6 +128,7 @@ Either way, failed deliveries never break flows: every attempt is recorded per-c
 - Payments: `POST /commerce/payments/intent` → `POST /commerce/payments/mock-capture` → `payment.captured` marks visit financially closed; `GET /commerce/payments/:id`, `/mine/list`
 - Refunds: `POST /commerce/refunds` (admin/receptionist)
 - Pharmacy: items `POST|PATCH /commerce/pharmacy/items`, catalog `GET /commerce/pharmacy/catalog?q=`
+- Pharmacy orders (patient-facing): `POST /commerce/pharmacy/orders {items:[{itemId, qty}]}` (per-line stock availability flagged, never blocks placement) · `GET /commerce/pharmacy/orders/mine` · `GET /commerce/pharmacy/orders/:id` · `PATCH .../orders/:id/status {READY|DISPENSED|CANCELLED}` (pharmacist/admin; DISPENSED decrements batches FIFO-by-expiry with `ORDER_DISPENSE` movements)
 - Inventory: `POST /commerce/inventory/stock-in` (batches w/ expiry) · `GET /commerce/inventory/stock?itemId=` · `GET /commerce/inventory/low-stock`
 - Dispensing: `POST /commerce/dispense {prescriptionId}` — signed Rx only, FIFO-by-expiry stock decrement, movements recorded, `stock.low` emitted at threshold
 
@@ -149,7 +152,7 @@ Health: `GET /health/live`, `GET /health/ready`. App config: `GET /api/config/ap
 
 ## Events (in-process bus, mirrors the RabbitMQ catalogue)
 
-`user.registered`, `appointment.created|rescheduled|cancelled|no_show`, `queue.token.created|updated|skipped|recalled`, `queue.patient.near_turn`, `consultation.started|completed`, `consultation.content.saved`, `patient_sheet.ready`, `prescription.signed`, `consent.granted|revoked`, `lab.order.created|sample.collected|result.released`, `invoice.generated`, `payment.captured`, `refund.completed`, `pharmacy.dispensed`, `stock.low`, `audit.recorded`, `phi.accessed`.
+`user.registered`, `appointment.created|rescheduled|cancelled|no_show`, `appointment.reminder.due`, `queue.token.created|updated|skipped|recalled`, `queue.patient.near_turn`, `consultation.started|completed`, `consultation.content.saved`, `patient_sheet.ready`, `prescription.signed`, `consent.granted|revoked`, `lab.order.created|sample.collected|result.released`, `invoice.generated`, `payment.captured`, `refund.completed`, `pharmacy.dispensed`, `pharmacy.order.placed|dispensed`, `stock.low`, `waitlist.joined`, `audit.recorded`, `phi.accessed`.
 
 Consumers are deduped on `messageId` (`src/comms/engine.ts`). Inspect traffic via `GET /api/admin/events`.
 

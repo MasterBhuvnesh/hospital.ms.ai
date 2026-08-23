@@ -1,12 +1,12 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
-import { uuid } from '../lib/ids.js'
+import { uuid, nowIso } from '../lib/ids.js'
 import { badRequest, conflict, forbidden, notFound } from '../lib/errors.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import type { Store } from '../lib/json-db.js'
 import { audit } from '../lib/audit.js'
 import { TOPICS } from '../lib/events.js'
-import { parseBody } from './scheduling.routes.js'
+import { findPatientByUser, parseBody } from './scheduling.routes.js'
 import { renderPdf } from '../providers/pdf.js'
 import { putObject, presignGet } from '../providers/storage.js'
 import { has } from '../config.js'
@@ -462,6 +462,139 @@ export function commerceRoutes(app: FastifyInstance) {
     }
     return { status: 'ok', code: 'OK', data: d }
   })
+
+  app.post('/api/commerce/pharmacy/orders', { preHandler: requireAuth }, async (req, reply) => {
+    const body = parseBody(
+      z.object({ items: z.array(z.object({ itemId: z.string().uuid(), qty: z.number().int().positive() })).min(1) }),
+      req.body,
+    )
+    let patient = findPatientByUser(store, req.user!.sub)
+    if (!patient) {
+      const user = store.byId<any>('users', req.user!.sub)
+      patient = store.insert('patients', {
+        id: uuid(),
+        userId: req.user!.sub,
+        fullName: user?.fullName ?? 'Patient',
+        phone: user?.phone ?? null,
+        email: user?.email ?? null,
+        dob: null,
+        gender: null,
+      })
+    }
+
+    const lines = body.items.map((it) => {
+      const item = store.byId<any>('pharmacyItems', it.itemId)
+      if (!item || !item.active) throw notFound('Catalog item not found or inactive')
+      return {
+        itemId: item.id,
+        name: item.name,
+        qty: it.qty,
+        unitPrice: item.price,
+        available: stockOnHand(store, item.id) >= it.qty,
+      }
+    })
+
+    const counter = store.byId<any>('counters', 'pharmacyOrders')
+    const nextNo = (counter?.value ?? 0) + 1
+    if (counter) store.patch('counters', 'pharmacyOrders', { value: nextNo })
+    else store.insert('counters', { id: 'pharmacyOrders' as any, value: 1 })
+
+    const order = store.insert('pharmacyOrders', {
+      id: uuid(),
+      orderNo: `PO-${String(nextNo).padStart(6, '0')}`,
+      patientId: patient.id,
+      patientUserId: patient.userId ?? null,
+      items: lines,
+      status: 'PLACED',
+      placedAt: nowIso(),
+      updatedAt: nowIso(),
+    })
+
+    bus.publish(
+      TOPICS.pharmacyOrderPlaced,
+      {
+        orderId: order.id,
+        orderNo: order.orderNo,
+        patientId: patient.id,
+        patientUserId: patient.userId ?? null,
+        itemCount: lines.length,
+        names: lines.map((l) => l.name),
+      },
+      {},
+    )
+    return reply.code(201).send({ status: 'ok', code: 'CREATED', data: order })
+  })
+
+  app.get('/api/commerce/pharmacy/orders/mine', { preHandler: requireAuth }, async (req) => {
+    const items = [...store.col<any>('pharmacyOrders')]
+      .reverse()
+      .filter((o) => o.patientUserId === req.user!.sub || store.byId<any>('patients', o.patientId)?.userId === req.user!.sub)
+    return { status: 'ok', code: 'OK', data: { items } }
+  })
+
+  app.get('/api/commerce/pharmacy/orders/:id', { preHandler: requireAuth }, async (req) => {
+    const o = store.byId<any>('pharmacyOrders', (req.params as any).id)
+    if (!o) throw notFound('Order not found')
+    const roles: string[] = req.user!.roles
+    const isPharma = roles.includes('PHARMACIST') || roles.includes('HOSPITAL_ADMIN')
+    if (!isPharma) {
+      const own = o.patientUserId === req.user!.sub || store.byId<any>('patients', o.patientId)?.userId === req.user!.sub
+      if (!own) throw notFound('Order not found')
+    }
+    return { status: 'ok', code: 'OK', data: o }
+  })
+
+  app.patch(
+    '/api/commerce/pharmacy/orders/:id/status',
+    { preHandler: requireRole('PHARMACIST', 'HOSPITAL_ADMIN') },
+    async (req) => {
+      const o = store.byId<any>('pharmacyOrders', (req.params as any).id)
+      if (!o) throw notFound('Order not found')
+      const body = parseBody(z.object({ status: z.enum(['READY', 'DISPENSED', 'CANCELLED']) }), req.body)
+      if (o.status === 'DISPENSED') throw conflict('Order already dispensed')
+      if (o.status === 'CANCELLED') throw conflict('Order already cancelled')
+
+      if (body.status === 'DISPENSED') {
+        for (const line of o.items) {
+          const batches = store
+            .filter<any>('inventoryBatches', (b) => b.itemId === line.itemId && b.qtyRemaining > 0)
+            .sort((a, b) => a.expiryDate.localeCompare(b.expiryDate))
+          const available = batches.reduce((s, b) => s + b.qtyRemaining, 0)
+          if (available < line.qty) throw conflict(`Insufficient stock for ${line.name}: need ${line.qty}, have ${available}`)
+        }
+        for (const line of o.items) {
+          let remaining = line.qty
+          const batches = store
+            .filter<any>('inventoryBatches', (b) => b.itemId === line.itemId && b.qtyRemaining > 0)
+            .sort((a, b) => a.expiryDate.localeCompare(b.expiryDate))
+          for (const b of batches) {
+            if (remaining <= 0) break
+            const take = Math.min(b.qtyRemaining, remaining)
+            b.qtyRemaining -= take
+            remaining -= take
+            store.insert('stockMovements', { id: uuid(), itemId: line.itemId, batchId: b.id, deltaQty: -take, reason: 'ORDER_DISPENSE', refId: o.id })
+          }
+        }
+        store.save('inventoryBatches')
+      }
+
+      store.patch('pharmacyOrders', o.id, { status: body.status })
+      if (body.status === 'DISPENSED') {
+        bus.publish(
+          TOPICS.pharmacyOrderDispensed,
+          {
+            orderId: o.id,
+            orderNo: o.orderNo,
+            patientId: o.patientId,
+            patientUserId: o.patientUserId ?? store.byId<any>('patients', o.patientId)?.userId ?? null,
+            items: o.items.map((l: any) => ({ name: l.name, qty: l.qty })),
+          },
+          {},
+        )
+      }
+      return { status: 'ok', code: 'OK', data: store.byId('pharmacyOrders', o.id) }
+    },
+  )
 }
 
 export function registerCommerceConsumers(app: FastifyInstance) {

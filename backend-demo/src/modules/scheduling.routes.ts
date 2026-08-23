@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from '../middleware/auth.js'
 import { audit } from '../lib/audit.js'
 import { TOPICS, busCtx } from '../lib/events.js'
 import { normalizePhone } from '../lib/format.js'
+import { notifyUser } from '../comms/engine.js'
 import { createInvoiceForCompletion } from './commerce.routes.js'
 import type { Store } from '../lib/json-db.js'
 
@@ -286,8 +287,24 @@ export function schedulingRoutes(app: FastifyInstance) {
         store.patch('tokens', t.id, { status: 'CANCELLED' })
       }
     }
-    const patient = store.byId<any>('patients', a.patientId)
     const doctor = store.byId<any>('doctors', a.doctorId)
+    const offered = store
+      .filter<any>('waitlist', (w) => w.doctorId === a.doctorId && w.status === 'WAITING')
+      .sort((x, y) => String(x.requestedAt).localeCompare(String(y.requestedAt)))[0]
+    if (offered) {
+      store.patch('waitlist', offered.id, { status: 'OFFERED', offeredAt: nowIso() })
+      const offeredPatient = store.byId<any>('patients', offered.patientId)
+      if (offeredPatient?.userId) {
+        await notifyUser(app, {
+          userId: offeredPatient.userId,
+          category: 'QUEUE',
+          subject: 'Slot opening',
+          body: `A slot opened up with ${doctor?.fullName ?? 'the doctor'}. Book now - you are first on the waitlist.`,
+          meta: { waitlistId: offered.id },
+        })
+      }
+    }
+    const patient = store.byId<any>('patients', a.patientId)
     bus.publish(
       TOPICS.appointmentCancelled,
       {
@@ -616,4 +633,23 @@ export function schedulingRoutes(app: FastifyInstance) {
     const invoice = store.find<any>('invoices', (i) => i.consultationId === t.consultationId)
     return { status: 'ok', code: 'OK', data: { token: store.byId('tokens', t.id), invoice } }
   })
+}
+
+export function registerSchedulingConsumers(app: FastifyInstance) {
+  const { bus } = app
+  const scheduleReminders = (env: any) => {
+    const { appointmentId, startsAt } = env.payload ?? {}
+    if (!appointmentId || !startsAt) return
+    for (const [phase, leadMs] of [
+      ['24h', 24 * 3600_000],
+      ['2h', 2 * 3600_000],
+    ] as const) {
+      const delay = new Date(startsAt).getTime() - leadMs - Date.now()
+      if (delay > 0 && delay < 14 * 24 * 3600_000) {
+        bus.publishLater(TOPICS.appointmentReminderDue, { appointmentId, phase }, delay)
+      }
+    }
+  }
+  bus.on(TOPICS.appointmentCreated, scheduleReminders)
+  bus.on(TOPICS.appointmentRescheduled, scheduleReminders)
 }

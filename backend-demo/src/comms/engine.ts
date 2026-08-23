@@ -346,6 +346,48 @@ export function registerCommsConsumers(app: FastifyInstance) {
     })
   })
 
+  bus.on(TOPICS.pharmacyOrderPlaced, async (env: any) => {
+    if (!once(env)) return
+    const p = env.payload
+    await notifyUser(app, {
+      userId: p.patientUserId,
+      category: 'DOCUMENT',
+      subject: 'Order placed',
+      body: `Pharmacy order ${p.orderNo} received (${(p.names ?? []).join(', ')}). We will notify you when it is ready.`,
+      meta: { orderId: p.orderId },
+    })
+  })
+
+  bus.on(TOPICS.pharmacyOrderDispensed, async (env: any) => {
+    if (!once(env)) return
+    const p = env.payload
+    await notifyUser(app, {
+      userId: p.patientUserId,
+      category: 'DOCUMENT',
+      subject: 'Order ready/picked up',
+      body: `Pharmacy order ${p.orderNo} was dispensed (${(p.items ?? []).map((i: any) => i.name).join(', ')}).`,
+      meta: { orderId: p.orderId },
+    })
+  })
+
+  bus.on(TOPICS.appointmentReminderDue, async (env: any) => {
+    if (!once(env)) return
+    const p = env.payload
+    const appt = store.byId<any>('appointments', p.appointmentId)
+    if (!appt || !['BOOKED', 'CONFIRMED'].includes(appt.status)) return
+    if (new Date(appt.startsAt).getTime() <= Date.now() - 10 * 60_000) return
+    const patient = store.byId<any>('patients', appt.patientId)
+    if (!patient?.userId) return
+    const doctorName = store.byId<any>('doctors', appt.doctorId)?.fullName ?? 'your doctor'
+    await notifyUser(app, {
+      userId: patient.userId,
+      category: 'APPOINTMENT',
+      subject: `Reminder: visit ${p.phase === '2h' ? 'in 2 hours' : 'tomorrow'}`,
+      body: `Your visit with ${doctorName} on ${appt.startsAt} ${p.phase === '2h' ? 'is in 2 hours' : 'is tomorrow'}.`,
+      meta: { appointmentId: appt.id, phase: p.phase },
+    })
+  })
+
   bus.on(TOPICS.stockLow, async (env: any) => {
     if (!once(env)) return
     const p = env.payload

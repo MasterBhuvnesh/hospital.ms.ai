@@ -37,6 +37,8 @@
     { "key": "paymentId", "value": "" },
     { "key": "itemId", "value": "" },
     { "key": "dispenseId", "value": "" },
+    { "key": "waitlistId", "value": "" },
+    { "key": "pharmacyOrderId", "value": "" },
     { "key": "lastNotificationId", "value": "" },
     { "key": "deviceId", "value": "postman-device-001" },
     { "key": "pushTokenId", "value": "" }
@@ -800,6 +802,37 @@
           }
         },
         {
+          "name": "Join waitlist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('created', () => pm.expect(pm.response.code).to.eql(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('waitlistId', j.data.id);",
+                  "console.log('waitlist position:', j.data.position);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/scheduling/waitlists",
+            "body": { "mode": "raw", "raw": "{\n  \"doctorId\": \"{{doctorId}}\"\n}" }
+          },
+          "description": "Patient joins the doctor's waitlist (409 if already WAITING/OFFERED). Cancelling one of the doctor's appointments auto-offers the slot to the oldest WAITING entry."
+        },
+        {
+          "name": "My waitlist entries",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/scheduling/waitlists/mine"
+          }
+        },
+        {
           "name": "Complete consultation -> invoice",
           "event": [
             {
@@ -820,6 +853,15 @@
             "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}/complete",
             "body": { "mode": "raw", "raw": "{}" }
           }
+        },
+        {
+          "name": "Leave waitlist",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/scheduling/waitlists/{{waitlistId}}"
+          },
+          "description": "Marks the entry LEFT. Runs last so the folder can be repeated cleanly."
         }
       ]
     },
@@ -1265,6 +1307,47 @@
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{phaToken}}" }],
             "url": "{{baseUrl}}/api/commerce/inventory/low-stock"
+          }
+        },
+        {
+          "name": "Place pharmacy order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('created', () => pm.expect(pm.response.code).to.eql(201));",
+                  "const j = pm.response.json();",
+                  "pm.collectionVariables.set('pharmacyOrderId', j.data.id);",
+                  "console.log('order:', j.data.orderNo, 'items:', j.data.items.map(i => i.name + (i.available ? '' : ' [backordered]')).join(', '));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/commerce/pharmacy/orders",
+            "body": { "mode": "raw", "raw": "{\n  \"items\": [\n    { \"itemId\": \"{{itemId}}\", \"qty\": 1 }\n  ]\n}" },
+            "description": "Patient-facing order against the pharmacy catalog. Lines short of stock are flagged available:false but never block placement."
+          }
+        },
+        {
+          "name": "My pharmacy orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/commerce/pharmacy/orders/mine"
+          }
+        },
+        {
+          "name": "Update order status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{phaToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/commerce/pharmacy/orders/{{pharmacyOrderId}}/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"DISPENSED\"\n}" },
+            "description": "READY | DISPENSED | CANCELLED (PHARMACIST/HOSPITAL_ADMIN). DISPENSED decrements batches FIFO-by-expiry and records ORDER_DISPENSE movements."
           }
         }
       ]

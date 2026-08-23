@@ -27,7 +27,11 @@ export const TOPICS = {
   paymentCaptured: 'payment.captured',
   refundCompleted: 'refund.completed',
   pharmacyDispensed: 'pharmacy.dispensed',
+  pharmacyOrderPlaced: 'pharmacy.order.placed',
+  pharmacyOrderDispensed: 'pharmacy.order.dispensed',
   stockLow: 'stock.low',
+  waitlistJoined: 'waitlist.joined',
+  appointmentReminderDue: 'appointment.reminder.due',
   auditRecorded: 'audit.recorded',
   phiAccessed: 'phi.accessed',
 } as const

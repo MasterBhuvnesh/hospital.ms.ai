@@ -7,7 +7,8 @@ import { registerCorrelation } from './middleware/auth.js'
 import { registerErrorHandler } from './middleware/errors.js'
 import { identityRoutes } from './modules/identity.routes.js'
 import { directoryRoutes } from './modules/directory.routes.js'
-import { schedulingRoutes } from './modules/scheduling.routes.js'
+import { schedulingRoutes, registerSchedulingConsumers } from './modules/scheduling.routes.js'
+import { waitlistRoutes } from './modules/waitlist.routes.js'
 import { clinicalRoutes, registerClinicalConsumers } from './modules/clinical.routes.js'
 import { commerceRoutes, registerCommerceConsumers } from './modules/commerce.routes.js'
 import { commsRoutes } from './modules/comms.routes.js'
@@ -62,6 +63,7 @@ export async function buildApp(opts: { store: Store }) {
   identityRoutes(app)
   directoryRoutes(app)
   schedulingRoutes(app)
+  waitlistRoutes(app)
   clinicalRoutes(app)
   commerceRoutes(app)
   commsRoutes(app)
@@ -71,6 +73,7 @@ export async function buildApp(opts: { store: Store }) {
   registerCommsConsumers(app)
   registerCommerceConsumers(app)
   registerClinicalConsumers(app)
+  registerSchedulingConsumers(app)
 
   return app
 }

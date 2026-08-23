@@ -175,6 +175,8 @@ export function clinicalRoutes(app: FastifyInstance) {
           .partial({ name: true, phone: true })
           .optional(),
         insurance: z.object({ provider: z.string(), number: z.string() }).optional(),
+        abhaAddress: z.string().max(120).optional(),
+        abhaNumber: z.string().max(40).optional(),
       }),
       req.body,
     )
@@ -194,6 +196,8 @@ export function clinicalRoutes(app: FastifyInstance) {
       dob: body.dob ?? null,
       gender: body.gender ?? null,
       bloodGroup: body.bloodGroup ?? null,
+      abhaAddress: body.abhaAddress ?? null,
+      abhaNumber: body.abhaNumber ?? null,
       registrations: [],
     })
     return reply.code(201).send({ status: 'ok', code: 'CREATED', data: patient })
@@ -247,6 +251,8 @@ export function clinicalRoutes(app: FastifyInstance) {
           .nullable()
           .optional(),
         insurance: z.object({ provider: z.string(), number: z.string() }).nullable().optional(),
+        abhaAddress: z.string().max(120).nullable().optional(),
+        abhaNumber: z.string().max(40).nullable().optional(),
       }),
       req.body,
     )
