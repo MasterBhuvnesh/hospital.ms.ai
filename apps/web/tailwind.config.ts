@@ -83,6 +83,10 @@ export default {
           subtle: "var(--surface-subtle)",
           muted: "var(--surface-muted)",
         },
+        sidebar: {
+          DEFAULT: "var(--sidebar)",
+          foreground: "var(--ink)",
+        },
         ink: "var(--ink)",
         subtle: "var(--subtle-foreground)",
         danger: {
