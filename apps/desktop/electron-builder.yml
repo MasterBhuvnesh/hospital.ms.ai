@@ -1,0 +1,50 @@
+appId: com.atelierhealth.desktop
+productName: Atelier Health
+directories:
+  buildResources: build
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!{docs,.docs}'
+asarUnpack:
+  - resources/**
+win:
+  executableName: atelier-desktop
+  icon: build/icon.ico
+  target:
+    - nsis
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+mac:
+  entitlementsInherit: build/entitlements.mac.plist
+  notarize: false
+dmg:
+  artifactName: ${name}-${version}.${ext}
+linux:
+  target:
+    - AppImage
+    - deb
+  maintainer: Atelier Health
+  category: Office
+appImage:
+  artifactName: ${name}-${version}.${ext}
+npmRebuild: false
+publish:
+  owner: MasterBhuvnesh
+  repo: hospital.ms.ai
+  provider: github
+  releaseType: release
+  updaterCacheDirName: atelier-desktop-updater
+  # publisherName is intentionally NOT set: the build is unsigned and setting
+  # it makes electron-updater verify Authenticode against it, which always
+  # fails on unsigned builds and silently aborts every update.

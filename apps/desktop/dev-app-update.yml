@@ -1,0 +1,8 @@
+owner: MasterBhuvnesh
+repo: hospital.ms.ai
+provider: github
+repository: 'https://github.com/MasterBhuvnesh/hospital.ms.ai'
+updaterCacheDirName: atelier-desktop-updater
+branch: main
+releaseType: release
+private: false
