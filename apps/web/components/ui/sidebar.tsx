@@ -449,7 +449,7 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-surface-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring active:bg-surface-muted active:text-foreground disabled:pointer-events-none disabled:opacity-50 group-data-[start-end=true]:text-primary-foreground",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:stroke-[1.75] peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 hover:bg-surface-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring active:bg-surface-muted active:text-foreground disabled:pointer-events-none disabled:opacity-50 group-data-[start-end=true]:text-primary-foreground",
   {
     variants: {
       variant: {
@@ -460,7 +460,7 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: "h-8 text-sm",
         sm: "h-7 text-xs",
-        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
+        lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0",
       },
     },
     defaultVariants: {
@@ -689,5 +689,6 @@ export {
   SidebarTrigger,
   useSidebar,
 };
+
 
 
