@@ -66,7 +66,8 @@ Run `pnpm seed:rich` for a large demo world: **2 hospitals · 8 departments · 8
 
 **identity.routes.ts**
 - `POST /auth/register` · `POST /auth/login` · `POST /auth/refresh` (rotation + reuse detection revokes family) · `POST /auth/logout` · `GET /auth/me`
-- `POST /auth/otp/request` · `POST /auth/otp/verify` (LOGIN / VERIFY_CONTACT / RESET_PASSWORD; hashed single-use codes, attempt-capped)
+- **Devices:** `PUT /api/auth/devices` (upsert by deviceId, tracks lastSeenAt) · `GET /api/auth/devices` · `DELETE /api/auth/devices/:deviceId` (audited revocation)
+- `POST /api/auth/otp/request` · `POST /api/auth/otp/verify` (LOGIN / VERIFY_CONTACT / RESET_PASSWORD; hashed single-use codes, attempt-capped)
 - Admin: `GET /admin/users` · `PATCH /admin/users/:id/status` · `POST /admin/users/:id/roles` · `DELETE /admin/users/:id/roles/:roleId`
 
 **directory.routes.ts**
@@ -80,13 +81,14 @@ Run `pnpm seed:rich` for a large demo world: **2 hospitals · 8 departments · 8
 **scheduling.routes.ts**
 - `POST /scheduling/appointments` (Idempotency-Key honored) · `GET /scheduling/appointments[...]` · `GET /scheduling/appointments/:id`
 - `PATCH .../reschedule` · `.../cancel`
-- `POST /scheduling/walkins` (auto-creates minimal patient record) · `POST /scheduling/tokens {appointmentId}`
+- `POST /scheduling/walkins` (auto-creates minimal patient record; **PATIENT-role callers self-register** and always get NORMAL priority; staff can pass patientId/phone/priority) · `POST /scheduling/tokens {appointmentId}`
 - Queue state machine WAITING→CALLED→IN_CONSULTATION→COMPLETED / SKIPPED⇄recall / NO_SHOW:
   `GET /scheduling/queue?doctorId&date` · `GET /scheduling/tokens/:id` (+position/ETA) · `POST /scheduling/tokens/:id/call|start|skip|recall|no-show|complete`
+- **Realtime:** `GET /api/scheduling/tokens/:id/stream` — SSE stream emitting `snapshot` then `update` events on the six queue/consultation topics, heartbeat every 20s, patient-scoped like the REST route
 - Near-turn sweep publishes `queue.patient.near_turn` at position ≤ 3; `tokenDate` derives from hospital timezone; fee snapshot captured at booking; completion generates the invoice inline then publishes `consultation.completed`.
 
 **clinical.routes.ts**
-- Patients: `POST /clinical/patients` · `GET /clinical/patients/me` · `GET|PATCH /clinical/patients/:id` · `POST /clinical/patients/:id/register-at` (MRN)
+- Patients: `POST /clinical/patients` · `GET /clinical/patients/me` · `GET|PATCH /clinical/patients/:id` · `POST /clinical/patients/:id/register-at` (MRN) — records carry `photoUrl`, `emergencyContact {name, phone}`, `insurance {provider, number}` (PAT-1.08/10/12)
 - Records (shared guard = active consultation ∨ consent ∨ break-glass): allergies / conditions / medications nested `GET|POST|DELETE`
 - Consultation content: `GET|PUT /clinical/consultations/:cid/content` (must be IN_CONSULTATION)
 - Deterministic sheet: `GET /clinical/patients/:id/sheet` (+ every PHI read audited, break-glass notifies patient)
@@ -105,7 +107,9 @@ Run `pnpm seed:rich` for a large demo world: **2 hospitals · 8 departments · 8
 
 **comms.routes.ts**
 - `GET /comms/notifications` · `POST /comms/notifications/:id/read` · `POST /comms/notifications/read-all`
-- `GET|PUT /comms/preferences` (per-category channel matrix) · `POST /comms/test-send` (admin)
+- **Push registry:** `POST /comms/push/register {token, platform?, deviceId?}` (upsert per user+token) · `GET /comms/push/tokens` · `DELETE /comms/push/tokens/:id`
+- `GET|PUT /comms/preferences` (per-category channel matrix; channels INAPP · EMAIL · SMS · WHATSAPP · **PUSH**) · `POST /comms/test-send` (admin, any channel incl. PUSH)
+- PUSH semantics: if the user has ≥1 registered Expo push token → push replaces SMS in the default matrix; with no token → falls back to SMS (QUEUE category) or is skipped
 
 **ai.routes.ts**
 - `GET /ai/status` · `POST /ai/chat` · `POST /ai/chat/stream` (SSE with `reasoning` + `content` events)
@@ -117,7 +121,7 @@ Run `pnpm seed:rich` for a large demo world: **2 hospitals · 8 departments · 8
 - Break-glass: `POST /admin/break-glass {patientId, reason≥10, ttl≤60m}` · `GET /admin/break-glass` · `GET /admin/patients/:id/summary`
 - `PLATFORM_ADMIN` gets 403 on all clinical content by design.
 
-Health: `GET /health/live`, `GET /health/ready`.
+Health: `GET /health/live`, `GET /health/ready`. App config: `GET /api/config/app` (public `minSupportedVersion` for the client OTA gate).
 
 ## Events (in-process bus, mirrors the RabbitMQ catalogue)
 

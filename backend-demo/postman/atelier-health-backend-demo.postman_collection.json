@@ -37,7 +37,9 @@
     { "key": "paymentId", "value": "" },
     { "key": "itemId", "value": "" },
     { "key": "dispenseId", "value": "" },
-    { "key": "lastNotificationId", "value": "" }
+    { "key": "lastNotificationId", "value": "" },
+    { "key": "deviceId", "value": "postman-device-001" },
+    { "key": "pushTokenId", "value": "" }
   ],
   "item": [
     {
@@ -46,6 +48,10 @@
         {
           "name": "Health live",
           "request": { "method": "GET", "url": "{{baseUrl}}/health/live" }
+        },
+        {
+          "name": "App config (minSupportedVersion)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/config/app" }
         },
         {
           "name": "Health ready",
@@ -322,6 +328,34 @@
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
             "url": "{{baseUrl}}/api/auth/me"
+          }
+        },
+        {
+          "name": "Register device",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/devices",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"name\": \"Postman runner\",\n  \"platform\": \"android\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List my devices",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/auth/devices"
+          }
+        },
+        {
+          "name": "Revoke device",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/auth/devices/{{deviceId}}"
           }
         },
         {
@@ -710,6 +744,15 @@
             "header": [{ "key": "Authorization", "value": "Bearer {{recToken}}" }],
             "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}"
           }
+        },
+        {
+          "name": "Token live stream (SSE)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/scheduling/tokens/{{tokenId}}/stream"
+          },
+          "description": "text/event-stream. Emits `snapshot` then `update` events on queue/consultation topics; heartbeat every 20s. Postman shows raw SSE chunks."
         },
         {
           "name": "Call next",
@@ -1242,14 +1285,64 @@
           }
         },
         {
+          "name": "Register push token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.data && j.data.registered) console.log('push registered, active tokens:', j.data.activeTokens);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/comms/push/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"ExponentPushToken[demo0000000000000000000000000000000]\",\n  \"platform\": \"android\",\n  \"deviceId\": \"{{deviceId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List my push tokens",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{patToken}}" }],
+            "url": "{{baseUrl}}/api/comms/push/tokens"
+          }
+        },
+        {
+          "name": "Delete push token",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{pushTokenId}}" }],
+            "url": "{{baseUrl}}/api/comms/push/tokens/{{pushTokenId}}"
+          }
+        },
+        {
           "name": "Test send (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('accepted', () => pm.expect(pm.response.code).to.be.below(500));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Authorization", "value": "Bearer {{admToken}}" }, { "key": "Content-Type", "value": "application/json" }],
             "url": "{{baseUrl}}/api/comms/test-send",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"channel\": \"EMAIL\",\n  \"subject\": \"Postman smoke\",\n  \"body\": \"If configured, this arrived via Gmail SMTP.\"\n}"
+              "raw": "{\n  \"channel\": \"WHATSAPP\",\n  \"subject\": \"Postman smoke\",\n  \"body\": \"Channel test from the Postman collection.\"\n}",
+              "description": "channel can be INAPP | EMAIL | SMS | WHATSAPP | PUSH. WHATSAPP/PUSH need the matching provider config; deliveries[] records per-channel status either way."
             }
           }
         }
