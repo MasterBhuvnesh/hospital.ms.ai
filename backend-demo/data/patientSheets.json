@@ -1,0 +1,101 @@
+[
+  {
+    "id": "2339164c-5846-4b93-a731-2b54b652d812",
+    "consultationId": "cbd548a3-2f75-4655-a91f-fa11f2fa0a50",
+    "tokenVersion": 1,
+    "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "doctorId": "5cc57fe4-a096-4d42-bcda-cd71602e746c",
+    "sheet": {
+      "generatedAt": "2026-08-23T06:35:17.366Z",
+      "source": "deterministic",
+      "patient": {
+        "id": "398067dd-0003-4c11-988f-400403bc6e17",
+        "fullName": "Priya Sharma",
+        "dob": "1994-03-18",
+        "gender": "FEMALE",
+        "bloodGroup": "O+",
+        "phone": "+919810000001"
+      },
+      "alerts": [
+        {
+          "severity": "SEVERE",
+          "substance": "Penicillin",
+          "reaction": "Urticaria and angioedema"
+        }
+      ],
+      "allergies": [
+        {
+          "id": "cc232b13-fa06-4491-8631-1c8df494a182",
+          "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+          "substance": "Penicillin",
+          "severity": "SEVERE",
+          "reaction": "Urticaria and angioedema",
+          "createdAt": "2026-08-22T18:50:38.889Z"
+        }
+      ],
+      "conditions": [
+        {
+          "id": "d5cf4a36-280b-4cce-a019-0d52d09053d6",
+          "patientId": "398067dd-0003-4c11-988f-400403bc6e17",
+          "name": "Type 2 Diabetes Mellitus",
+          "since": "2019",
+          "notes": "On oral hypoglycemics",
+          "active": true,
+          "createdAt": "2026-08-22T18:50:38.889Z"
+        }
+      ],
+      "medications": [],
+      "recentVisits": [
+        {
+          "consultationId": "6f08664e-078d-40d2-bf0f-a9dbfad9caed",
+          "date": "2026-08-17",
+          "doctorName": "Dr. Rahul Mehta",
+          "completedAt": "2026-08-17T08:45:00.000Z"
+        },
+        {
+          "consultationId": "dd44f4d9-f304-44f8-99fc-23ff58976418",
+          "date": "2026-08-14",
+          "doctorName": "Dr. Asha Rao",
+          "completedAt": "2026-08-14T09:15:00.000Z"
+        },
+        {
+          "consultationId": "003f4718-873f-4e1d-be9a-d7ce82df208d",
+          "date": "2026-08-06",
+          "doctorName": "Dr. Rahul Mehta",
+          "completedAt": "2026-08-06T07:15:00.000Z"
+        }
+      ],
+      "recentLabs": [
+        {
+          "id": "1ef1bd05-aaa9-44c6-b2f2-3217ff35d583",
+          "releasedAt": "2026-09-08T04:30:00.000Z",
+          "priority": "ROUTINE",
+          "tests": [
+            {
+              "code": "CBC",
+              "name": "Complete Blood Count"
+            }
+          ],
+          "resultsCount": 1
+        }
+      ],
+      "recentPrescriptions": [
+        {
+          "id": "2b0760e7-21c3-41e4-a932-9c1f52fa79c9",
+          "signedAt": "2026-08-14T08:30:00.000Z",
+          "doctorName": "Dr. Asha Rao",
+          "itemCount": 1,
+          "pdfUrl": null
+        },
+        {
+          "id": "22db1a30-2477-4594-950f-ff17e3218a34",
+          "signedAt": "2026-08-06T06:30:00.000Z",
+          "doctorName": "Dr. Rahul Mehta",
+          "itemCount": 1,
+          "pdfUrl": null
+        }
+      ]
+    },
+    "createdAt": "2026-08-23T06:35:17.366Z"
+  }
+]

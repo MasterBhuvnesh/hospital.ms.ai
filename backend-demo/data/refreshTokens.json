@@ -58,5 +58,35 @@
     "revokedAt": null,
     "replacedByHash": null,
     "createdAt": "2026-08-22T18:56:03.590Z"
+  },
+  {
+    "id": "9c24007f-679b-40e9-a152-e41cc9b6a260",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "familyId": "38882822-7894-4256-be45-e9b8b94ad21b",
+    "tokenHash": "8c353578a066f6d1bfcbaaf3316f258ec27729f54e883c0d48593c52375b87f1",
+    "expiresAt": "2026-09-22T06:35:15.432Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-23T06:35:15.432Z"
+  },
+  {
+    "id": "42b1bfac-e71f-423b-b7bf-567d99218a56",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "familyId": "9fcbd2f0-ba2b-4724-b2e0-cc129ee26565",
+    "tokenHash": "8edebafee494188661eade9818368ca6d21389db77181f56841a1ea7849d80f5",
+    "expiresAt": "2026-09-22T06:35:51.082Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-23T06:35:51.082Z"
+  },
+  {
+    "id": "c326d9f5-720f-4748-92fa-f75754c8064a",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "familyId": "92697672-ac1e-4774-a52e-95ee8c4ffec3",
+    "tokenHash": "520144b0290a1ce70a460a32e48f92c2f066e6531822abaa6745ee5d988bd807",
+    "expiresAt": "2026-09-22T10:46:39.546Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-23T10:46:39.556Z"
   }
 ]

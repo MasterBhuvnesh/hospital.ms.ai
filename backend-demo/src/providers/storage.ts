@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { cfg, has } from '../config.js'
 import { serviceUnavailable } from '../lib/errors.js'
@@ -44,4 +44,9 @@ export async function presignGet(key: string, expiresInSeconds = 300): Promise<s
     new GetObjectCommand({ Bucket: cfg.s3.bucket, Key: key }),
     { expiresIn: expiresInSeconds },
   )
+}
+
+export async function deleteObject(key: string): Promise<void> {
+  const c = getClient()
+  await c.send(new DeleteObjectCommand({ Bucket: cfg.s3.bucket, Key: key }))
 }

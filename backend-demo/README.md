@@ -118,7 +118,7 @@ Either way, failed deliveries never break flows: every attempt is recorded per-c
 - Deterministic sheet: `GET /clinical/patients/:id/sheet` (+ every PHI read audited, break-glass notifies patient)
 - Prescriptions: draft `POST /clinical/consultations/:cid/prescriptions` → `POST /clinical/prescriptions/:id/sign` (SHA-256 content hash + PDF → S3 + immutable) → `GET /clinical/prescriptions/:id`, `GET /clinical/patients/:id/prescriptions`
 - Labs: order `POST /clinical/consultations/:cid/lab-orders` → collect → results → **release gate** (`ORDERED→COLLECTED→ENTERED→RELEASED`; patients see released only): `POST /clinical/lab-orders/:id/collect|results|release`, `GET /clinical/lab-orders/:id`, `GET /clinical/patients/:id/lab-orders`
-- Documents: `POST /clinical/documents` (base64 ≤10MB → private S3 key + presigned URL) · `GET /clinical/documents/:id` · `GET /clinical/patients/:id/documents`
+- Documents: `POST /clinical/documents` (base64 ≤10MB → private S3 key + presigned URL) · `GET /clinical/documents/:id` (fresh presign) · `GET /clinical/patients/:id/documents` · **`DELETE /api/clinical/documents/:id`** (removes row + S3 object, audited as `phi.document_deleted`)
 - Consents: `POST /clinical/consents` · `DELETE /clinical/consents/:id` · `GET /clinical/consents/mine` · `GET /clinical/audit/mine`
 
 **commerce.routes.ts**

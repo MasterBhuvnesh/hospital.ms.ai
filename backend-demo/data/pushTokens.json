@@ -1,0 +1,10 @@
+[
+  {
+    "id": "402f13c6-4a41-498a-9f7a-85d12fa89ade",
+    "createdAt": "2026-08-23T06:35:52.374Z",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
+    "platform": "android",
+    "deviceId": "test-device-abc123"
+  }
+]

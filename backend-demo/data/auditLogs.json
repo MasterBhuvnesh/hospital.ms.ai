@@ -352,5 +352,91 @@
     "ip": "127.0.0.1",
     "correlationId": "cid_cnak7sl0fr",
     "createdAt": "2026-08-22T18:56:03.590Z"
+  },
+  {
+    "id": "b032a21c-f3fc-4050-8590-25ef7dc20df5",
+    "timestamp": "2026-08-23T06:35:15.432Z",
+    "actorId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "action": "auth.login",
+    "resource": "user",
+    "resourceId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "ip": "127.0.0.1",
+    "correlationId": "cid_fksbnwusoy",
+    "createdAt": "2026-08-23T06:35:15.432Z"
+  },
+  {
+    "id": "997fbfac-2d1c-4a06-92c7-e8f9c65851da",
+    "timestamp": "2026-08-23T06:35:17.367Z",
+    "actorId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "actorRole": "PATIENT",
+    "action": "scheduling.walkin_registered",
+    "resource": "token",
+    "resourceId": "8c9c73c5-3089-4101-8236-64312f2c2e0d",
+    "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+    "after": {
+      "tokenNumber": 1,
+      "patientId": "398067dd-0003-4c11-988f-400403bc6e17"
+    },
+    "ip": "127.0.0.1",
+    "correlationId": "cid_xs4r2pol61",
+    "createdAt": "2026-08-23T06:35:17.367Z"
+  },
+  {
+    "id": "e63d2207-4cb1-44de-a609-13221bc3c6c7",
+    "timestamp": "2026-08-23T06:35:51.082Z",
+    "actorId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "action": "auth.login",
+    "resource": "user",
+    "resourceId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "ip": "127.0.0.1",
+    "correlationId": "cid_aye2s4ayvi",
+    "createdAt": "2026-08-23T06:35:51.082Z"
+  },
+  {
+    "id": "83e2c009-0285-4501-9d9e-8fd8aadd527b",
+    "timestamp": "2026-08-23T10:46:39.556Z",
+    "actorId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "action": "auth.login",
+    "resource": "user",
+    "resourceId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "ip": "127.0.0.1",
+    "correlationId": "cid_6agb4iu7wa",
+    "createdAt": "2026-08-23T10:46:39.557Z"
+  },
+  {
+    "id": "49c9b6fb-3dbd-4c0f-a6e5-e6271e1024bc",
+    "timestamp": "2026-08-23T10:46:41.261Z",
+    "actorId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "actorRole": "PATIENT",
+    "action": "phi.accessed",
+    "resource": "patient_record",
+    "resourceId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "ip": "127.0.0.1",
+    "correlationId": "cid_o1995teuxz",
+    "createdAt": "2026-08-23T10:46:41.261Z"
+  },
+  {
+    "id": "6ccfd3fd-9093-49b2-9bc7-191c848ba85f",
+    "timestamp": "2026-08-23T10:46:42.017Z",
+    "actorId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "actorRole": "PATIENT",
+    "action": "phi.document_deleted",
+    "resource": "document",
+    "resourceId": "4dabfcd0-deb7-4cde-adac-914daa73deb2",
+    "ip": "127.0.0.1",
+    "correlationId": "cid_0f3384dbbi",
+    "createdAt": "2026-08-23T10:46:42.017Z"
+  },
+  {
+    "id": "df0bc02e-daa7-4896-8b2a-1b1d916db323",
+    "timestamp": "2026-08-23T10:46:42.017Z",
+    "actorId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "actorRole": "PATIENT",
+    "action": "phi.accessed",
+    "resource": "patient_record",
+    "resourceId": "398067dd-0003-4c11-988f-400403bc6e17",
+    "ip": "127.0.0.1",
+    "correlationId": "cid_0f3384dbbi",
+    "createdAt": "2026-08-23T10:46:42.017Z"
   }
 ]

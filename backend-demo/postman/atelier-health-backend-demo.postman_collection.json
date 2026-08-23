@@ -1065,6 +1065,43 @@
           }
         },
         {
+          "name": "List my documents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "console.log('documents:', j.data.total);",
+                  "if (j.data.items.length) pm.collectionVariables.set('documentId', j.data.items[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/patients/{{patientId}}/documents"
+          }
+        },
+        {
+          "name": "Delete document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('deleted', () => pm.expect(pm.response.code).to.eql(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{docToken}}" }],
+            "url": "{{baseUrl}}/api/clinical/documents/{{documentId}}"
+          },
+          "description": "Removes the store row, deletes the S3 object, writes a phi.document_deleted audit entry. Requires SELF / consultation / consent / break-glass access."
+        },
+        {
           "name": "Get document (presigned URL)",
           "request": {
             "method": "GET",

@@ -158,6 +158,18 @@ export type DeviceRow = {
   lastSeenAt: string;
 };
 
+export type PatientDocument = {
+  id: string;
+  patientId: string;
+  uploadedBy: string;
+  label: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  publicUrl: string | null;
+  createdAt: string;
+};
+
 type Envelope<T> = { status: string; code: string; data: T; error?: { code: string; message: string } };
 
 export class ApiError extends Error {
@@ -400,7 +412,15 @@ export const api = {
       );
     },
     async documents(patientId: string) {
-      return request<{ items: any[] }>(`/api/clinical/patients/${patientId}/documents`).then((r) => r.items);
+      return request<{ items: PatientDocument[] }>(`/api/clinical/patients/${patientId}/documents`).then(
+        (r) => r.items,
+      );
+    },
+    async document(id: string): Promise<PatientDocument & { downloadUrl: string | null }> {
+      return request(`/api/clinical/documents/${id}`);
+    },
+    async deleteDocument(id: string) {
+      return request<null>(`/api/clinical/documents/${id}`, { method: "DELETE" });
     },
   },
 

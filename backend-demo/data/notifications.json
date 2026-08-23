@@ -83,5 +83,58 @@
         "at": "2026-08-22T18:50:38.910Z"
       }
     ]
+  },
+  {
+    "id": "3b3577d1-a73c-4d3f-9e32-741564e9c7f9",
+    "createdAt": "2026-08-23T06:35:17.366Z",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "category": "QUEUE",
+    "subject": "Token #1",
+    "body": "Token 1 for Dr. Imran Khan. Approx wait 10 min.",
+    "link": "/queue/8c9c73c5-3089-4101-8236-64312f2c2e0d",
+    "meta": {
+      "tokenId": "8c9c73c5-3089-4101-8236-64312f2c2e0d"
+    },
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-23T06:35:17.367Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "SMS",
+        "at": "2026-08-23T06:35:17.830Z",
+        "status": "FAILED",
+        "provider": "twilio",
+        "error": "No Twilio trial phone number is assigned for messaging to this destination number. Please add the 'to' number as a verified recipient."
+      }
+    ]
+  },
+  {
+    "id": "600a138c-749f-4ab9-b4fe-33b2e25251f0",
+    "createdAt": "2026-08-23T06:35:17.367Z",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "category": "QUEUE",
+    "subject": "Almost your turn",
+    "body": "You are 1 away. Please head to Dr. Imran Khan's area.",
+    "link": "/queue/8c9c73c5-3089-4101-8236-64312f2c2e0d",
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-23T06:35:17.379Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "SMS",
+        "at": "2026-08-23T06:35:17.833Z",
+        "status": "FAILED",
+        "provider": "twilio",
+        "error": "No Twilio trial phone number is assigned for messaging to this destination number. Please add the 'to' number as a verified recipient."
+      }
+    ]
   }
 ]

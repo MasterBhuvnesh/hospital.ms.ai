@@ -1,0 +1,11 @@
+[
+  {
+    "id": "e7392e27-48d9-463f-8ecc-1e71657d6864",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "deviceId": "test-device-abc123",
+    "name": "Pixel Test",
+    "platform": "android",
+    "lastSeenAt": "2026-08-23T06:35:51.737Z",
+    "createdAt": "2026-08-23T06:35:51.737Z"
+  }
+]

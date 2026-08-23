@@ -26,7 +26,7 @@ response and shown inline.
 | Booking | Hospital → doctor → live availability slots → confirm, idempotency key on submit |
 | Visits | Upcoming/history, mint queue token, reschedule against live availability, cancel |
 | Live queue | SSE realtime stream with automatic **5s polling fallback**, position + ETA, near-turn banner, status stepper incl. skipped |
-| Records | Allergies / conditions / medications, released lab results, document upload to S3 |
+| Records | Allergies / conditions / medications, released lab results, **documents viewer** (open/share/delete S3 files), document upload to S3 |
 | Prescriptions | List signed Rx, open PDF, save to device, share |
 | Payments | Invoices, line-item detail, invoice PDF, demo checkout (mock capture) |
 | Copilot | AI chat over own records + DPDP memory erase |

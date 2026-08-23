@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import { router, Stack } from "expo-router";
-import { ChevronRight, Upload, ShieldAlert, Activity, Pill } from "lucide-react-native";
+import { ChevronRight, Upload, ShieldAlert, Activity, Pill, FolderOpen } from "lucide-react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { Screen, Card } from "@/components/ui";
 import { useAlert } from "@/components/CustomAlert";
@@ -16,6 +16,7 @@ export default function Records() {
   const [medications, setMedications] = useState<any[]>([]);
   const [labs, setLabs] = useState<any[]>([]);
   const [rxCount, setRxCount] = useState(0);
+  const [docCount, setDocCount] = useState(0);
   
   const [refreshing, setRefreshing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -34,18 +35,20 @@ export default function Records() {
         });
       }
       setPatientId(me.id);
-      const [a, c, m, l, rx] = await Promise.all([
+      const [a, c, m, l, rx, docs] = await Promise.all([
         api.clinical.allergies(me.id),
         api.clinical.conditions(me.id),
         api.clinical.medications(me.id),
         api.clinical.labOrders(me.id),
         api.clinical.prescriptions(me.id),
+        api.clinical.documents(me.id),
       ]);
       setAllergies(a);
       setConditions(c.filter((x: any) => x.active));
       setMedications(m.filter((x: any) => x.active));
-      setLabs(l.filter((x: any) => x.status === "RELEASED"));
-      setRxCount(rx.length);
+    setLabs(l.filter((x: any) => x.status === "RELEASED"));
+    setRxCount(rx.length);
+    setDocCount(docs.length);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load records");
     }
@@ -110,6 +113,13 @@ export default function Records() {
             >
               <Pill size={16} color="#208AEF" />
               <Text className="text-xs font-bold text-zinc-700">Rx ({rxCount})</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.push("/documents")}
+              className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white py-3"
+            >
+              <FolderOpen size={16} color="#208AEF" />
+              <Text className="text-xs font-bold text-zinc-700">Files ({docCount})</Text>
             </TouchableOpacity>
           </View>
 

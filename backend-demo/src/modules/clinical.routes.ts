@@ -720,6 +720,30 @@ export function clinicalRoutes(app: FastifyInstance) {
     return reply.code(201).send({ status: 'ok', code: 'CREATED', data: { ...doc, downloadUrl } })
   })
 
+  app.delete('/api/clinical/documents/:id', { preHandler: requireAuth }, async (req) => {
+    const doc = store.byId<any>('documents', (req.params as any).id)
+    if (!doc) throw notFound('Document not found')
+    const mode = assertRecordAccess(app, req as any, doc.patientId)
+    try {
+      const { deleteObject } = await import('../providers/storage.js')
+      if (doc.s3Key && has.s3) await deleteObject(doc.s3Key)
+    } catch (e: any) {
+      console.error('[documents] s3 delete failed (row still removed):', e?.message)
+    }
+    store.remove('documents', (d) => d.id === doc.id)
+    audit(store, bus, {
+      actorId: req.user!.sub,
+      actorRole: req.user!.roles[0],
+      action: 'phi.document_deleted',
+      resource: 'document',
+      resourceId: doc.id,
+      ip: req.ip,
+      correlationId: req.correlationId,
+    })
+    recordPhiAccess(app, req as any, store.byId('patients', doc.patientId), mode, 'document.delete')
+    return { status: 'ok', code: 'NO_CONTENT' }
+  })
+
   app.get('/api/clinical/documents/:id', { preHandler: requireAuth }, async (req) => {
     const doc = store.byId<any>('documents', (req.params as any).id)
     if (!doc) throw notFound('Document not found')
