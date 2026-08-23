@@ -309,14 +309,32 @@ export function schedulingRoutes(app: FastifyInstance) {
     priority: z.enum(['EMERGENCY', 'SENIOR_CITIZEN', 'WOMAN_CHILD', 'NORMAL']).default('NORMAL'),
   })
 
-  app.post('/api/scheduling/walkins', { preHandler: requireRole('RECEPTIONIST', 'HOSPITAL_ADMIN', 'NURSE') }, async (req, reply) => {
+  app.post('/api/scheduling/walkins', { preHandler: requireAuth }, async (req, reply) => {
     const body = parseBody(walkinSchema, req.body)
+    const roles: string[] = req.user!.roles
+    const isPatientOnly = roles.includes('PATIENT') && !roles.some((r) => r !== 'PATIENT')
+
     const doctor = store.byId<any>('doctors', body.doctorId)
     if (!doctor || !doctor.isActive) throw notFound('Doctor not found or inactive')
     const hospital = store.byId<any>('hospitals', doctor.hospitalIds[0])
 
     let patient: any
-    if (body.patientId) {
+    if (isPatientOnly) {
+      patient = findPatientByUser(store, req.user!.sub)
+      if (!patient) {
+        const user = store.byId<any>('users', req.user!.sub)
+        patient = store.insert('patients', {
+          id: uuid(),
+          userId: req.user!.sub,
+          fullName: user?.fullName ?? 'Patient',
+          phone: user?.phone ?? null,
+          email: user?.email ?? null,
+          dob: null,
+          gender: null,
+        })
+      }
+      body.priority = 'NORMAL'
+    } else if (body.patientId) {
       patient = store.byId<any>('patients', body.patientId)
       if (!patient) throw notFound('Patient not found')
     } else if (body.phone) {
@@ -348,7 +366,7 @@ export function schedulingRoutes(app: FastifyInstance) {
       hospital,
       doctor,
       patient,
-      priority: body.priority,
+      priority: isPatientOnly ? 'NORMAL' : body.priority,
     })
 
     audit(store, bus, {
@@ -438,6 +456,52 @@ export function schedulingRoutes(app: FastifyInstance) {
       code: 'OK',
       data: { ...t, position, etaMinutes: position ? position * 10 : 0 },
     }
+  })
+
+  app.get('/api/scheduling/tokens/:id/stream', { preHandler: requireAuth }, async (req, reply) => {
+    const t = getTokenOr404((req.params as any).id)
+    const isStaff = req.user!.roles.some((r) => r !== 'PATIENT')
+    if (!isStaff) {
+      const p = findPatientByUser(store, req.user!.sub)
+      if (t.patientId !== p?.id) throw notFound('Token not found')
+    }
+
+    reply.raw.writeHead(200, {
+      'content-type': 'text/event-stream',
+      'cache-control': 'no-cache',
+      connection: 'keep-alive',
+    })
+    const send = (payload: string) => {
+      try {
+        reply.raw.write(payload)
+      } catch {}
+    }
+    send(`retry: 3000\n\n`)
+    send(`event: snapshot\ndata: ${JSON.stringify({ tokenId: t.id, status: t.status })}\n\n`)
+
+    const topics = [
+      TOPICS.queueTokenUpdated,
+      TOPICS.queueTokenSkipped,
+      TOPICS.queueTokenRecalled,
+      TOPICS.queuePatientNearTurn,
+      TOPICS.consultationStarted,
+      TOPICS.consultationCompleted,
+    ]
+    const listener = (env: any) => {
+      if ((env.payload?.tokenId ?? env.payload?.tokenId) !== t.id && env.payload?.tokenId !== t.id) return
+      send(`event: update\ndata: ${JSON.stringify({ topic: env.topic, tokenId: t.id, at: env.occurredAt })}\n\n`)
+    }
+    for (const topic of topics) bus.on(topic, listener)
+    const heartbeat = setInterval(() => send(`: hb\n\n`), 20000)
+
+    req.raw.on('close', () => {
+      clearInterval(heartbeat)
+      for (const topic of topics) bus.off(topic, listener)
+      try {
+        reply.raw.end()
+      } catch {}
+    })
+    return reply
   })
 
   function getTokenOr404(id: string) {

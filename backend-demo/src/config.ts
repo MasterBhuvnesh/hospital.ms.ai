@@ -46,6 +46,8 @@ export const cfg = {
     smsFrom: process.env.TWILIO_SMS_FROM ?? '',
     whatsappFrom: process.env.TWILIO_WHATSAPP_FROM ?? '',
   },
+
+  minSupportedVersion: process.env.MIN_SUPPORTED_VERSION ?? '',
 }
 
 export const has = {

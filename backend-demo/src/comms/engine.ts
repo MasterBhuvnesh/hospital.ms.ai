@@ -2,8 +2,9 @@ import type { FastifyInstance } from 'fastify'
 import { TOPICS } from '../lib/events.js'
 import { sendSms, sendWhatsApp } from '../providers/sms.js'
 import { sendEmail } from '../providers/email.js'
+import { sendExpoPush } from '../providers/push.js'
 
-export type Channel = 'INAPP' | 'EMAIL' | 'SMS' | 'WHATSAPP'
+export type Channel = 'INAPP' | 'EMAIL' | 'SMS' | 'WHATSAPP' | 'PUSH'
 export type Category =
   | 'SECURITY'
   | 'APPOINTMENT'
@@ -15,10 +16,10 @@ export type Category =
 
 export const DEFAULT_MATRIX: Record<Category, Channel[]> = {
   SECURITY: ['INAPP', 'SMS'],
-  APPOINTMENT: ['INAPP', 'EMAIL'],
-  QUEUE: ['INAPP', 'SMS'],
-  BILLING: ['INAPP', 'EMAIL'],
-  DOCUMENT: ['INAPP', 'EMAIL'],
+  APPOINTMENT: ['INAPP', 'PUSH', 'EMAIL'],
+  QUEUE: ['INAPP', 'PUSH', 'SMS'],
+  BILLING: ['INAPP', 'PUSH', 'EMAIL'],
+  DOCUMENT: ['INAPP', 'PUSH', 'EMAIL'],
   ALERT: ['INAPP', 'EMAIL'],
   SYSTEM: ['INAPP'],
 }
@@ -46,7 +47,13 @@ type NotificationRow = {
   deliveries: { channel: Channel; status: string; provider?: string; error?: string; at: string }[]
 }
 
-async function dispatch(app: FastifyInstance, user: any, channel: Channel, subject: string, body: string) {
+async function dispatch(
+  app: FastifyInstance,
+  user: any,
+  channel: Channel,
+  input: NotifyInput,
+) {
+  const { subject, body } = input
   switch (channel) {
     case 'INAPP':
       return { status: 'DELIVERED', provider: 'inapp' }
@@ -70,7 +77,41 @@ async function dispatch(app: FastifyInstance, user: any, channel: Channel, subje
       const r = await sendWhatsApp(user.phone, `${subject}\n${body}`)
       return r.ok ? { status: 'SENT', provider: r.provider } : { status: 'FAILED', provider: r.provider, error: r.error }
     }
+    case 'PUSH': {
+      const rows = app.store.filter<any>('pushTokens', (t) => t.userId === user.id)
+      if (rows.length === 0) return { status: 'SKIPPED_NO_TOKEN', provider: 'expo-push' }
+      const link = input.link ?? input.meta?.link ?? undefined
+      const r = await sendExpoPush(
+        rows.map((t) => t.token as string),
+        subject,
+        body,
+        link ? { link } : undefined,
+      )
+      return r.ok
+        ? { status: 'SENT', provider: r.provider, id: `${r.delivered}/${rows.length}` }
+        : { status: 'FAILED', provider: r.provider, error: r.error }
+    }
   }
+}
+
+async function resolveChannels(app: FastifyInstance, input: NotifyInput): Promise<Channel[]> {
+  let channels: Channel[] =
+    input.channels ?? store_findPrefs(app, input.userId)?.categories?.[input.category] ?? [...DEFAULT_MATRIX[input.category]]
+  channels = [...channels]
+  if (channels.includes('PUSH')) {
+    const tokens = app.store.filter<any>('pushTokens', (t) => t.userId === input.userId)
+    if (tokens.length > 0) {
+      channels = channels.filter((c) => c !== 'SMS')
+    } else {
+      channels = channels.filter((c) => c !== 'PUSH')
+      if (!channels.includes('SMS')) channels.push('SMS')
+    }
+  }
+  return channels
+}
+
+function store_findPrefs(app: FastifyInstance, userId: string) {
+  return app.store.find<any>('notificationPrefs', (p) => p.userId === userId)
 }
 
 export async function notifyUser(app: FastifyInstance, input: NotifyInput) {
@@ -78,9 +119,7 @@ export async function notifyUser(app: FastifyInstance, input: NotifyInput) {
   const user = store.byId<any>('users', input.userId)
   if (!user) return null
 
-  const pref = store.find<any>('notificationPrefs', (p) => p.userId === input.userId)
-  const resolvedChannels: Channel[] =
-    input.channels ?? pref?.categories?.[input.category] ?? [...DEFAULT_MATRIX[input.category]]
+  const resolvedChannels = await resolveChannels(app, input)
 
   const row: NotificationRow = {
     id: crypto.randomUUID(),
@@ -97,7 +136,7 @@ export async function notifyUser(app: FastifyInstance, input: NotifyInput) {
   store.insert('notifications', row)
 
   for (const ch of resolvedChannels) {
-    const result = await dispatch(app, user, ch, input.subject, input.body)
+    const result = await dispatch(app, user, ch, input)
     row.deliveries.push({ channel: ch, at: new Date().toISOString(), ...result })
   }
   store.save('notifications')

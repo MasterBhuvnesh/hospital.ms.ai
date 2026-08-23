@@ -15,7 +15,7 @@ import { aiRoutes } from './modules/ai.routes.js'
 import { adminRoutes } from './modules/admin.routes.js'
 import { registerCommsConsumers } from './comms/engine.js'
 import { memoryStatus } from './vector/memories.js'
-import { has } from './config.js'
+import { has, cfg } from './config.js'
 
 export async function buildApp(opts: { store: Store }) {
   const app = Fastify({ logger: false })
@@ -49,6 +49,15 @@ export async function buildApp(opts: { store: Store }) {
       },
     }
   })
+
+  app.get('/api/config/app', async () => ({
+    status: 'ok',
+    code: 'OK',
+    data: {
+      minSupportedVersion: cfg.minSupportedVersion || null,
+      storeUrl: null,
+    },
+  }))
 
   identityRoutes(app)
   directoryRoutes(app)

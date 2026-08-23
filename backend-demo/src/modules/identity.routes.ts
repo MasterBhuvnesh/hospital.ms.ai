@@ -330,6 +330,60 @@ export function identityRoutes(app: FastifyInstance) {
     return { status: 'ok', code: 'OK', data: { verified: true } }
   })
 
+  app.put('/api/auth/devices', { preHandler: requireAuth }, async (req) => {
+    const body = z
+      .object({
+        deviceId: z.string().min(6).max(64),
+        name: z.string().max(80).optional(),
+        platform: z.enum(['ios', 'android', 'web']).optional(),
+      })
+      .parse(req.body)
+    const existing = store.find<any>(
+      'devices',
+      (d) => d.userId === req.user!.sub && d.deviceId === body.deviceId,
+    )
+    const now = nowIso()
+    if (existing) {
+      store.patch('devices', existing.id, {
+        name: body.name ?? existing.name,
+        platform: body.platform ?? existing.platform,
+        lastSeenAt: now,
+      })
+      return { status: 'ok', code: 'OK', data: store.byId('devices', existing.id) }
+    }
+    const row = store.insert('devices', {
+      id: uuid(),
+      userId: req.user!.sub,
+      deviceId: body.deviceId,
+      name: body.name ?? null,
+      platform: body.platform ?? null,
+      lastSeenAt: now,
+    })
+    return { status: 'ok', code: 'CREATED', data: row }
+  })
+
+  app.get('/api/auth/devices', { preHandler: requireAuth }, async (req) => {
+    const items = store
+      .filter<any>('devices', (d) => d.userId === req.user!.sub)
+      .sort((a, b) => (b.lastSeenAt ?? '').localeCompare(a.lastSeenAt ?? ''))
+    return { status: 'ok', code: 'OK', data: { items } }
+  })
+
+  app.delete('/api/auth/devices/:deviceId', { preHandler: requireAuth }, async (req) => {
+    const deviceId = (req.params as any).deviceId
+    const removed = store.remove<any>('devices', (d) => d.userId === req.user!.sub && d.deviceId === deviceId)
+    if (!removed) throw notFound('Device not found')
+    audit(store, bus, {
+      actorId: req.user!.sub,
+      action: 'auth.device_revoked',
+      resource: 'device',
+      resourceId: deviceId,
+      ip: req.ip,
+      correlationId: req.correlationId,
+    })
+    return { status: 'ok', code: 'NO_CONTENT' }
+  })
+
   app.get('/api/admin/users', { preHandler: requireRole('HOSPITAL_ADMIN', 'PLATFORM_ADMIN') }, async (req) => {
     const q = String((req.query as any)?.q ?? '').toLowerCase()
     const limit = Math.min(Number((req.query as any)?.limit ?? 50), 200)

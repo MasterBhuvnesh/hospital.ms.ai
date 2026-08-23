@@ -83,10 +83,57 @@ export function commsRoutes(app: FastifyInstance) {
     return { status: 'ok', code: 'OK', data: row.categories }
   })
 
+  app.post('/api/comms/push/register', { preHandler: requireAuth }, async (req, reply) => {
+    const r = z
+      .object({
+        token: z.string().min(10),
+        platform: z.enum(['ios', 'android', 'web']).optional(),
+        deviceId: z.string().optional(),
+      })
+      .safeParse(req.body)
+    if (!r.success) throw validationError(r.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })))
+    const { token, platform, deviceId } = r.data
+
+    const existing = store.find<any>('pushTokens', (t) => t.userId === req.user!.sub && t.token === token)
+    if (existing) {
+      store.patch('pushTokens', existing.id, { platform: platform ?? existing.platform, deviceId: deviceId ?? existing.deviceId })
+      return { status: 'ok', code: 'OK', data: { registered: true, activeTokens: 1 } }
+    }
+    store.insert('pushTokens', {
+      id: uuid(),
+      createdAt: new Date().toISOString(),
+      userId: req.user!.sub,
+      token,
+      platform: platform ?? null,
+      deviceId: deviceId ?? null,
+    })
+    const mine = store.filter<any>('pushTokens', (t) => t.userId === req.user!.sub)
+    return reply.code(201).send({ status: 'ok', code: 'CREATED', data: { registered: true, activeTokens: mine.length } })
+  })
+
+  app.get('/api/comms/push/tokens', { preHandler: requireAuth }, async (req) => {
+    const items = store.filter<any>('pushTokens', (t) => t.userId === req.user!.sub)
+    return {
+      status: 'ok',
+      code: 'OK',
+      data: {
+        items: items.map((t) => ({ id: t.id, platform: t.platform, deviceId: t.deviceId, createdAt: t.createdAt })),
+        total: items.length,
+      },
+    }
+  })
+
+  app.delete('/api/comms/push/tokens/:id', { preHandler: requireAuth }, async (req) => {
+    const id = (req.params as any).id
+    const removed = store.remove<any>('pushTokens', (t) => t.id === id && t.userId === req.user!.sub)
+    if (!removed) throw notFound('Push token not found')
+    return { status: 'ok', code: 'NO_CONTENT' }
+  })
+
   app.post('/api/comms/test-send', { preHandler: requireRole('HOSPITAL_ADMIN', 'PLATFORM_ADMIN') }, async (req) => {
     const r = z
       .object({
-        channel: z.enum(['INAPP', 'EMAIL', 'SMS', 'WHATSAPP']),
+        channel: z.enum(['INAPP', 'EMAIL', 'SMS', 'WHATSAPP', 'PUSH']),
         subject: z.string().min(1),
         body: z.string().min(1),
       })

@@ -169,6 +169,12 @@ export function clinicalRoutes(app: FastifyInstance) {
         dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
         gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
         bloodGroup: z.string().max(5).optional(),
+        photoUrl: z.string().url().optional(),
+        emergencyContact: z
+          .object({ name: z.string(), phone: z.string() })
+          .partial({ name: true, phone: true })
+          .optional(),
+        insurance: z.object({ provider: z.string(), number: z.string() }).optional(),
       }),
       req.body,
     )
@@ -234,6 +240,13 @@ export function clinicalRoutes(app: FastifyInstance) {
         dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
         gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
         bloodGroup: z.string().max(5).optional(),
+        photoUrl: z.string().url().nullable().optional(),
+        emergencyContact: z
+          .object({ name: z.string(), phone: z.string() })
+          .partial({ name: true, phone: true })
+          .nullable()
+          .optional(),
+        insurance: z.object({ provider: z.string(), number: z.string() }).nullable().optional(),
       }),
       req.body,
     )
