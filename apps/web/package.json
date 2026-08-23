@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@radix-ui/react-scroll-area": "^1.2.18",
     "clsx": "^2.1.1",
     "lucide-react": "^1.33.0",
     "next": "^15.1.6",

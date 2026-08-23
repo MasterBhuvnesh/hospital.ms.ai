@@ -11,7 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <TopBar />
         <div className="mx-auto flex w-full max-w-7xl flex-1">
           <aside className="hidden w-56 flex-none border-r border-border bg-background md:block">
-            <div className="sticky top-14 p-4">
+            <div className="sticky top-14 max-h-[calc(100vh-4rem)] overflow-y-auto p-4">
               <p className="mb-2 px-3 text-label font-[450] uppercase tracking-[0.05em] text-subtle">
                 Administration
               </p>

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Modal({
   open,
@@ -51,7 +52,9 @@ export default function Modal({
             <X />
           </Button>
         </div>
-        <div className="p-5">{children}</div>
+        <ScrollArea className="max-h-[70vh]">
+          <div className="p-5">{children}</div>
+        </ScrollArea>
         {footer && (
           <div className="flex items-center justify-end gap-2 border-t border-border-subtle px-5 py-4">
             {footer}

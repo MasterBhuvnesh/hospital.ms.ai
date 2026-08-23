@@ -4,6 +4,7 @@
 
 /* Semantic design tokens - docs/design/design.md section 5 */
 :root {
+  --sidebar: #ffffff;
   --background: #ffffff;
   --surface: #ffffff;
   --surface-subtle: #fafafa;
@@ -138,4 +139,37 @@
   .bg-overlay {
     background-color: rgba(24, 24, 27, 0.45);
   }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Thin scrollbars for native scrollers (sidebar, tables, chat panes).
+   webkit-only so the arrow buttons can be removed (scrollbar-width: thin would
+   make Chromium ignore these rules). height handles horizontal scrollers. */
+::-webkit-scrollbar {
+  width: 4px; /* vertical scrollbars */
+  height: 4px; /* horizontal scrollbars */
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground) 10%, transparent);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* track must match the surface it scrolls over — sidebar nav sits on --sidebar */
+aside nav::-webkit-scrollbar-track {
+  background: var(--sidebar);
 }
