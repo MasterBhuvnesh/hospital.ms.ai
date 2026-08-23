@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   CalendarPlus,
   FileText,
@@ -10,7 +11,9 @@ import {
 } from "lucide-react";
 import { api, tokenStore, type Appointment, type Token } from "@/lib/api";
 import Banner from "@/components/Banner";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PanelTitle } from "@/components/ui/panel";
 
 function initials(name: string): string {
   return (
@@ -24,6 +27,7 @@ function initials(name: string): string {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [unread, setUnread] = useState<number | null>(null);
   const [appointments, setAppointments] = useState<Appointment[] | null>(null);
@@ -73,6 +77,14 @@ export default function DashboardPage() {
 
   return (
     <>
+      <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-medium tracking-tight">Dashboard</h1>
+        <Button variant="cta" size="lg" onClick={() => router.push("/appointments")}>
+          <CalendarPlus data-icon="inline-start" aria-hidden />
+          Book appointment
+        </Button>
+      </div>
+
       <div className="mx-auto max-w-4xl">
         {error && (
           <Banner kind="warn" onDismiss={() => setError(null)}>
@@ -95,23 +107,24 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="mx-auto mb-8 mt-10 max-w-4xl">
+      <div className="mx-auto mb-8 mt-6 max-w-4xl">
         <div className="flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-full bg-surface-muted text-sm font-[450] text-muted-foreground ring-1 ring-border">
             {initials(name)}
           </div>
-          <h1 className="text-[26px] font-[500] leading-[1.2] tracking-[-0.02em] text-foreground">
+          <p className="text-[26px] font-medium leading-[1.2] tracking-[-0.02em] text-foreground">
             Welcome, {(name.split(/\s+/)[0] || "there").replace(/^\w/, (c) => c.toUpperCase())}
-          </h1>
+          </p>
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <StepCard href="/appointments" steps="3 steps" visual={<MockSlots />} body="Book a visit with the doctor of your choice and pick a slot from their live availability." />
+      <div className="mx-auto grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StepCard href="/appointments" title="Book" caption="3 steps" visual={<MockSlots />} body="Book a visit with the doctor of your choice and pick a slot from their live availability." />
 
         <StepCard
           href={liveToken ? `/visits-queue/${liveToken.id}` : "/appointments"}
-          steps="Live now"
+          title="Live queue"
+          caption={liveToken ? `Token #${liveToken.tokenNumber}` : "Live now"}
           visual={<MockQueue token={liveToken} />}
           body={
             liveToken
@@ -120,15 +133,16 @@ export default function DashboardPage() {
           }
         />
 
-        <StepCard href="/records" steps="1 step" visual={<MockDocs />} body="Upload reports and scans once. Every hospital sees them only with your permission." />
+        <StepCard href="/records" title="Records" caption="1 step" visual={<MockDocs />} body="Upload reports and scans once. Every hospital sees them only with your permission." />
 
-        <StepCard href="/payments" steps="2 steps" visual={<MockInvoice />} body="Bills appear here after your consultation - pay online in a couple of taps." />
+        <StepCard href="/payments" title="Bills" caption="2 steps" visual={<MockInvoice />} body="Bills appear here after your consultation - pay online in a couple of taps." />
 
-        <StepCard href="/prescriptions" steps="1 step" visual={<MockRx />} body="Signed prescriptions land here as tamper-evident PDFs you can save or share." />
+        <StepCard href="/prescriptions" title="Prescriptions" caption="1 step" visual={<MockRx />} body="Signed prescriptions land here as tamper-evident PDFs you can save or share." />
 
         <StepCard
           href="/copilot"
-          steps={unread && unread > 0 ? `${unread} unread` : "Optional"}
+          title="Copilot"
+          caption={unread && unread > 0 ? `${unread} unread` : "Optional"}
           visual={<MockCopilot />}
           body="Ask about your visits, medicines or lab results in plain words."
         />
@@ -139,28 +153,35 @@ export default function DashboardPage() {
 
 function StepCard({
   href,
-  steps,
+  title,
+  caption,
   visual,
   body,
 }: {
   href: string;
-  steps: string;
+  title: string;
+  caption: string;
   visual: ReactNode;
   body: string;
 }) {
   return (
     <Link
       href={href}
-      className="group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25 focus-visible:ring-offset-2"
+      className="group rounded-lg focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-offset-2"
     >
-      <Card className="rounded-lg border-border shadow-none transition-colors duration-160 ease-out group-hover:bg-surface-subtle">
-        <CardContent className="space-y-3 p-4">
-          <div className="flex h-36 items-center justify-center rounded-md bg-surface-muted p-4">
+      <Card className="gap-0 bg-muted/50 p-1 ring-0 shadow-sm transition-colors duration-160 ease-out group-hover:bg-muted/70">
+        <div className="px-3 py-2">
+          <PanelTitle title={title} />
+        </div>
+        <div className="rounded-xl bg-card p-4">
+          <div className="flex h-36 items-center justify-center rounded-md bg-muted/60 p-4">
             {visual}
           </div>
-          <p className="text-sm font-[350] leading-[1.55] text-foreground">{body}</p>
-          <p className="text-caption font-[350] text-subtle">{steps}</p>
-        </CardContent>
+          <p className="mt-3 text-sm font-[350] leading-[1.55] text-foreground">{body}</p>
+        </div>
+        <div className="px-4 py-2.5">
+          <p className="text-[11px] font-[350] text-muted-foreground">{caption}</p>
+        </div>
       </Card>
     </Link>
   );
@@ -204,7 +225,7 @@ function MockQueue({ token }: { token: Token | null }) {
     <div className="w-full max-w-[170px] rounded-lg border border-border bg-background p-3 text-center shadow-subtle">
       <div className="mb-1 flex items-center justify-center gap-1.5">
         <Radio className="size-3 animate-pulse text-success" />
-        <span className="text-[9px] font-bold tracking-wide text-success">LIVE</span>
+        <span className="text-[9px] font-semibold tracking-wide text-success">LIVE</span>
       </div>
       <p className="text-xl font-[600] tabular-nums tracking-tight text-foreground">#{num}</p>
       <p className="text-[10px] font-[350] text-muted-foreground">
@@ -238,14 +259,14 @@ function MockInvoice() {
     <div className="w-full max-w-[180px] rounded-lg border border-border bg-background p-2.5 shadow-subtle">
       <div className="mb-1.5 flex items-center justify-between">
         <ReceiptText className="size-3 text-warning" />
-        <span className="rounded-sm border border-warning-border bg-warning-background px-1 text-[8px] font-bold text-warning">
+        <span className="rounded-sm border border-warning-border bg-warning-background px-1 text-[8px] font-semibold text-warning">
           DUE
         </span>
       </div>
       <div className="h-1.5 w-20 rounded-full bg-zinc-200" />
       <div className="mt-1 flex items-center justify-between">
         <span className="text-[10px] font-[450] text-foreground">500 INR</span>
-        <span className="rounded-sm bg-primary px-1.5 py-0.5 text-[8px] font-bold text-primary-foreground">
+        <span className="rounded-sm bg-primary px-1.5 py-0.5 text-[8px] font-semibold text-primary-foreground">
           Pay
         </span>
       </div>
@@ -258,7 +279,7 @@ function MockRx() {
     <div className="w-full max-w-[180px] rounded-lg border border-border bg-background p-2.5 shadow-subtle">
       <div className="mb-1.5 flex items-center gap-1.5">
         <FileText className="size-3 text-success" />
-        <span className="rounded-sm border border-success-border bg-success-background px-1 text-[8px] font-bold text-success">
+        <span className="rounded-sm border border-success-border bg-success-background px-1 text-[8px] font-semibold text-success">
           SIGNED
         </span>
       </div>

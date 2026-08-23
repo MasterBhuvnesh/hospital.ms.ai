@@ -13,7 +13,9 @@ import { Button, buttonClassName } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge, badgeSemantic } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { PanelTitle, MoreButton } from "@/components/ui/panel";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -177,15 +179,15 @@ export default function AppointmentsPage() {
 
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Appointments</h1>
+          <h1 className="text-2xl font-medium tracking-tight">Appointments</h1>
           <p className="mt-1 text-sm font-[350] text-muted-foreground">
             Book ahead or manage what is coming up. Walk-ins mint tokens instantly.
           </p>
         </div>
-        <Button onClick={openBook}>
-          <Plus aria-hidden />
+        <Button variant="cta" size="lg" onClick={openBook}>
+          <Plus data-icon="inline-start" aria-hidden />
           Book appointment
         </Button>
       </div>
@@ -236,7 +238,13 @@ export default function AppointmentsPage() {
                             : ""}
                         </div>
                       </div>
-                      <Badge variant="outline" className={cn(a.tokenId && badgeSemantic.success)}>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          a.tokenId &&
+                            "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-400",
+                        )}
+                      >
                         {a.tokenId ? "Token issued" : a.status}
                       </Badge>
                       {a.tokenId && (
@@ -278,38 +286,46 @@ export default function AppointmentsPage() {
                 </CardContent>
               </Card>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>When</TableHead>
-                    <TableHead>Doctor</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Queue</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {history.slice(0, 30).map((a) => (
-                    <TableRow key={a.id}>
-                      <TableCell className="whitespace-nowrap">
-                        {fmtDate(a.startsAt)}, {fmtTime(a.startsAt)}
-                      </TableCell>
-                      <TableCell>{doctorName(a.doctorId)}</TableCell>
-                      <TableCell>
-                        <StatusBadge status={a.status} />
-                      </TableCell>
-                      <TableCell>
-                        {a.tokenId ? (
-                          <Link href={`/visits-queue/${a.tokenId}`} className="underline-offset-2 hover:underline">
-                            View token
-                          </Link>
-                        ) : (
-                          <span className="text-subtle">-</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <Card className="gap-0 bg-muted/50 p-1 ring-0 shadow-sm">
+                <div className="flex items-center justify-between px-3 py-2">
+                  <PanelTitle title="All appointments" />
+                  <MoreButton />
+                </div>
+                <div className="overflow-hidden rounded-xl bg-card py-2">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead>When</TableHead>
+                        <TableHead>Doctor</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Queue</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {history.slice(0, 30).map((a) => (
+                        <TableRow key={a.id}>
+                          <TableCell className="whitespace-nowrap font-mono">
+                            {fmtDate(a.startsAt)}, {fmtTime(a.startsAt)}
+                          </TableCell>
+                          <TableCell className="font-medium">{doctorName(a.doctorId)}</TableCell>
+                          <TableCell>
+                            <StatusBadge status={a.status} />
+                          </TableCell>
+                          <TableCell>
+                            {a.tokenId ? (
+                              <Link href={`/visits-queue/${a.tokenId}`} className="underline-offset-2 hover:underline">
+                                View token
+                              </Link>
+                            ) : (
+                              <span className="text-subtle">-</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </Card>
             )}
           </section>
         </>
@@ -548,20 +564,5 @@ function upcomingFilter(a: Appointment, nowMs: number) {
   return (
     (a.status === "BOOKED" || a.status === "CONFIRMED") &&
     new Date(a.startsAt).getTime() >= nowMs - 3600_000
-  );
-}
-
-function StatusBadge({ status }: { status: Appointment["status"] }) {
-  const map: Record<Appointment["status"], string> = {
-    BOOKED: badgeSemantic.info,
-    CONFIRMED: badgeSemantic.success,
-    CANCELLED: "",
-    COMPLETED: "",
-    NO_SHOW: badgeSemantic.error,
-  };
-  return (
-    <Badge variant="outline" className={map[status]}>
-      {status.replace("_", " ")}
-    </Badge>
   );
 }

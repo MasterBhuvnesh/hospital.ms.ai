@@ -20,6 +20,7 @@ import {
 
 import { api, type ApiUser } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -51,6 +52,23 @@ const ADMIN_NAV = [
   { href: "/admin/events", label: "Live events", icon: Radio },
 ];
 
+function initials(name: string): string {
+  return (
+    name
+      .split(/\s+/)
+      .map((p) => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?"
+  );
+}
+
+function roleLine(user: ApiUser | null, isAdminArea: boolean): string {
+  const primary = user?.roles?.[0]?.role;
+  if (primary) return primary.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+  return isAdminArea ? "Administrator" : "Patient portal";
+}
+
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
@@ -75,14 +93,19 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton
+              size="lg"
+              asChild
+              tooltip="Atelier Health"
+              className="rounded-lg border border-border bg-card p-2.5 shadow-xs hover:bg-card data-[active=true]:bg-card"
+            >
               <Link href={isAdminArea ? "/admin" : "/dashboard"}>
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
                   <LineChart className="size-4" />
                 </div>
-                <span className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-[500]">Atelier Health</span>
-                  <span className="text-xs font-[350] text-muted-foreground">
+                <span className="flex flex-col gap-1 leading-none">
+                  <span className="text-sm font-medium">Atelier Health</span>
+                  <span className="text-[11px] text-muted-foreground">
                     {isAdminArea ? "Administration" : "Patient portal"}
                   </span>
                 </span>
@@ -94,7 +117,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{isAdminArea ? "Platform" : "Care"}</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 pb-2 text-xs text-foreground">
+            {isAdminArea ? "Platform" : "Care"}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {nav.map((item) => {
@@ -104,9 +129,16 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     : pathname.startsWith(item.href);
                 return (
                   <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={active} tooltip={item.label}>
+                    <SidebarMenuButton asChild isActive={active} tooltip={item.label}
+                      className={cn(
+                        "rounded-lg px-2.5 py-2 text-sm [&>svg]:size-[18px] [&>svg]:stroke-[1.8]",
+                        active
+                          ? "border bg-card font-medium shadow-xs hover:bg-card"
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      )}
+                    >
                       <Link href={item.href}>
-                        <item.icon />
+                        <item.icon size={18} strokeWidth={1.8} />
                         <span>{item.label}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -118,32 +150,35 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="relative">
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="flex items-center gap-2 rounded-md px-2 py-1.5">
-              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-muted text-xs font-[450] text-zinc-600">
-                {(user?.fullName ?? "?")
-                  .split(" ")
-                  .map((p) => p[0])
-                  .slice(0, 2)
-                  .join("")
-                  .toUpperCase()}
+            <div className="group-data-[collapsible=icon]:hidden">
+              {/* scrim: nav fades out above the profile card */}
+              <div className="pointer-events-none absolute inset-x-0 -top-10 h-10 bg-[linear-gradient(to_top,var(--sidebar),transparent)]" />
+              <div className="flex w-full items-center gap-2.5 rounded-lg border bg-card p-2.5 shadow-xs">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-foreground">
+                  {initials(user?.fullName ?? "")}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium leading-none">
+                    {user?.fullName ?? "Signed in"}
+                  </p>
+                  <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                    {roleLine(user, !!isAdminArea)}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Sign out"
+                  className="shrink-0 hover:text-danger"
+                  onClick={() => signOut()}
+                >
+                  <LogOut />
+                </Button>
               </div>
-              <span className="min-w-0 flex-1 truncate text-xs font-[350] text-muted-foreground">
-                {user?.email ?? user?.fullName}
-              </span>
             </div>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => signOut()}
-              tooltip="Sign out"
-              className="text-muted-foreground hover:text-danger"
-            >
-              <LogOut />
-              <span>Sign out</span>
-            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
@@ -154,4 +189,3 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 }
 
 export const sidebarIconClass = cn();
-

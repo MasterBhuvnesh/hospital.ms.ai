@@ -2,31 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Semantic design tokens - docs/design/design.md section 5 */
+/* Design tokens — style-docs/design.md §2 (light theme, OKLCH).
+   Core tokens are stored as space-separated OKLCH channel triplets so
+   tailwind.config.ts can compose them as oklch(var(--x) / <alpha-value>)
+   and every opacity modifier keeps working in Tailwind v3. */
 :root {
-  --sidebar: #ffffff;
-  --background: #ffffff;
-  --surface: #ffffff;
-  --surface-subtle: #fafafa;
-  --surface-muted: #f5f5f5;
+  --background: 1 0 0; /* #FFFFFF */
+  --foreground: 0.145 0 0; /* #0A0A0A */
+  --card: 1 0 0; /* #FFFFFF */
+  --card-foreground: 0.145 0 0;
+  --popover: 1 0 0; /* #FFFFFF */
+  --popover-foreground: 0.145 0 0;
+  --primary: 0.205 0 0; /* #171717 — primary button fill */
+  --primary-foreground: 0.985 0 0; /* #FAFAFA */
+  --secondary: 0.97 0 0; /* #F5F5F5 */
+  --secondary-foreground: 0.205 0 0;
+  --muted: 0.97 0 0; /* #F5F5F5 — trays */
+  --muted-foreground: 0.556 0 0; /* #737373 */
+  --accent: 0.97 0 0; /* #F5F5F5 — hover wells */
+  --accent-foreground: 0.205 0 0;
+  --destructive: 0.577 0.245 27.325; /* #E7000B */
+  --destructive-foreground: 0.985 0 0;
+  --border: 0.922 0 0; /* #E5E5E5 hairlines */
+  --input: 0.922 0 0; /* #E5E5E5 field borders */
+  --ring: 0.708 0 0; /* #A1A1A1 focus ring */
 
-  --ink: #18181b;
-  --foreground: #18181b;
+  /* USER OVERRIDE: blue CTA (blue-600) for primary conversion actions only */
+  --cta: 0.546 0.245 262.881; /* blue-600 */
+  --cta-foreground: 1 0 0;
 
-  --muted-foreground: #71717a;
-  --subtle-foreground: #a1a1aa;
+  /* Surfaces consumed without alpha modifiers — full colors */
+  --sidebar: oklch(0.985 0 0); /* #FAFAFA sidebar surface */
+  --sidebar-border: oklch(75.246% 0.00226 15.124); /* #B0AEAE sidebar edge */
+  --comp-border: rgba(229, 229, 229, 1); /* #E5E5E5 the 2px "chunky" borders */
 
-  --border: #e4e4e7;
-  --border-subtle: #ededed;
+  /* Chart ramp — five achromatic steps, identical in both themes */
+  --chart-1: oklch(0.87 0 0); /* neutral-300 */
+  --chart-2: oklch(0.556 0 0); /* neutral-500 */
+  --chart-3: oklch(0.439 0 0); /* neutral-600 */
+  --chart-4: oklch(0.371 0 0); /* neutral-700 */
+  --chart-5: oklch(0.269 0 0); /* neutral-800 */
 
-  --input: #d4d4d8;
+  /* Radius ramp — design.md §4 */
+  --radius: 0.625rem; /* 10px — the base */
+  --radius-sm: calc(var(--radius) * 0.6); /*  6px */
+  --radius-md: calc(var(--radius) * 0.8); /*  8px */
+  --radius-lg: var(--radius); /* 10px — buttons, nav items, inputs */
+  --radius-xl: calc(var(--radius) * 1.4); /* 14px — cards, trays, inner panels */
+  --radius-2xl: calc(var(--radius) * 1.8); /* 18px */
 
-  --primary: #18181b;
-  --primary-foreground: #ffffff;
+  /* Extra vars existing pages depend on (legacy names kept alive on new values) */
+  --border-subtle: oklch(0.93 0 0);
+  --surface: oklch(1 0 0);
+  --surface-subtle: oklch(0.985 0 0);
+  --surface-muted: oklch(0.97 0 0);
+  --ink: oklch(0.145 0 0);
+  --subtle-foreground: oklch(0.708 0 0);
 
-  --secondary: #f4f4f5;
-  --secondary-foreground: #27272a;
-
+  /* Semantic status triplets (text / foreground / background / border) */
   --danger: #dc2626;
   --danger-foreground: #ffffff;
   --danger-background: #fef2f2;
@@ -46,46 +79,11 @@
   --info-foreground: #ffffff;
   --info-background: #eff6ff;
   --info-border: #bfdbfe;
-
-  --ring: rgba(24, 24, 27, 0.18);
-}
-
-/* shadcn/ui-compatible variables */
-:root {
-  --background: 0 0% 100%;
-  --foreground: 240 5.9% 10%;
-
-  --card: 0 0% 100%;
-  --card-foreground: 240 5.9% 10%;
-
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 5.9% 10%;
-
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 100%;
-
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-
-  --destructive: 0 72.2% 50.6%;
-  --destructive-foreground: 0 0% 100%;
-
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 83.9%;
-  --ring: 240 5.9% 10%;
-
-  --radius: 0.5rem;
 }
 
 @layer base {
   html {
-    font-family: var(--font-inter), Inter, system-ui, sans-serif;
+    font-family: var(--font-geist-sans), Geist, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -150,7 +148,9 @@
 
 /* Thin scrollbars for native scrollers (sidebar, tables, chat panes).
    webkit-only so the arrow buttons can be removed (scrollbar-width: thin would
-   make Chromium ignore these rules). height handles horizontal scrollers. */
+   make Chromium ignore these rules). height handles horizontal scrollers.
+   Per style-docs/scrollbar.md: 4px hairline, thumb = foreground @10%, track
+   painted the same color as the surface it scrolls over. */
 ::-webkit-scrollbar {
   width: 4px; /* vertical scrollbars */
   height: 4px; /* horizontal scrollbars */
@@ -169,7 +169,8 @@
   display: none;
 }
 
-/* track must match the surface it scrolls over — sidebar nav sits on --sidebar */
-aside nav::-webkit-scrollbar-track {
+/* track must match the surface it scrolls over — the sidebar nav sits on --sidebar */
+aside nav::-webkit-scrollbar-track,
+[data-slot="sidebar-content"]::-webkit-scrollbar-track {
   background: var(--sidebar);
 }

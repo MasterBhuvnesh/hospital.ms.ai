@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Badge, badgeSemantic } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { PanelTitle, MoreButton } from "@/components/ui/panel";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -85,7 +87,7 @@ export default function AdminUsersPage() {
     <>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Users</h1>
+          <h1 className="text-2xl font-medium tracking-tight">Users</h1>
           <p className="mt-1 text-sm font-[350] text-muted-foreground">
             {total != null ? `${total} user${total === 1 ? "" : "s"} in scope` : "Loading..."}
           </p>
@@ -117,47 +119,48 @@ export default function AdminUsersPage() {
           <p className="text-sm font-[350] text-muted-foreground">No users match this search.</p>
         </Card>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Roles</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((u) => {
-              const needsHospital =
-                rolePick[u.id] &&
-                !["PATIENT", "PLATFORM_ADMIN", "HOSPITAL_ADMIN"].includes(rolePick[u.id]);
-              return (
-                <TableRow key={u.id}>
-                  <TableCell className="whitespace-nowrap font-[450]">{u.fullName}</TableCell>
-                  <TableCell className="text-body-small text-muted-foreground">
-                    {u.email ?? "-"}
-                    <br />
-                    {u.phone ?? ""}
-                  </TableCell>
-                  <TableCell>
-                    <span className="flex flex-wrap gap-1">
-                      {(u.roles ?? []).map((r, i) => (
-                        <Badge key={`${u.id}-r-${i}`} variant="outline">
-                          {r.role.replace(/_/g, " ")}
-                        </Badge>
-                      ))}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={u.isActive === false ? badgeSemantic.error : badgeSemantic.success}
-                    >
-                      {u.isActive === false ? "Inactive" : "Active"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
+        <Card className="gap-0 bg-muted/50 p-1 ring-0 shadow-sm">
+          <div className="flex items-center justify-between px-3 py-2">
+            <PanelTitle title="All users" />
+            <MoreButton />
+          </div>
+          <div className="overflow-hidden rounded-xl bg-card py-2">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Roles</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((u) => {
+                  const needsHospital =
+                    rolePick[u.id] &&
+                    !["PATIENT", "PLATFORM_ADMIN", "HOSPITAL_ADMIN"].includes(rolePick[u.id]);
+                  return (
+                    <TableRow key={u.id}>
+                      <TableCell className="whitespace-nowrap font-medium">{u.fullName}</TableCell>
+                      <TableCell className="text-body-small text-muted-foreground">
+                        {u.email ?? "-"}
+                        <br />
+                        {u.phone ?? ""}
+                      </TableCell>
+                      <TableCell>
+                        <span className="flex flex-wrap gap-1">
+                          {(u.roles ?? []).map((r, i) => (
+                            <Badge key={`${u.id}-r-${i}`} variant="outline">
+                              {r.role.replace(/_/g, " ")}
+                            </Badge>
+                          ))}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={u.isActive === false ? "INACTIVE" : "ACTIVE"} />
+                      </TableCell>
+                      <TableCell>
                     <div className="flex flex-wrap items-center gap-1.5">
                       <Button
                         size="sm"
@@ -207,8 +210,10 @@ export default function AdminUsersPage() {
                 </TableRow>
               );
             })}
-          </TableBody>
-        </Table>
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
       )}
     </>
   );

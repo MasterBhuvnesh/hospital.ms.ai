@@ -25,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PanelTitle } from "@/components/ui/panel";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -114,7 +115,7 @@ export default function AdminOverviewPage() {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Admin console</h1>
+        <h1 className="text-2xl font-medium tracking-tight">Admin console</h1>
         <p className="mt-1 text-sm font-[350] text-muted-foreground">
           Administrative oversight - no standing clinical read for any admin role.
         </p>
@@ -219,26 +220,33 @@ export default function AdminOverviewPage() {
         {grants.length === 0 ? (
           <p className="text-sm font-[350] text-muted-foreground">No active break-glass grants.</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Patient</TableHead>
-                <TableHead>Granted to</TableHead>
-                <TableHead>Reason</TableHead>
-                <TableHead>Expires</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {grants.map((g) => (
-                <TableRow key={g.id}>
-                  <TableCell className="font-mono text-caption">{g.patientId.slice(0, 13)}...</TableCell>
-                  <TableCell className="font-mono text-caption">{String(g.grantedTo).slice(0, 13)}...</TableCell>
-                  <TableCell className="max-w-72 truncate">{g.reason}</TableCell>
-                  <TableCell className="whitespace-nowrap text-body-small">{fmtDateTime(g.expiresAt)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Card className="mt-3 gap-0 bg-muted/50 p-1 ring-0 shadow-sm">
+            <div className="flex items-center justify-between px-3 py-2">
+              <PanelTitle title="Active grants" />
+            </div>
+            <div className="overflow-hidden rounded-xl bg-card py-2">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>Patient</TableHead>
+                    <TableHead>Granted to</TableHead>
+                    <TableHead>Reason</TableHead>
+                    <TableHead>Expires</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {grants.map((g) => (
+                    <TableRow key={g.id}>
+                      <TableCell className="font-mono text-caption">{g.patientId.slice(0, 13)}...</TableCell>
+                      <TableCell className="font-mono text-caption">{String(g.grantedTo).slice(0, 13)}...</TableCell>
+                      <TableCell className="max-w-72 truncate">{g.reason}</TableCell>
+                      <TableCell className="whitespace-nowrap font-mono text-body-small">{fmtDateTime(g.expiresAt)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
         )}
       </section>
     </>

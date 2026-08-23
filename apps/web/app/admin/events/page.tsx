@@ -7,7 +7,8 @@ import { fmtDateTime } from "@/lib/format";
 import Banner from "@/components/Banner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge, badgeSemantic } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { PanelTitle, MoreButton } from "@/components/ui/panel";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function pretty(payload: unknown, max = 280): string {
@@ -39,7 +40,7 @@ export default function AdminEventsPage() {
     <>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Domain events</h1>
+          <h1 className="text-2xl font-medium tracking-tight">Domain events</h1>
           <p className="mt-1 text-sm font-[350] text-muted-foreground">
             The latest {events?.length ?? 100} events published across services.
           </p>
@@ -62,19 +63,23 @@ export default function AdminEventsPage() {
           <p className="text-sm font-[350] text-muted-foreground">No events recorded yet.</p>
         </Card>
       ) : (
-        <Card className="rounded-lg border-border shadow-none">
-          <ul className="divide-y divide-border-subtle font-[350]">
+        <Card className="gap-0 bg-muted/50 p-1 ring-0 shadow-sm">
+          <div className="flex items-center justify-between px-3 py-2">
+            <PanelTitle title="Domain events" />
+            <MoreButton />
+          </div>
+          <ul className="divide-y divide-border-subtle rounded-xl bg-card font-[350]">
             {events.map((e) => (
               <li key={e.messageId}>
                 <details className="group">
-                  <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 transition-colors duration-120 ease-out hover:bg-surface-subtle sm:px-5 [&::-webkit-details-marker]:hidden">
+                  <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 transition-colors duration-120 ease-out hover:bg-muted/50 sm:px-5 [&::-webkit-details-marker]:hidden">
                     <Badge
                       variant="outline"
                       className={
                         /phi\.|audit\./i.test(e.topic)
-                          ? badgeSemantic.error
+                          ? "border-danger-border bg-danger-background text-danger"
                           : /queue\./i.test(e.topic)
-                            ? badgeSemantic.info
+                            ? "border-info-border bg-info-background text-info"
                             : ""
                       }
                     >
@@ -83,7 +88,7 @@ export default function AdminEventsPage() {
                     <span className="min-w-0 grow truncate font-mono text-caption text-muted-foreground">
                       {e.messageId.slice(0, 18)}...
                     </span>
-                    <span className="whitespace-nowrap text-caption text-subtle">{fmtDateTime(e.occurredAt)}</span>
+                    <span className="whitespace-nowrap font-mono text-caption text-subtle">{fmtDateTime(e.occurredAt)}</span>
                     <ChevronDown
                       aria-hidden
                       className="size-4 flex-none text-subtle transition-transform duration-160 ease-out group-open:rotate-180"

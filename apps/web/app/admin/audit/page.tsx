@@ -6,7 +6,8 @@ import { fmtDateTime } from "@/lib/format";
 import Banner from "@/components/Banner";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Badge, badgeSemantic } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { PanelTitle, MoreButton } from "@/components/ui/panel";
 import {
   Table,
   TableBody,
@@ -42,7 +43,7 @@ export default function AdminAuditPage() {
     <>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Audit log</h1>
+          <h1 className="text-2xl font-medium tracking-tight">Audit log</h1>
           <p className="mt-1 text-sm font-[350] text-muted-foreground">
             Append-only. Every privileged read and write lands here.
           </p>
@@ -82,50 +83,58 @@ export default function AdminAuditPage() {
           <p className="mb-3 text-caption font-[350] text-subtle">
             Showing {rows.length} of {total} matching entries.
           </p>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Actor</TableHead>
-                <TableHead>Resource</TableHead>
-                <TableHead>IP</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((a, i) => (
-                <TableRow key={a.id ?? `${a.timestamp}-${i}`}>
-                  <TableCell className="whitespace-nowrap text-body-small">{fmtDateTime(a.timestamp)}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={/break_glass|phi\./i.test(a.action) ? badgeSemantic.error : ""}
-                    >
-                      {a.action}
-                    </Badge>
-                    {a.reason && (
-                      <div className="mt-1 max-w-64 truncate text-caption text-muted-foreground" title={a.reason}>
-                        reason: {a.reason}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-body-small">
-                    {a.actorRole && <div className="text-caption text-muted-foreground">{a.actorRole}</div>}
-                    <span className="font-mono text-caption">{(a.actorId ?? "-").slice(0, 13)}...</span>
-                  </TableCell>
-                  <TableCell className="text-body-small">
-                    {a.resource ?? "-"}
-                    {a.resourceId && (
-                      <div className="font-mono text-caption text-muted-foreground">
-                        {String(a.resourceId).slice(0, 13)}...
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-mono text-caption">{a.ip ?? "-"}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Card className="gap-0 bg-muted/50 p-1 ring-0 shadow-sm">
+            <div className="flex items-center justify-between px-3 py-2">
+              <PanelTitle title="Audit log" />
+              <MoreButton />
+            </div>
+            <div className="overflow-hidden rounded-xl bg-card py-2">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Action</TableHead>
+                    <TableHead>Actor</TableHead>
+                    <TableHead>Resource</TableHead>
+                    <TableHead>IP</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((a, i) => (
+                    <TableRow key={a.id ?? `${a.timestamp}-${i}`}>
+                      <TableCell className="whitespace-nowrap font-mono text-body-small">{fmtDateTime(a.timestamp)}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={/break_glass|phi\./i.test(a.action) ? "border-danger-border bg-danger-background text-danger" : ""}
+                        >
+                          {a.action}
+                        </Badge>
+                        {a.reason && (
+                          <div className="mt-1 max-w-64 truncate text-caption text-muted-foreground" title={a.reason}>
+                            reason: {a.reason}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-body-small">
+                        {a.actorRole && <div className="text-caption text-muted-foreground">{a.actorRole}</div>}
+                        <span className="font-mono text-caption">{(a.actorId ?? "-").slice(0, 13)}...</span>
+                      </TableCell>
+                      <TableCell className="text-body-small">
+                        {a.resource ?? "-"}
+                        {a.resourceId && (
+                          <div className="font-mono text-caption text-muted-foreground">
+                            {String(a.resourceId).slice(0, 13)}...
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-mono text-caption">{a.ip ?? "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
         </>
       )}
     </>
