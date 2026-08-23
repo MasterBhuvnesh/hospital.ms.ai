@@ -1,9 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { api, type EventEnvelope } from "@/lib/api";
 import { fmtDateTime } from "@/lib/format";
 import Banner from "@/components/Banner";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge, badgeSemantic } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function pretty(payload: unknown, max = 280): string {
   try {
@@ -32,14 +37,16 @@ export default function AdminEventsPage() {
 
   return (
     <>
-      <div className="page-head">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>Domain events</h1>
-          <p>The latest {events?.length ?? 100} events published across services.</p>
+          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Domain events</h1>
+          <p className="mt-1 text-sm font-[350] text-muted-foreground">
+            The latest {events?.length ?? 100} events published across services.
+          </p>
         </div>
-        <button className="btn" onClick={load}>
+        <Button variant="outline" onClick={load}>
           Refresh
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -49,53 +56,47 @@ export default function AdminEventsPage() {
       )}
 
       {!events ? (
-        <div className="skeleton block" />
+        <Skeleton className="h-64 w-full bg-surface-muted" />
       ) : events.length === 0 ? (
-        <div className="card empty">No events recorded yet.</div>
+        <Card className="rounded-lg border-border px-6 py-10 text-center shadow-none">
+          <p className="text-sm font-[350] text-muted-foreground">No events recorded yet.</p>
+        </Card>
       ) : (
-        <div className="list-card">
-          {events.map((e) => (
-            <details key={e.messageId} style={{ borderBottom: "1px solid #f4f4f5" }}>
-              <summary
-                style={{
-                  listStyle: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "12px 16px",
-                }}
-              >
-                <span
-                  className={`badge ${
-                    /phi\.|audit\./i.test(e.topic)
-                      ? "badge-red"
-                      : /queue\./i.test(e.topic)
-                        ? "badge-blue"
-                        : "badge-zinc"
-                  }`}
-                >
-                  {e.topic}
-                </span>
-                <span className="grow tiny muted truncate mono">{e.messageId.slice(0, 18)}...</span>
-                <span className="tiny faint nowrap">{fmtDateTime(e.occurredAt)}</span>
-              </summary>
-              <pre
-                className="mono"
-                style={{
-                  background: "#fafafa",
-                  margin: 0,
-                  padding: "10px 16px 14px",
-                  fontSize: 11.5,
-                  overflowX: "auto",
-                  color: "#3f3f46",
-                }}
-              >
-                {pretty(e.payload)}
-              </pre>
-            </details>
-          ))}
-        </div>
+        <Card className="rounded-lg border-border shadow-none">
+          <ul className="divide-y divide-border-subtle font-[350]">
+            {events.map((e) => (
+              <li key={e.messageId}>
+                <details className="group">
+                  <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 transition-colors duration-120 ease-out hover:bg-surface-subtle sm:px-5 [&::-webkit-details-marker]:hidden">
+                    <Badge
+                      variant="outline"
+                      className={
+                        /phi\.|audit\./i.test(e.topic)
+                          ? badgeSemantic.error
+                          : /queue\./i.test(e.topic)
+                            ? badgeSemantic.info
+                            : ""
+                      }
+                    >
+                      {e.topic}
+                    </Badge>
+                    <span className="min-w-0 grow truncate font-mono text-caption text-muted-foreground">
+                      {e.messageId.slice(0, 18)}...
+                    </span>
+                    <span className="whitespace-nowrap text-caption text-subtle">{fmtDateTime(e.occurredAt)}</span>
+                    <ChevronDown
+                      aria-hidden
+                      className="size-4 flex-none text-subtle transition-transform duration-160 ease-out group-open:rotate-180"
+                    />
+                  </summary>
+                  <pre className="m-0 overflow-x-auto border-t border-border-subtle bg-surface-subtle px-4 py-3 font-mono text-caption leading-[1.5] text-muted-foreground sm:px-5">
+                    {pretty(e.payload)}
+                  </pre>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </Card>
       )}
     </>
   );

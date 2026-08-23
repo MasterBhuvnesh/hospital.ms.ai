@@ -1,15 +1,18 @@
 "use client";
 
+import { X } from "lucide-react";
+import { Alert, alertSemantic } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 export type BannerKind = "error" | "info" | "success" | "warn";
 
-const CLASS: Record<BannerKind, string> = {
-  error: "banner-error",
-  info: "banner-info",
-  success: "banner-success",
-  warn: "banner-warn",
+const SEMANTIC: Record<BannerKind, string> = {
+  error: alertSemantic.error,
+  info: alertSemantic.info,
+  success: alertSemantic.success,
+  warn: alertSemantic.warning,
 };
-
-const MARK: Record<BannerKind, string> = { error: "!", info: "i", success: "+", warn: "~" };
 
 export default function Banner({
   kind = "info",
@@ -21,16 +24,19 @@ export default function Banner({
   onDismiss?: () => void;
 }) {
   return (
-    <div className={`banner ${CLASS[kind]}`} role={kind === "error" ? "alert" : "status"}>
-      <span aria-hidden className="bold">
-        {MARK[kind]}
-      </span>
-      <div style={{ flex: 1 }}>{children}</div>
+    <Alert role={kind === "error" ? "alert" : "status"} className={cn(SEMANTIC[kind], "mb-4 pr-10")}>
+      <div className="text-sm font-[350] leading-[1.5] [&_strong]:font-[400]">{children}</div>
       {onDismiss && (
-        <button className="banner-x" onClick={onDismiss} aria-label="Dismiss">
-          &times;
-        </button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onDismiss}
+          aria-label="Dismiss"
+          className="absolute right-2 top-2 size-7 text-current opacity-60 hover:bg-black/5 hover:text-current hover:opacity-100"
+        >
+          <X />
+        </Button>
       )}
-    </div>
+    </Alert>
   );
 }

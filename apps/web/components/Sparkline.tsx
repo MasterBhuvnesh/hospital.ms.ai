@@ -9,7 +9,7 @@ export default function Sparkline({
   width?: number;
   height?: number;
 }) {
-  if (values.length === 0) return <span className="faint tiny">no data</span>;
+  if (values.length === 0) return <span className="text-caption text-subtle">no data</span>;
 
   const pad = 3;
   const min = Math.min(...values);
@@ -26,12 +26,25 @@ export default function Sparkline({
     .join(" ");
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden>
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      aria-hidden
+      className="text-info"
+    >
       {points.split(" ").map((p, i) => {
         const [x, y] = p.split(",").map(Number);
-        return <circle key={`d${i}`} cx={x} cy={y} r={1.8} fill="#208aef" opacity={0.35} />;
+        return <circle key={`d${i}`} cx={x} cy={y} r={1.8} fill="currentColor" opacity={0.35} />;
       })}
-      <polyline points={points} fill="none" stroke="#208aef" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" />
+      <polyline
+        points={points}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

@@ -3,16 +3,27 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  api,
-  type Appointment,
-  type Doctor,
-  type Hospital,
-} from "@/lib/api";
+import { Plus } from "lucide-react";
+import { api, type Appointment, type Doctor, type Hospital } from "@/lib/api";
 import { fmtDate, fmtTime, money } from "@/lib/format";
 import Banner from "@/components/Banner";
 import Modal from "@/components/Modal";
 import SlotPicker from "@/components/SlotPicker";
+import { Button, buttonClassName } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge, badgeSemantic } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 type BookStep = 1 | 2 | 3;
 
@@ -54,7 +65,8 @@ export default function AppointmentsPage() {
     load();
   }, [load]);
 
-  const doctorName = (id: string) => doctors.find((d) => d.id === id)?.fullName ?? `Doctor ${id.slice(0, 6)}`;
+  const doctorName = (id: string) =>
+    doctors.find((d) => d.id === id)?.fullName ?? `Doctor ${id.slice(0, 6)}`;
 
   const now = Date.now();
   const { upcoming, history } = useMemo(() => {
@@ -165,14 +177,17 @@ export default function AppointmentsPage() {
 
   return (
     <>
-      <div className="page-head">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>Appointments</h1>
-          <p>Book ahead or manage what is coming up. Walk-ins mint tokens instantly.</p>
+          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Appointments</h1>
+          <p className="mt-1 text-sm font-[350] text-muted-foreground">
+            Book ahead or manage what is coming up. Walk-ins mint tokens instantly.
+          </p>
         </div>
-        <button className="btn btn-primary" onClick={openBook}>
-          + Book appointment
-        </button>
+        <Button onClick={openBook}>
+          <Plus aria-hidden />
+          Book appointment
+        </Button>
       </div>
 
       {error && (
@@ -187,93 +202,114 @@ export default function AppointmentsPage() {
       )}
 
       {!appointments && !error && (
-        <div className="stack">
-          <div className="skeleton title" />
-          <div className="skeleton block" />
-          <div className="skeleton block" />
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-44 bg-surface-muted" />
+          <Skeleton className="h-24 w-full bg-surface-muted" />
+          <Skeleton className="h-40 w-full bg-surface-muted" />
         </div>
       )}
 
       {appointments && (
         <>
           <section>
-            <h2>Upcoming</h2>
+            <h2 className="mb-3 text-heading-2 font-[500] tracking-[-0.01em]">Upcoming</h2>
             {upcoming.length === 0 ? (
-              <div className="card empty">
-                <div className="empty-icon">Cal</div>
-                Nothing booked yet. Use the button above to book your first visit.
-              </div>
+              <Card className="rounded-lg border-border px-6 py-10 text-center shadow-none">
+                <CardContent className="p-0 font-[350]">
+                  <p className="text-sm text-muted-foreground">
+                    Nothing booked yet. Use the button above to book your first visit.
+                  </p>
+                </CardContent>
+              </Card>
             ) : (
-              <div className="list-card">
+              <div className="space-y-3">
                 {upcoming.map((a) => (
-                  <div key={a.id} className="list-row">
-                    <div className="grow">
-                      <div className="bold">{doctorName(a.doctorId)}</div>
-                      <div className="muted small">
-                        {fmtDate(a.startsAt)} at {fmtTime(a.startsAt)}
-                        {a.reason ? ` - ${a.reason}` : ""}
-                        {a.feeSnapshot ? ` - ${money(a.feeSnapshot.amount, a.feeSnapshot.currency)}` : ""}
+                  <Card key={a.id} className="rounded-lg border-border shadow-none">
+                    <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:p-5">
+                      <div className="min-w-48 grow basis-56 font-[350]">
+                        <div className="font-[450] text-foreground">{doctorName(a.doctorId)}</div>
+                        <div className="mt-0.5 text-sm text-muted-foreground">
+                          {fmtDate(a.startsAt)} at {fmtTime(a.startsAt)}
+                          {a.reason ? ` - ${a.reason}` : ""}
+                          {a.feeSnapshot
+                            ? ` - ${money(a.feeSnapshot.amount, a.feeSnapshot.currency)}`
+                            : ""}
+                        </div>
                       </div>
-                    </div>
-                    <span className={`badge badge-${a.tokenId ? "green" : "zinc"}`}>
-                      {a.tokenId ? "Token issued" : a.status}
-                    </span>
-                    {a.tokenId && (
-                      <Link href={`/visits-queue/${a.tokenId}`} className="btn btn-sm btn-primary">
-                        Live queue
-                      </Link>
-                    )}
-                    <button className="btn btn-sm" onClick={() => { setReschedAppt(a); setReschedSlot(null); }}>
-                      Reschedule
-                    </button>
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => setCancelAppt(a)}>
-                      Cancel
-                    </button>
-                  </div>
+                      <Badge variant="outline" className={cn(a.tokenId && badgeSemantic.success)}>
+                        {a.tokenId ? "Token issued" : a.status}
+                      </Badge>
+                      {a.tokenId && (
+                        <Link href={`/visits-queue/${a.tokenId}`} className={buttonClassName("default", "sm")}>
+                          Live queue
+                        </Link>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setReschedAppt(a);
+                          setReschedSlot(null);
+                        }}
+                      >
+                        Reschedule
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-danger-border bg-background text-danger hover:bg-danger-background"
+                        onClick={() => setCancelAppt(a)}
+                      >
+                        Cancel
+                      </Button>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             )}
           </section>
 
-          <section className="section">
-            <h2>History</h2>
+          <section className="mt-8">
+            <h2 className="mb-3 text-heading-2 font-[500] tracking-[-0.01em]">History</h2>
             {history.length === 0 ? (
-              <div className="card empty">No past visits yet.</div>
+              <Card className="rounded-lg border-border px-6 py-10 text-center shadow-none">
+                <CardContent className="p-0 font-[350]">
+                  <p className="text-sm text-muted-foreground">No past visits yet.</p>
+                </CardContent>
+              </Card>
             ) : (
-              <div className="table-wrap">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>When</th>
-                      <th>Doctor</th>
-                      <th>Status</th>
-                      <th>Queue</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.slice(0, 30).map((a) => (
-                      <tr key={a.id}>
-                        <td className="nowrap">
-                          {fmtDate(a.startsAt)}, {fmtTime(a.startsAt)}
-                        </td>
-                        <td>{doctorName(a.doctorId)}</td>
-                        <td>
-                          <StatusBadge status={a.status} />
-                        </td>
-                        <td>
-                          {a.tokenId ? (
-                            <Link href={`/visits-queue/${a.tokenId}`} className="small">
-                              View token
-                            </Link>
-                          ) : (
-                            <span className="faint small">-</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>When</TableHead>
+                    <TableHead>Doctor</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Queue</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {history.slice(0, 30).map((a) => (
+                    <TableRow key={a.id}>
+                      <TableCell className="whitespace-nowrap">
+                        {fmtDate(a.startsAt)}, {fmtTime(a.startsAt)}
+                      </TableCell>
+                      <TableCell>{doctorName(a.doctorId)}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={a.status} />
+                      </TableCell>
+                      <TableCell>
+                        {a.tokenId ? (
+                          <Link href={`/visits-queue/${a.tokenId}`} className="underline-offset-2 hover:underline">
+                            View token
+                          </Link>
+                        ) : (
+                          <span className="text-subtle">-</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </section>
         </>
@@ -281,111 +317,113 @@ export default function AppointmentsPage() {
 
       {/* ---------- book dialog ---------- */}
       <Modal open={bookOpen} onClose={resetBook} title="Book an appointment" wide>
-        <div className="steps">
-          {[1, 2, 3].map((n, i) => (
-            <span key={n} style={{ display: "contents" }}>
-              {i > 0 && <span className="step-line" />}
-              <span className={`step-pill${step >= n ? " on" : ""}`}>
-                <span className="step-num">{step > n ? "+" : n}</span>
-                {["Hospital", "Doctor", "Slot"][i]}
-              </span>
-            </span>
-          ))}
-        </div>
+        <StepsIndicator step={step} />
 
         {step === 1 && (
           <>
             {!hospitals ? (
-              <div className="loading-pane">
-                <div className="spinner" />
+              <div className="py-2">
+                <Skeleton className="h-12 w-full bg-surface-muted" />
               </div>
             ) : (
-              <div className="pick-list">
+              <PickList>
                 {hospitals.map((h) => (
                   <button
                     key={h.id}
-                    className={`pick-item${hospitalId === h.id ? " on" : ""}`}
+                    type="button"
+                    aria-pressed={hospitalId === h.id}
+                    className={pickItemClass(hospitalId === h.id)}
                     onClick={() => {
                       setHospitalId(h.id);
                       setStep(2);
                     }}
                   >
-                    <div className="grow">
-                      <div className="bold">{h.name}</div>
-                      <div className="muted small">{h.city}</div>
-                    </div>
-                    <span aria-hidden>&rsaquo;</span>
+                    <span className="min-w-0 grow">
+                      <span className="block font-[450]">{h.name}</span>
+                      <span className="block text-sm text-muted-foreground">{h.city}</span>
+                    </span>
+                    <span aria-hidden className="text-muted-foreground">
+                      &rsaquo;
+                    </span>
                   </button>
                 ))}
-                {hospitals.length === 0 && <p className="empty">No hospitals found.</p>}
-              </div>
+                {hospitals.length === 0 && (
+                  <p className="py-8 text-center text-sm text-muted-foreground">No hospitals found.</p>
+                )}
+              </PickList>
             )}
           </>
         )}
 
         {step === 2 && hospitalId && (
           <>
-            <input
-              className="input mb16"
+            <Input
               placeholder="Search by name or specialty..."
               value={docSearch}
               onChange={(e) => setDocSearch(e.target.value)}
             />
-            <div className="pick-list">
-              {filteredDoctors.map((d) => (
-                <button
-                  key={d.id}
-                  className={`pick-item${doctorId === d.id ? " on" : ""}`}
-                  onClick={() => {
-                    setDoctorId(d.id);
-                    setSlotIso(null);
-                    setStep(3);
-                  }}
-                >
-                  <span className="avatar">{d.fullName[0]}</span>
-                  <div className="grow">
-                    <div className="bold">
-                      Dr. {d.fullName.replace(/^Dr\.?\s*/i, "")}
-                    </div>
-                    <div className="muted tiny">
-                      {d.specializations.join(", ")}
-                      {d.experienceYears != null ? ` - ${d.experienceYears} yrs` : ""}
-                    </div>
-                  </div>
-                  <span className="badge badge-blue nowrap">
-                    {money(d.feeConfig.amount, d.feeConfig.currency)}
-                  </span>
-                </button>
-              ))}
-              {filteredDoctors.length === 0 && (
-                <p className="empty">No doctors match here{selectedHospital ? `, ${selectedHospital.city}` : ""}. Try clearing search or another hospital.</p>
-              )}
+            <div className="mt-3">
+              <PickList>
+                {filteredDoctors.map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    aria-pressed={doctorId === d.id}
+                    className={pickItemClass(doctorId === d.id)}
+                    onClick={() => {
+                      setDoctorId(d.id);
+                      setSlotIso(null);
+                      setStep(3);
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      className="grid size-8 flex-none place-items-center rounded-full border border-border bg-surface-muted text-xs font-[500]"
+                    >
+                      {d.fullName[0]}
+                    </span>
+                    <span className="min-w-0 grow">
+                      <span className="block font-[450]">Dr. {d.fullName.replace(/^Dr\.?\s*/i, "")}</span>
+                      <span className="block text-caption text-muted-foreground">
+                        {d.specializations.join(", ")}
+                        {d.experienceYears != null ? ` - ${d.experienceYears} yrs` : ""}
+                      </span>
+                    </span>
+                    <Badge variant="outline" className="whitespace-nowrap">
+                      {money(d.feeConfig.amount, d.feeConfig.currency)}
+                    </Badge>
+                  </button>
+                ))}
+                {filteredDoctors.length === 0 && (
+                  <p className="py-8 text-center text-sm text-muted-foreground">
+                    No doctors match here{selectedHospital ? `, ${selectedHospital.city}` : ""}. Try clearing
+                    search or another hospital.
+                  </p>
+                )}
+              </PickList>
             </div>
-            <div className="row mt16">
-              <button className="btn" onClick={() => setStep(1)}>
+            <div className="mt-4">
+              <Button variant="outline" size="sm" onClick={() => setStep(1)}>
                 Back
-              </button>
+              </Button>
             </div>
           </>
         )}
 
         {step === 3 && doctorId && selectedDoctor && (
-          <>
-            <p className="mb8">
-              <strong>Dr. {selectedDoctor.fullName}</strong>{" "}
-              <span className="muted small">
+          <div className="space-y-4">
+            <p className="text-sm font-[350]">
+              <strong className="text-foreground">Dr. {selectedDoctor.fullName}</strong>{" "}
+              <span className="text-muted-foreground">
                 ({selectedDoctor.specializations.join(", ")}) -{" "}
                 {money(selectedDoctor.feeConfig.amount, selectedDoctor.feeConfig.currency)} per visit
               </span>
             </p>
             <SlotPicker doctorId={doctorId} value={slotIso} onSelect={setSlotIso} />
-            <div className="field mt16">
-              <label className="label" htmlFor="reason">
-                Reason for visit (optional)
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="reason">Reason for visit (optional)</Label>
+              <Input
                 id="reason"
-                className="input"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="e.g. follow-up, fever, checkup"
@@ -397,16 +435,15 @@ export default function AppointmentsPage() {
                 get your live queue token.
               </Banner>
             )}
-            <div className="row mt8">
-              <button className="btn" onClick={() => setStep(2)}>
+            <div className="flex items-center justify-end gap-2">
+              <Button variant="outline" onClick={() => setStep(2)}>
                 Back
-              </button>
-              <span className="grow" />
-              <button className="btn btn-primary" disabled={!slotIso || booking} onClick={confirmBooking}>
+              </Button>
+              <Button disabled={!slotIso || booking} onClick={confirmBooking}>
                 {booking ? "Booking..." : "Confirm booking"}
-              </button>
+              </Button>
             </div>
-          </>
+          </div>
         )}
       </Modal>
 
@@ -417,23 +454,22 @@ export default function AppointmentsPage() {
         title={`Reschedule - ${reschedAppt ? doctorName(reschedAppt.doctorId) : ""}`}
       >
         {reschedAppt && (
-          <>
+          <div className="space-y-4">
             <SlotPicker doctorId={reschedAppt.doctorId} value={reschedSlot} onSelect={setReschedSlot} />
             {reschedSlot && (
               <Banner kind="info">
                 New time: <strong>{fmtDate(reschedSlot)}</strong> at <strong>{fmtTime(reschedSlot)}</strong>.
               </Banner>
             )}
-            <div className="row mt16">
-              <span className="grow" />
-              <button className="btn" onClick={() => setReschedAppt(null)}>
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setReschedAppt(null)}>
                 Keep current
-              </button>
-              <button className="btn btn-primary" disabled={!reschedSlot || acting} onClick={confirmReschedule}>
+              </Button>
+              <Button disabled={!reschedSlot || acting} onClick={confirmReschedule}>
                 {acting ? "Saving..." : "Confirm reschedule"}
-              </button>
+              </Button>
             </div>
-          </>
+          </div>
         )}
       </Modal>
 
@@ -444,24 +480,67 @@ export default function AppointmentsPage() {
         title="Cancel appointment?"
         footer={
           <>
-            <button className="btn" onClick={() => setCancelAppt(null)}>
+            <Button variant="secondary" onClick={() => setCancelAppt(null)}>
               Keep it
-            </button>
-            <button className="btn btn-danger" disabled={acting} onClick={confirmCancel}>
+            </Button>
+            <Button variant="destructive" disabled={acting} onClick={confirmCancel}>
               {acting ? "Cancelling..." : "Yes, cancel"}
-            </button>
+            </Button>
           </>
         }
       >
-        <p className="muted small">
+        <p className="text-sm text-muted-foreground">
           This releases your slot and queue token for{" "}
-          <strong>
+          <strong className="text-foreground">
             {cancelAppt ? `${fmtDate(cancelAppt.startsAt)} at ${fmtTime(cancelAppt.startsAt)}` : ""}
           </strong>
           . The action cannot be undone.
         </p>
       </Modal>
     </>
+  );
+}
+
+function StepsIndicator({ step }: { step: BookStep }) {
+  return (
+    <div className="mb-5 flex items-center gap-2" aria-label={`Step ${step} of 3`}>
+      {[1, 2, 3].map((n, i) => (
+        <span key={n} className="contents">
+          {i > 0 && <span aria-hidden className="h-px flex-1 bg-border" />}
+          <span className="inline-flex items-center gap-1.5 text-xs">
+            <span
+              aria-hidden
+              className={cn(
+                "grid size-6 place-items-center rounded-full text-caption font-[500]",
+                step >= n
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-surface-muted text-muted-foreground",
+              )}
+            >
+              {step > n ? "+" : n}
+            </span>
+            <span className={step >= n ? "font-[450] text-foreground" : "font-[350] text-subtle"}>
+              {["Hospital", "Doctor", "Slot"][i]}
+            </span>
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function PickList({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid max-h-80 gap-2 overflow-y-auto pr-1 font-[350]">{children}</div>
+  );
+}
+
+function pickItemClass(selected: boolean) {
+  return cn(
+    "flex w-full items-center gap-3 rounded-md border px-4 py-3 text-left transition-colors duration-120 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25 focus-visible:ring-offset-2",
+    selected
+      ? "border-foreground bg-surface-subtle"
+      : "border-border bg-background hover:bg-surface-muted",
   );
 }
 
@@ -474,11 +553,15 @@ function upcomingFilter(a: Appointment, nowMs: number) {
 
 function StatusBadge({ status }: { status: Appointment["status"] }) {
   const map: Record<Appointment["status"], string> = {
-    BOOKED: "badge-blue",
-    CONFIRMED: "badge-green",
-    CANCELLED: "badge-zinc",
-    COMPLETED: "badge-violet",
-    NO_SHOW: "badge-red",
+    BOOKED: badgeSemantic.info,
+    CONFIRMED: badgeSemantic.success,
+    CANCELLED: "",
+    COMPLETED: "",
+    NO_SHOW: badgeSemantic.error,
   };
-  return <span className={`badge ${map[status]}`}>{status.replace("_", " ")}</span>;
+  return (
+    <Badge variant="outline" className={map[status]}>
+      {status.replace("_", " ")}
+    </Badge>
+  );
 }

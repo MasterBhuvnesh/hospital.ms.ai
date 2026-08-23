@@ -5,6 +5,26 @@ import { api, tokenStore, type BreakGlassGrant } from "@/lib/api";
 import { fmtDateTime } from "@/lib/format";
 import Banner from "@/components/Banner";
 import StatCard from "@/components/StatCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -93,11 +113,11 @@ export default function AdminOverviewPage() {
 
   return (
     <>
-      <div className="page-head">
-        <div>
-          <h1>Admin console</h1>
-          <p>Administrative oversight - no standing clinical read for any admin role.</p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Admin console</h1>
+        <p className="mt-1 text-sm font-[350] text-muted-foreground">
+          Administrative oversight - no standing clinical read for any admin role.
+        </p>
       </div>
 
       {isAdminPlatform && (
@@ -113,7 +133,7 @@ export default function AdminOverviewPage() {
         </Banner>
       )}
 
-      <div className="grid-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatCard label="Registered users" value={usersTotal ?? "..."} sub="visible to your tenancy scope" />
         <StatCard
           label="Audit entries today"
@@ -129,11 +149,13 @@ export default function AdminOverviewPage() {
         />
       </div>
 
-      <section className="section">
-        <h2>Break-glass access</h2>
-        <p className="muted small mb16">
+      <section className="mt-8">
+        <h2 className="text-heading-2 font-[500] tracking-[-0.01em]">Break-glass access</h2>
+        <p className="mt-1 max-w-2xl text-sm font-[350] text-muted-foreground">
           Emergency clinical read for one named patient, for a bounded window. The patient is
-          notified, and a distinct <code>phi.break_glass</code> audit entry is written.
+          notified, and a distinct{" "}
+          <code className="rounded-sm bg-surface-muted px-1 py-0.5 font-mono text-caption">phi.break_glass</code>{" "}
+          audit entry is written.
         </p>
 
         {result && (
@@ -143,80 +165,80 @@ export default function AdminOverviewPage() {
           </Banner>
         )}
 
-        <form className="card" onSubmit={submitBreakGlass} style={{ maxWidth: 640 }}>
-          <div className="field">
-            <label className="label" htmlFor="pid">
-              Patient ID (uuid)
-            </label>
-            <input
-              id="pid"
-              className="input mono"
-              value={patientId}
-              onChange={(e) => setPatientId(e.target.value)}
-              placeholder="00000000-0000-0000-0000-000000000000"
-            />
-          </div>
-          <div className="field">
-            <label className="label" htmlFor="bgreason">
-              Reason (min 10 characters)
-            </label>
-            <textarea
-              id="bgreason"
-              className="textarea"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Why this access is needed right now..."
-            />
-            <div className="tiny faint mt8">{reason.trim().length}/10 characters minimum</div>
-          </div>
-          <div className="field">
-            <label className="label" htmlFor="ttl">
-              Window
-            </label>
-            <select id="ttl" className="select" value={ttl} onChange={(e) => setTtl(Number(e.target.value))}>
-              {[5, 10, 15, 30, 60].map((m) => (
-                <option key={m} value={m}>
-                  {m} minutes
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            className="btn btn-danger"
-            disabled={submitting || reason.trim().length < 10 || !UUID_RE.test(patientId.trim())}
-          >
-            {submitting ? "Requesting..." : `Authorize ${ttl} min of access`}
-          </button>
-        </form>
+        <Card className="mt-5 max-w-xl rounded-lg border-border shadow-none">
+          <CardHeader className="p-5 pb-3">
+            <CardTitle>Request emergency access</CardTitle>
+            <CardDescription>All break-glass grants expire automatically.</CardDescription>
+          </CardHeader>
+          <CardContent className="font-[350]">
+            <form onSubmit={submitBreakGlass} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="pid">Patient ID (uuid)</Label>
+                <Input
+                  id="pid"
+                  className="font-mono text-body-small"
+                  value={patientId}
+                  onChange={(e) => setPatientId(e.target.value)}
+                  placeholder="00000000-0000-0000-0000-000000000000"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bgreason">Reason (min 10 characters)</Label>
+                <Textarea
+                  id="bgreason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Why this access is needed right now..."
+                />
+                <p className="text-caption font-[350] text-subtle">
+                  {reason.trim().length}/10 characters minimum
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ttl">Window</Label>
+                <Select id="ttl" value={ttl} onChange={(e) => setTtl(Number(e.target.value))}>
+                  {[5, 10, 15, 30, 60].map((m) => (
+                    <option key={m} value={m}>
+                      {m} minutes
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={submitting || reason.trim().length < 10 || !UUID_RE.test(patientId.trim())}
+              >
+                {submitting ? "Requesting..." : `Authorize ${ttl} min of access`}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-        <h3 className="mt24">Active grants</h3>
+        <h3 className="mb-3 mt-8 text-heading-3 font-[500] tracking-[-0.01em]">Active grants</h3>
         {grants.length === 0 ? (
-          <p className="muted small mt8">No active break-glass grants.</p>
+          <p className="text-sm font-[350] text-muted-foreground">No active break-glass grants.</p>
         ) : (
-          <div className="table-wrap mt8">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Patient</th>
-                  <th>Granted to</th>
-                  <th>Reason</th>
-                  <th>Expires</th>
-                </tr>
-              </thead>
-              <tbody>
-                {grants.map((g) => (
-                  <tr key={g.id}>
-                    <td className="mono tiny">{g.patientId.slice(0, 13)}...</td>
-                    <td className="mono tiny">{String(g.grantedTo).slice(0, 13)}...</td>
-                    <td className="small truncate" style={{ maxWidth: 280 }}>
-                      {g.reason}
-                    </td>
-                    <td className="nowrap small">{fmtDateTime(g.expiresAt)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Patient</TableHead>
+                <TableHead>Granted to</TableHead>
+                <TableHead>Reason</TableHead>
+                <TableHead>Expires</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {grants.map((g) => (
+                <TableRow key={g.id}>
+                  <TableCell className="font-mono text-caption">{g.patientId.slice(0, 13)}...</TableCell>
+                  <TableCell className="font-mono text-caption">{String(g.grantedTo).slice(0, 13)}...</TableCell>
+                  <TableCell className="max-w-72 truncate">{g.reason}</TableCell>
+                  <TableCell className="whitespace-nowrap text-body-small">{fmtDateTime(g.expiresAt)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </section>
     </>

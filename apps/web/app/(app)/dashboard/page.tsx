@@ -3,17 +3,28 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  CalendarDays,
+  FolderOpen,
+  Pill,
+  Receipt,
+  Bell,
+  Bot,
+} from "lucide-react";
 import { api, tokenStore, type Appointment, type Doctor, type Token } from "@/lib/api";
 import { greeting, fmtDate, fmtTime } from "@/lib/format";
 import Banner from "@/components/Banner";
+import { buttonClassName } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TILES = [
-  { href: "/appointments", icon: "Cal", title: "Appointments", body: "Book, reschedule or cancel visits" },
-  { href: "/records", icon: "Rec", title: "Records", body: "Allergies, labs with trends & documents" },
-  { href: "/prescriptions", icon: "Rx", title: "Prescriptions", body: "Signed prescriptions and PDFs" },
-  { href: "/payments", icon: "Pay", title: "Payments", body: "Invoices, bills and history" },
-  { href: "/notifications", icon: "Bell", title: "Notifications", body: "Everything that happened while away" },
-  { href: "/copilot", icon: "AI", title: "AI copilot", body: "Ask about your care in plain words" },
+  { href: "/appointments", icon: CalendarDays, title: "Appointments", body: "Book, reschedule or cancel visits" },
+  { href: "/records", icon: FolderOpen, title: "Records", body: "Allergies, labs with trends & documents" },
+  { href: "/prescriptions", icon: Pill, title: "Prescriptions", body: "Signed prescriptions and PDFs" },
+  { href: "/payments", icon: Receipt, title: "Payments", body: "Invoices, bills and history" },
+  { href: "/notifications", icon: Bell, title: "Notifications", body: "Everything that happened while away" },
+  { href: "/copilot", icon: Bot, title: "AI copilot", body: "Ask about your care in plain words" },
 ];
 
 export default function DashboardPage() {
@@ -81,14 +92,16 @@ export default function DashboardPage() {
 
   return (
     <>
-      <div className="page-head">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>
+          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">
             {greeting()}, {name.split(/\s+/)[0] || "there"}
           </h1>
-          <p>Here is where your care stands today.</p>
+          <p className="mt-1 text-sm font-[350] text-muted-foreground">
+            Here is where your care stands today.
+          </p>
         </div>
-        <Link href="/notifications" className="btn">
+        <Link href="/notifications" className={buttonClassName("outline", "default")}>
           Inbox{unread ? ` (${unread} unread)` : ""}
         </Link>
       </div>
@@ -107,59 +120,72 @@ export default function DashboardPage() {
             : liveToken.status === "CALLED"
               ? "You are being called in."
               : `Position ${liveToken.position ?? "-"} - about ${liveToken.etaMinutes ?? "?"} min to go.`}{" "}
-          <Link href={`/visits-queue/${liveToken.id}`}>Track it live</Link>
+          <Link href={`/visits-queue/${liveToken.id}`} className="font-[400] underline underline-offset-2">
+            Track it live
+          </Link>
         </Banner>
       )}
 
       {!appointments && !error && (
-        <div className="stack">
-          <div className="skeleton title" />
-          <div className="skeleton block" />
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-44 bg-surface-muted" />
+          <Skeleton className="h-28 w-full bg-surface-muted" />
         </div>
       )}
 
       {appointments && (
-        <div className="card" style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ fontSize: 26 }} aria-hidden>
-            Cal
-          </div>
-          <div className="grow">
-            <div className="stat-label">Next visit</div>
-            {nextVisit ? (
-              <>
-                <div className="bold" style={{ fontSize: 16 }}>
-                  {doctorName(nextVisit.doctorId)}
-                </div>
-                <div className="muted small">
-                  {fmtDate(nextVisit.startsAt)} at {fmtTime(nextVisit.startsAt)}
-                  {nextVisit.reason ? ` - ${nextVisit.reason}` : ""}
-                </div>
-              </>
-            ) : (
-              <div className="muted small mt8">No upcoming visit booked yet.</div>
-            )}
-          </div>
-          <Link href="/appointments" className="btn btn-primary btn-sm">
-            {nextVisit ? "Manage" : "Book now"}
-          </Link>
-        </div>
+        <Card className="rounded-lg border-border shadow-none">
+          <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 p-5">
+            <div className="space-y-1">
+              <CardDescription>Next visit</CardDescription>
+              {nextVisit ? (
+                <>
+                  <CardTitle>{doctorName(nextVisit.doctorId)}</CardTitle>
+                  <p className="text-sm font-[350] text-muted-foreground">
+                    {fmtDate(nextVisit.startsAt)} at {fmtTime(nextVisit.startsAt)}
+                    {nextVisit.reason ? ` - ${nextVisit.reason}` : ""}
+                  </p>
+                </>
+              ) : (
+                <CardTitle>No upcoming visit booked yet.</CardTitle>
+              )}
+            </div>
+            <Link href="/appointments" className={buttonClassName("default", "sm")}>
+              {nextVisit ? "Manage" : "Book now"}
+            </Link>
+          </CardHeader>
+        </Card>
       )}
 
-      <h2 className="section">Quick access</h2>
-      <div className="grid-3">
-        {TILES.map((t) => (
-          <Link key={t.href} href={t.href} className="card tile card-hover">
-            <div className="tile-icon">{t.icon}</div>
-            <h3>{t.title}</h3>
-            <p>{t.body}</p>
-          </Link>
-        ))}
-      </div>
+      <section aria-label="Quick access" className="mt-8">
+        <h2 className="mb-3 text-heading-2 font-[500] tracking-[-0.01em]">Quick access</h2>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {TILES.map((t) => (
+            <Link key={t.href} href={t.href} className="group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25 focus-visible:ring-offset-2">
+              <Card className="rounded-lg border-border shadow-none transition-colors duration-160 ease-out group-hover:bg-surface-subtle">
+                <CardContent className="p-5 pt-5 font-[350]">
+                  <div className="mb-4 grid size-9 place-items-center rounded-md bg-surface-muted text-muted-foreground">
+                    <t.icon className="size-4" aria-hidden />
+                  </div>
+                  <h3 className="text-base font-[500] leading-[1.35] tracking-[-0.01em]">{t.title}</h3>
+                  <p className="mt-1.5 text-sm font-[350] leading-[1.55] text-muted-foreground">{t.body}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-      <p className="center muted tiny section">
-        Signed in on this device? Use the user menu (top right) to sign out.
-        {" "}
-        <a href="#" onClick={(e) => { e.preventDefault(); router.refresh(); }}>
+      <p className="mt-10 flex flex-wrap items-center justify-center gap-1 text-center text-caption font-[350] text-subtle">
+        Signed in on this device? Use the user menu (top right) to sign out.{" "}
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            router.refresh();
+          }}
+          className="font-[400] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+        >
           Refresh data
         </a>
       </p>

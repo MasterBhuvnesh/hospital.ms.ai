@@ -1,3 +1,5 @@
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+
 export default function StatCard({
   label,
   value,
@@ -8,10 +10,16 @@ export default function StatCard({
   sub?: React.ReactNode;
 }) {
   return (
-    <div className="card">
-      <div className="stat-label">{label}</div>
-      <div className="stat-value">{value}</div>
-      {sub != null && <div className="stat-sub">{sub}</div>}
-    </div>
+    <Card className="rounded-lg border-border shadow-none">
+      <CardHeader className="p-5 pb-2">
+        <CardDescription className="text-label font-[450] text-muted-foreground">{label}</CardDescription>
+      </CardHeader>
+      <CardContent className="p-5 pt-0">
+        <div className="text-2xl font-[500] leading-[1.2] tracking-[-0.02em]">{value}</div>
+        {sub != null && (
+          <p className="mt-2 text-xs font-[350] text-muted-foreground">{sub}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

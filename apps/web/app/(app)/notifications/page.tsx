@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { api, type AppNotification } from "@/lib/api";
 import { fmtDateTime } from "@/lib/format";
 import Banner from "@/components/Banner";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function NotificationsPage() {
   const router = useRouter();
@@ -50,25 +54,28 @@ export default function NotificationsPage() {
 
   if (!items) {
     return (
-      <div className="stack">
-        <div className="skeleton title" />
-        <div className="skeleton block" />
-        <div className="skeleton block" />
+      <div className="space-y-3">
+        <Skeleton className="h-6 w-44 bg-surface-muted" />
+        <Skeleton className="h-16 w-full bg-surface-muted" />
+        <Skeleton className="h-16 w-full bg-surface-muted" />
+        <Skeleton className="h-16 w-full bg-surface-muted" />
       </div>
     );
   }
 
   return (
     <>
-      <div className="page-head">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>Notifications</h1>
-          <p>{unread > 0 ? `${unread} unread` : "You are all caught up."}</p>
+          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Notifications</h1>
+          <p className="mt-1 text-sm font-[350] text-muted-foreground">
+            {unread > 0 ? `${unread} unread` : "You are all caught up."}
+          </p>
         </div>
         {unread > 0 && (
-          <button className="btn" onClick={markAll}>
+          <Button variant="outline" onClick={markAll}>
             Mark all read
-          </button>
+          </Button>
         )}
       </div>
 
@@ -79,31 +86,37 @@ export default function NotificationsPage() {
       )}
 
       {items.length === 0 ? (
-        <div className="card empty">
-          <div className="empty-icon">Bell</div>
-          Nothing here yet. Queue calls, lab releases and bills will show up in this inbox.
-        </div>
+        <Card className="rounded-lg border-border px-6 py-12 text-center shadow-none">
+          <p className="text-sm font-[350] text-muted-foreground">
+            Nothing here yet. Queue calls, lab releases and bills will show up in this inbox.
+          </p>
+        </Card>
       ) : (
-        <div className="list-card">
-          {items.map((n) => (
-            <button
-              key={n.id}
-              className="list-row"
-              style={{ width: "100%", textAlign: "left", background: "none", border: 0, borderBottom: "1px solid #f4f4f5", cursor: "pointer", fontFamily: "inherit", fontSize: 14 }}
-              onClick={() => open(n)}
-            >
-              {!n.readAt && <span className="dot" aria-label="Unread" />}
-              <span className="badge badge-zinc nowrap">{n.category.replace(/_/g, " ")}</span>
-              <span className="grow">
-                <span className="bold small" style={{ display: "block" }}>
-                  {n.subject}
-                </span>
-                <span className="muted small">{n.body}</span>
-              </span>
-              <span className="tiny faint nowrap">{fmtDateTime(n.createdAt)}</span>
-            </button>
-          ))}
-        </div>
+        <Card className="rounded-lg border-border shadow-none">
+          <ul className="divide-y divide-border-subtle font-[350]">
+            {items.map((n) => (
+              <li key={n.id}>
+                <button
+                  type="button"
+                  className="flex w-full items-start gap-3 px-4 py-4 text-left transition-colors duration-120 ease-out hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/25 sm:px-5"
+                  onClick={() => open(n)}
+                >
+                  {!n.readAt && (
+                    <span aria-label="Unread" className="mt-1.5 size-2 flex-none rounded-full bg-info" />
+                  )}
+                  <Badge variant="outline" className="mt-0.5 whitespace-nowrap">
+                    {n.category.replace(/_/g, " ")}
+                  </Badge>
+                  <span className="min-w-0 grow">
+                    <span className="block text-sm font-[450] text-foreground">{n.subject}</span>
+                    <span className="mt-0.5 block text-sm text-muted-foreground">{n.body}</span>
+                  </span>
+                  <span className="whitespace-nowrap text-caption text-subtle">{fmtDateTime(n.createdAt)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Card>
       )}
     </>
   );

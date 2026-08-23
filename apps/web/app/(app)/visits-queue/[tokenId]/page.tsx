@@ -3,9 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { api, type Token } from "@/lib/api";
 import { fmtDate } from "@/lib/format";
 import Banner from "@/components/Banner";
+import { buttonClassName } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge, badgeSemantic } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 const FLOW = ["WAITING", "CALLED", "IN_CONSULTATION", "COMPLETED"] as const;
 
@@ -48,21 +54,21 @@ export default function VisitQueuePage() {
 
   if (loading && !token) {
     return (
-      <div className="loading-pane">
-        <div className="spinner" />
-        <p className="small mt8">Loading your live token&hellip;</p>
+      <div className="mx-auto w-full max-w-xl space-y-3">
+        <Skeleton className="h-6 w-40 bg-surface-muted" />
+        <Skeleton className="h-64 w-full bg-surface-muted" />
       </div>
     );
   }
 
   if (!token) {
     return (
-      <>
+      <div className="space-y-4">
         <Banner kind="error">{error ?? "Token not found."}</Banner>
-        <Link href="/appointments" className="btn">
+        <Link href="/appointments" className={buttonClassName("outline", "default")}>
           Back to appointments
         </Link>
-      </>
+      </div>
     );
   }
 
@@ -73,21 +79,22 @@ export default function VisitQueuePage() {
   const nearTurn = status === "WAITING" && typeof token.position === "number" && token.position <= 3;
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      <div className="page-head" style={{ marginBottom: 10 }}>
+    <div className="mx-auto w-full max-w-xl">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>Live queue</h1>
-          <p className="small muted">
+          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Live queue</h1>
+          <p className="mt-1 flex items-center gap-1.5 text-sm font-[350] text-muted-foreground">
             Dr. {token.doctorName.replace(/^Dr\.?\s*/i, "")} - {fmtDate(token.tokenDate)}
             {!done && !isSkipped && (
-              <span className="nowrap">
-                {" "}
-                - <span className="live-dot" />live
-              </span>
+              <>
+                {" - "}
+                <span aria-hidden className="size-2 animate-pulse rounded-full bg-success" />
+                live
+              </>
             )}
           </p>
         </div>
-        <Link href="/appointments" className="btn btn-sm">
+        <Link href="/appointments" className={buttonClassName("outline", "sm")}>
           Appointments
         </Link>
       </div>
@@ -118,46 +125,115 @@ export default function VisitQueuePage() {
         </Banner>
       )}
 
-      <div className="card token-hero">
-        <div className="stat-label">Your token</div>
-        <div className="token-number">#{token.tokenNumber}</div>
-        <div className="token-meta">
-          <div>
-            <div className="k">Status</div>
-            <div className="v" style={{ fontSize: 15 }}>
-              {status.replace(/_/g, " ")}
-            </div>
+      <Card className="mt-4 rounded-lg border-border text-center shadow-none">
+        <CardContent className="px-5 py-10 font-[350] sm:py-12">
+          <div className="text-label font-[450] uppercase tracking-[0.05em] text-muted-foreground">
+            Your token
           </div>
-          <div>
-            <div className="k">Position</div>
-            <div className="v">{done || isSkipped ? "-" : (token.position ?? "-")}</div>
+          <div className="mt-2 font-[500] leading-none tracking-[-0.04em] text-ink text-[72px] sm:text-display">
+            #{token.tokenNumber}
           </div>
-          <div>
-            <div className="k">Est. wait</div>
-            <div className="v">
-              {done ? "Done" : isSkipped ? "-" : `${token.etaMinutes ?? "?"} min`}
-            </div>
-          </div>
-        </div>
 
-        <div className="stepper">
-          {FLOW.map((s, i) => {
-            const cls =
-              flowIndex > i || done ? "done" : flowIndex === i ? "current" : "";
-            return (
-              <div key={s} className={`step-node ${cls}`}>
-                <span className="step-bullet">{flowIndex > i || done ? "+" : i + 1}</span>
-                <div className="step-name">{s.replace(/_/g, " ")}</div>
+          <div className="mt-8 flex flex-wrap items-start justify-center gap-x-10 gap-y-4">
+            <div className="min-w-24">
+              <div className="text-caption font-[450] uppercase tracking-[0.06em] text-muted-foreground">
+                Status
               </div>
-            );
-          })}
-        </div>
-      </div>
+              <div className="mt-1.5 flex justify-center">
+                <Badge variant="outline" className={statusBadgeClass(status)}>
+                  {status.replace(/_/g, " ")}
+                </Badge>
+              </div>
+            </div>
+            <div className="min-w-20">
+              <div className="text-caption font-[450] uppercase tracking-[0.06em] text-muted-foreground">
+                Position
+              </div>
+              <div className="mt-1 text-heading-4 font-[500]">
+                {done || isSkipped ? "-" : (token.position ?? "-")}
+              </div>
+            </div>
+            <div className="min-w-20">
+              <div className="text-caption font-[450] uppercase tracking-[0.06em] text-muted-foreground">
+                Est. wait
+              </div>
+              <div className="mt-1 text-heading-4 font-[500]">
+                {done ? "Done" : isSkipped ? "-" : `${token.etaMinutes ?? "?"} min`}
+              </div>
+            </div>
+          </div>
 
-      <p className="center muted tiny mt16">
+          <ol className="mt-10 space-y-0 text-left">
+            {FLOW.map((s, i) => {
+              const state =
+                flowIndex > i || done ? "done" : flowIndex === i ? "current" : "todo";
+              return (
+                <li key={s} className="flex items-stretch gap-3">
+                  <div className="flex flex-col items-center">
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "grid size-7 flex-none place-items-center rounded-full border text-caption font-[500]",
+                        state === "done" && "border-primary bg-primary text-primary-foreground",
+                        state === "current" &&
+                          "border-primary bg-background text-foreground ring-4 ring-ring/10",
+                        state === "todo" && "border-border bg-background text-subtle",
+                      )}
+                    >
+                      {flowIndex > i || done ? "+" : i + 1}
+                    </span>
+                    {i < FLOW.length - 1 && (
+                      <span
+                        aria-hidden
+                        className={cn("w-px grow", state === "done" ? "bg-primary/30" : "bg-border-subtle")}
+                      />
+                    )}
+                  </div>
+                  <div className="pb-6 pt-1">
+                    <span
+                      className={cn(
+                        "text-sm",
+                        state === "done" && "font-[450] text-foreground",
+                        state === "current" && "font-[500] text-foreground",
+                        state === "todo" && "font-[350] text-subtle",
+                      )}
+                    >
+                      {s.replace(/_/g, " ")}
+                    </span>
+                    {state === "current" && (
+                      <span className="ml-2 align-middle">
+                        <Loader2 className="inline size-3.5 animate-spin text-muted-foreground" aria-hidden />
+                      </span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </CardContent>
+      </Card>
+
+      <p className="mt-4 text-center text-caption font-[350] text-subtle">
         This page refreshes automatically every 5 seconds. You can safely leave and come back via
         Appointments.
       </p>
     </div>
   );
+}
+
+function statusBadgeClass(status: Token["status"]) {
+  switch (status) {
+    case "COMPLETED":
+      return badgeSemantic.success;
+    case "CALLED":
+    case "IN_CONSULTATION":
+      return badgeSemantic.info;
+    case "SKIPPED":
+    case "NO_SHOW":
+      return badgeSemantic.error;
+    case "WAITING":
+      return badgeSemantic.warning;
+    default:
+      return "";
+  }
 }

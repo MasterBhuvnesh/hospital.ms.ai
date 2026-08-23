@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Modal({
   open,
@@ -33,16 +35,28 @@ export default function Modal({
   if (!open) return null;
 
   return (
-    <div className="modal-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`modal${wide ? " modal-wide" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
-        <div className="modal-head">
-          <h3>{title}</h3>
-          <button className="modal-x" onClick={onClose} aria-label="Close">
-            &times;
-          </button>
+    <div
+      className="animate-overlay-in bg-overlay fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 backdrop-blur-[2px] sm:p-12"
+      onMouseDown={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className={`animate-dialog-in w-full ${wide ? "max-w-2xl" : "max-w-lg"} rounded-xl border border-border bg-background font-[350] shadow-dialog`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+      >
+        <div className="flex items-center justify-between gap-4 border-b border-border-subtle px-5 py-4">
+          <h2 className="text-base font-[500] leading-[1.35] tracking-[-0.01em]">{title}</h2>
+          <Button variant="ghost" size="icon" className="size-8" onClick={onClose} aria-label="Close">
+            <X />
+          </Button>
         </div>
-        <div className="modal-body">{children}</div>
-        {footer && <div className="modal-foot">{footer}</div>}
+        <div className="p-5">{children}</div>
+        {footer && (
+          <div className="flex items-center justify-end gap-2 border-t border-border-subtle px-5 py-4">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

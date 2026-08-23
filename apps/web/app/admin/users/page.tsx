@@ -3,6 +3,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, ROLES, type AdminUser, type Role } from "@/lib/api";
 import Banner from "@/components/Banner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { Badge, badgeSemantic } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const GRANTABLE: Role[] = ROLES.filter((r) => r !== "PATIENT") as Role[];
 
@@ -69,18 +83,20 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      <div className="page-head">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>Users</h1>
-          <p>{total != null ? `${total} user${total === 1 ? "" : "s"} in scope` : "Loading..."}</p>
+          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Users</h1>
+          <p className="mt-1 text-sm font-[350] text-muted-foreground">
+            {total != null ? `${total} user${total === 1 ? "" : "s"} in scope` : "Loading..."}
+          </p>
         </div>
-        <input
-          className="input"
-          style={{ maxWidth: 300 }}
-          placeholder="Search name, email or phone..."
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+        <div className="w-full sm:w-72">
+          <Input
+            placeholder="Search name, email or phone..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
       </div>
 
       {error && (
@@ -95,98 +111,104 @@ export default function AdminUsersPage() {
       )}
 
       {!users ? (
-        <div className="skeleton block" />
+        <Skeleton className="h-64 w-full bg-surface-muted" />
       ) : users.length === 0 ? (
-        <div className="card empty">No users match this search.</div>
+        <Card className="rounded-lg border-border px-6 py-10 text-center shadow-none">
+          <p className="text-sm font-[350] text-muted-foreground">No users match this search.</p>
+        </Card>
       ) : (
-        <div className="table-wrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Contact</th>
-                <th>Roles</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => {
-                const needsHospital =
-                  rolePick[u.id] &&
-                  !["PATIENT", "PLATFORM_ADMIN", "HOSPITAL_ADMIN"].includes(rolePick[u.id]);
-                return (
-                  <tr key={u.id}>
-                    <td className="bold nowrap">{u.fullName}</td>
-                    <td className="small muted">
-                      {u.email ?? "-"}
-                      <br />
-                      {u.phone ?? ""}
-                    </td>
-                    <td>
-                      <span className="row" style={{ gap: 4 }}>
-                        {(u.roles ?? []).map((r, i) => (
-                          <span key={`${u.id}-r-${i}`} className="badge badge-zinc">
-                            {r.role.replace(/_/g, " ")}
-                          </span>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Contact</TableHead>
+              <TableHead>Roles</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((u) => {
+              const needsHospital =
+                rolePick[u.id] &&
+                !["PATIENT", "PLATFORM_ADMIN", "HOSPITAL_ADMIN"].includes(rolePick[u.id]);
+              return (
+                <TableRow key={u.id}>
+                  <TableCell className="whitespace-nowrap font-[450]">{u.fullName}</TableCell>
+                  <TableCell className="text-body-small text-muted-foreground">
+                    {u.email ?? "-"}
+                    <br />
+                    {u.phone ?? ""}
+                  </TableCell>
+                  <TableCell>
+                    <span className="flex flex-wrap gap-1">
+                      {(u.roles ?? []).map((r, i) => (
+                        <Badge key={`${u.id}-r-${i}`} variant="outline">
+                          {r.role.replace(/_/g, " ")}
+                        </Badge>
+                      ))}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={u.isActive === false ? badgeSemantic.error : badgeSemantic.success}
+                    >
+                      {u.isActive === false ? "Inactive" : "Active"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Button
+                        size="sm"
+                        variant={u.isActive === false ? "default" : "outline"}
+                        className={u.isActive === false ? "" : "text-danger hover:bg-danger-background"}
+                        disabled={actingId === u.id}
+                        onClick={() => toggleActive(u)}
+                      >
+                        {u.isActive === false ? "Activate" : "Deactivate"}
+                      </Button>
+                      <Select
+                        aria-label={`Grant role to ${u.fullName}`}
+                        className="h-8 w-36 text-xs"
+                        value={rolePick[u.id] ?? ""}
+                        onChange={(e) =>
+                          setRolePick((prev) => ({ ...prev, [u.id]: e.target.value as Role }))
+                        }
+                      >
+                        <option value="">Grant role...</option>
+                        {GRANTABLE.map((r) => (
+                          <option key={r} value={r}>
+                            {r.replace(/_/g, " ")}
+                          </option>
                         ))}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${u.isActive === false ? "badge-red" : "badge-green"}`}>
-                        {u.isActive === false ? "Inactive" : "Active"}
-                      </span>
-                    </td>
-                    <td style={{ minWidth: 320 }}>
-                      <div className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
-                        <button
-                          className={`btn btn-sm ${u.isActive === false ? "btn-primary" : "btn-outline-danger"}`}
-                          disabled={actingId === u.id}
-                          onClick={() => toggleActive(u)}
-                        >
-                          {u.isActive === false ? "Activate" : "Deactivate"}
-                        </button>
-                        <select
-                          className="select"
-                          style={{ width: 150, padding: "5px 8px", fontSize: 12.5 }}
-                          value={rolePick[u.id] ?? ""}
+                      </Select>
+                      {needsHospital && (
+                        <Input
+                          aria-label="Hospital uuid for the granted role"
+                          className="h-8 w-44 font-mono text-xs"
+                          placeholder="hospital uuid"
+                          value={hospitalPick[u.id] ?? ""}
                           onChange={(e) =>
-                            setRolePick((prev) => ({ ...prev, [u.id]: e.target.value as Role }))
+                            setHospitalPick((prev) => ({ ...prev, [u.id]: e.target.value }))
                           }
-                        >
-                          <option value="">Grant role...</option>
-                          {GRANTABLE.map((r) => (
-                            <option key={r} value={r}>
-                              {r.replace(/_/g, " ")}
-                            </option>
-                          ))}
-                        </select>
-                        {needsHospital && (
-                          <input
-                            className="input mono"
-                            style={{ width: 190, padding: "5px 8px", fontSize: 12 }}
-                            placeholder="hospital uuid"
-                            value={hospitalPick[u.id] ?? ""}
-                            onChange={(e) =>
-                              setHospitalPick((prev) => ({ ...prev, [u.id]: e.target.value }))
-                            }
-                          />
-                        )}
-                        <button
-                          className="btn btn-sm"
-                          disabled={!rolePick[u.id] || actingId === u.id}
-                          onClick={() => grantRole(u)}
-                        >
-                          Grant
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                        />
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!rolePick[u.id] || actingId === u.id}
+                        onClick={() => grantRole(u)}
+                      >
+                        Grant
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       )}
     </>
   );

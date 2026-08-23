@@ -4,6 +4,18 @@ import { useEffect, useState } from "react";
 import { api, type AuditRow } from "@/lib/api";
 import { fmtDateTime } from "@/lib/format";
 import Banner from "@/components/Banner";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Badge, badgeSemantic } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminAuditPage() {
   const [rows, setRows] = useState<AuditRow[] | null>(null);
@@ -28,22 +40,22 @@ export default function AdminAuditPage() {
 
   return (
     <>
-      <div className="page-head">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>Audit log</h1>
-          <p>Append-only. Every privileged read and write lands here.</p>
+          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">Audit log</h1>
+          <p className="mt-1 text-sm font-[350] text-muted-foreground">
+            Append-only. Every privileged read and write lands here.
+          </p>
         </div>
-        <div className="row">
-          <input
-            className="input"
-            style={{ width: 220 }}
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+          <Input
+            className="w-full sm:w-52"
             placeholder="Action contains..."
             value={action}
             onChange={(e) => setAction(e.target.value)}
           />
-          <input
-            className="input mono"
-            style={{ width: 260 }}
+          <Input
+            className="w-full font-mono text-body-small sm:w-60"
             placeholder="Actor id (uuid)"
             value={actorId}
             onChange={(e) => setActorId(e.target.value)}
@@ -58,55 +70,62 @@ export default function AdminAuditPage() {
       )}
 
       {!rows ? (
-        <div className="skeleton block" />
+        <Skeleton className="h-64 w-full bg-surface-muted" />
       ) : rows.length === 0 ? (
-        <div className="card empty">No audit entries match these filters (showing latest 100).</div>
+        <Card className="rounded-lg border-border px-6 py-10 text-center shadow-none">
+          <p className="text-sm font-[350] text-muted-foreground">
+            No audit entries match these filters (showing latest 100).
+          </p>
+        </Card>
       ) : (
         <>
-          <p className="tiny faint mb8">
+          <p className="mb-3 text-caption font-[350] text-subtle">
             Showing {rows.length} of {total} matching entries.
           </p>
-          <div className="table-wrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Timestamp</th>
-                  <th>Action</th>
-                  <th>Actor</th>
-                  <th>Resource</th>
-                  <th>IP</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((a, i) => (
-                  <tr key={a.id ?? `${a.timestamp}-${i}`}>
-                    <td className="nowrap small">{fmtDateTime(a.timestamp)}</td>
-                    <td>
-                      <span className={`badge ${/break_glass|phi\./i.test(a.action) ? "badge-red" : "badge-zinc"}`}>
-                        {a.action}
-                      </span>
-                      {a.reason && (
-                        <div className="tiny muted truncate" style={{ maxWidth: 260 }} title={a.reason}>
-                          reason: {a.reason}
-                        </div>
-                      )}
-                    </td>
-                    <td className="small">
-                      {a.actorRole && <div className="tiny muted">{a.actorRole}</div>}
-                      <span className="mono tiny">{(a.actorId ?? "-").slice(0, 13)}...</span>
-                    </td>
-                    <td className="small">
-                      {a.resource ?? "-"}
-                      {a.resourceId && (
-                        <div className="mono tiny muted">{String(a.resourceId).slice(0, 13)}...</div>
-                      )}
-                    </td>
-                    <td className="mono tiny">{a.ip ?? "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Actor</TableHead>
+                <TableHead>Resource</TableHead>
+                <TableHead>IP</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((a, i) => (
+                <TableRow key={a.id ?? `${a.timestamp}-${i}`}>
+                  <TableCell className="whitespace-nowrap text-body-small">{fmtDateTime(a.timestamp)}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={/break_glass|phi\./i.test(a.action) ? badgeSemantic.error : ""}
+                    >
+                      {a.action}
+                    </Badge>
+                    {a.reason && (
+                      <div className="mt-1 max-w-64 truncate text-caption text-muted-foreground" title={a.reason}>
+                        reason: {a.reason}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-body-small">
+                    {a.actorRole && <div className="text-caption text-muted-foreground">{a.actorRole}</div>}
+                    <span className="font-mono text-caption">{(a.actorId ?? "-").slice(0, 13)}...</span>
+                  </TableCell>
+                  <TableCell className="text-body-small">
+                    {a.resource ?? "-"}
+                    {a.resourceId && (
+                      <div className="font-mono text-caption text-muted-foreground">
+                        {String(a.resourceId).slice(0, 13)}...
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="font-mono text-caption">{a.ip ?? "-"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </>
       )}
     </>

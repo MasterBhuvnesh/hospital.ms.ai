@@ -2,9 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
 import Banner from "@/components/Banner";
 import Modal from "@/components/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -74,14 +79,21 @@ export default function CopilotPage() {
 
   return (
     <>
-      <div className="page-head">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1>AI copilot</h1>
-          <p>Grounded in your own records - never medical advice. Memory is yours to erase.</p>
+          <h1 className="text-heading-1 font-[500] tracking-[-0.02em]">AI copilot</h1>
+          <p className="mt-1 text-sm font-[350] text-muted-foreground">
+            Grounded in your own records - never medical advice. Memory is yours to erase.
+          </p>
         </div>
-        <button className="btn btn-outline-danger btn-sm" onClick={() => setConfirmErase(true)}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-danger-border bg-background text-danger hover:bg-danger-background"
+          onClick={() => setConfirmErase(true)}
+        >
           Erase memory
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -90,41 +102,70 @@ export default function CopilotPage() {
         </Banner>
       )}
 
-      <div className="card">
-        <div className="chat-window" ref={scrollRef}>
-          {messages.map((m, i) =>
-            m.content ? (
-              <div key={i} className={`bubble ${m.role === "user" ? "bubble-user" : "bubble-ai"}`}>
-                {m.content}
-              </div>
-            ) : (
-              <div key={i} className="bubble bubble-ai typing-dots" aria-label="Thinking">
-                <span />
-                <span />
-                <span />
-              </div>
-            ),
-          )}
-        </div>
+      <Card className="rounded-lg border-border shadow-none">
+        <CardContent className="p-5 pt-5 font-[350]">
+          <div
+            ref={scrollRef}
+            className="flex max-h-[52vh] min-h-72 flex-col gap-3 overflow-y-auto px-0.5"
+            aria-live="polite"
+          >
+            {messages.map((m, i) =>
+              m.content ? (
+                <div
+                  key={i}
+                  className={cn(
+                    "max-w-[78%] whitespace-pre-wrap break-words rounded-lg px-3.5 py-2.5 text-sm leading-[1.55]",
+                    m.role === "user"
+                      ? "self-end rounded-br-sm bg-primary text-primary-foreground"
+                      : "self-start rounded-bl-sm bg-surface-muted text-foreground",
+                  )}
+                >
+                  {m.content}
+                </div>
+              ) : (
+                <div
+                  key={i}
+                  aria-label="Thinking"
+                  className="flex items-center gap-1 self-start rounded-lg rounded-bl-sm bg-surface-muted px-4 py-3"
+                >
+                  {[0, 150, 300].map((d) => (
+                    <span
+                      key={d}
+                      style={{ animationDelay: `${d}ms` }}
+                      className="size-1.5 animate-pulse rounded-full bg-muted-foreground"
+                    />
+                  ))}
+                </div>
+              ),
+            )}
+          </div>
 
-        <form className="chat-bar" onSubmit={send}>
-          <input
-            className="input grow"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about your care..."
-            disabled={sending}
-            maxLength={2000}
-          />
-          <button className="btn btn-primary" disabled={sending || !input.trim()}>
-            {sending ? "..." : "Send"}
-          </button>
-        </form>
-      </div>
+          <form className="mt-4 flex gap-2" onSubmit={send}>
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask about your care..."
+              disabled={sending}
+              maxLength={2000}
+            />
+            <Button type="submit" disabled={sending || !input.trim()}>
+              {sending ? <Loader2 className="animate-spin" aria-hidden /> : "Send"}
+              <span className="sr-only">Send message</span>
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-      <p className="center muted tiny mt16">
+      <p className="mt-4 text-center text-caption font-[350] text-subtle">
         The copilot keeps a rolling history of the last 10 turns per conversation.{" "}
-        <a href="#" onClick={(e) => { e.preventDefault(); router.refresh(); }}>
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            router.refresh();
+          }}
+          className="font-[400] text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+        >
           Reset view
         </a>
       </p>
@@ -135,16 +176,16 @@ export default function CopilotPage() {
         title="Erase copilot memory?"
         footer={
           <>
-            <button className="btn" onClick={() => setConfirmErase(false)}>
+            <Button variant="secondary" onClick={() => setConfirmErase(false)}>
               Cancel
-            </button>
-            <button className="btn btn-danger" disabled={erasing} onClick={erase}>
+            </Button>
+            <Button variant="destructive" disabled={erasing} onClick={erase}>
               {erasing ? "Erasing..." : "Yes, erase everything"}
-            </button>
+            </Button>
           </>
         }
       >
-        <p className="muted small">
+        <p className="text-sm text-muted-foreground">
           Everything the copilot remembers about you is permanently deleted and the erasure is
           audited. This cannot be undone.
         </p>

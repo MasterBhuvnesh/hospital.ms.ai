@@ -5,6 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, ADMIN_ROLES, ApiError, type ApiUser } from "@/lib/api";
 import Banner from "@/components/Banner";
+import { Button, buttonClassName } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const DEMO = [
   { label: "Patient", email: "patient@atelier.local", password: "Demo@12345" },
@@ -120,83 +125,94 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth-shell">
-      <div className="auth-card">
-        <div className="auth-brand">
-          <Link href="/" className="brand">
-            <span className="brand-dot" />
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <Card className="w-full max-w-sm rounded-lg border-border p-6 shadow-none sm:p-8">
+        <div className="mb-5 flex justify-center">
+          <Link href="/" className="flex items-center gap-2 text-[15px] font-[500] tracking-[-0.02em]">
+            <span aria-hidden className="size-2.5 rounded-full bg-ink" />
             Atelier Health
           </Link>
         </div>
 
-        <div className="mode-tabs" role="tablist">
-          <button className={mode === "password" ? "on" : ""} onClick={() => setMode("password")} type="button">
+        <div className="mb-5 grid grid-cols-2 gap-1 rounded-md bg-surface-muted p-1" role="tablist">
+          <Button
+            variant={mode === "password" ? "default" : "ghost"}
+            onClick={() => setMode("password")}
+            role="tab"
+            aria-selected={mode === "password"}
+            className="h-8 px-3 text-xs"
+          >
             Email &amp; password
-          </button>
-          <button className={mode === "otp" ? "on" : ""} onClick={() => setMode("otp")} type="button">
+          </Button>
+          <Button
+            variant={mode === "otp" ? "default" : "ghost"}
+            onClick={() => setMode("otp")}
+            role="tab"
+            aria-selected={mode === "otp"}
+            className="h-8 px-3 text-xs"
+          >
             Phone OTP
-          </button>
+          </Button>
         </div>
 
         {err && <Banner kind="error" onDismiss={() => setErr(null)}>{err}</Banner>}
         {info && <Banner kind="info" onDismiss={() => setInfo(null)}>{info}</Banner>}
 
         {mode === "password" ? (
-          <form onSubmit={submitPassword}>
+          <form onSubmit={submitPassword} className="space-y-4">
             {registering && (
-              <div className="field">
-                <label className="label" htmlFor="fullName">
-                  Full name
-                </label>
-                <input id="fullName" className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Ramesh Kumar" />
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full name</Label>
+                <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Ramesh Kumar" />
               </div>
             )}
-            <div className="field">
-              <label className="label" htmlFor="identifier">
-                Email or phone
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="identifier">Email or phone</Label>
+              <Input
                 id="identifier"
-                className="input"
                 autoComplete="username"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="you@example.com"
               />
             </div>
-            <div className="field">
-              <label className="label" htmlFor="password">
-                Password
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
                 id="password"
                 type="password"
-                className="input"
                 autoComplete={registering ? "new-password" : "current-password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Your password"
               />
             </div>
-            <button className="btn btn-primary btn-block btn-lg" disabled={busy || !identifier || !password}>
+            <Button size="lg" className="w-full" disabled={busy || !identifier || !password}>
               {busy ? "Signing in..." : registering ? "Create account" : "Sign in"}
-            </button>
-            <p className="center small muted mt16">
+            </Button>
+            <p className="pt-1 text-center text-body-small font-[350] text-muted-foreground">
               {registering ? "Already have an account? " : "New here? "}
-              <a href="#" onClick={(e) => { e.preventDefault(); setRegistering((v) => !v); }}>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setRegistering((v) => !v);
+                }}
+                className="font-[400] text-foreground underline-offset-2 hover:underline"
+              >
                 {registering ? "Sign in instead" : "Create an account"}
               </a>
             </p>
 
             {!registering && (
-              <div className="demo-logins">
-                <p className="tiny faint mb8">Demo accounts - tap to fill:</p>
-                <div className="row" style={{ gap: 6 }}>
+              <div className="border-t border-dashed border-border pt-4">
+                <p className="mb-2 text-caption font-[350] text-subtle">Demo accounts - tap to fill:</p>
+                <div className="flex flex-wrap gap-1.5">
                   {DEMO.map((d) => (
                     <button
                       key={d.email}
                       type="button"
-                      className="chip"
+                      className={cn(buttonClassName("outline", "sm"), "h-7 px-2.5")}
                       onClick={() => {
                         setIdentifier(d.email);
                         setPassword(d.password);
@@ -210,14 +226,11 @@ export default function LoginPage() {
             )}
           </form>
         ) : (
-          <form onSubmit={otpSent ? verifyOtp : requestOtp}>
-            <div className="field">
-              <label className="label" htmlFor="phone">
-                Phone number
-              </label>
-              <input
+          <form onSubmit={otpSent ? verifyOtp : requestOtp} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone number</Label>
+              <Input
                 id="phone"
-                className="input"
                 inputMode="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -226,36 +239,41 @@ export default function LoginPage() {
             </div>
             {otpSent ? (
               <>
-                <div className="field">
-                  <label className="label" htmlFor="code">
-                    Verification code
-                  </label>
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="code">Verification code</Label>
+                  <Input
                     id="code"
-                    className="input"
                     inputMode="numeric"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     placeholder="6-digit code"
                   />
                 </div>
-                <button className="btn btn-primary btn-block btn-lg" disabled={busy || !code}>
+                <Button size="lg" className="w-full" disabled={busy || !code}>
                   {busy ? "Verifying..." : "Verify & sign in"}
-                </button>
-                <p className="center small muted mt16">
-                  <a href="#" onClick={(e) => { e.preventDefault(); setOtpSent(false); setInfo(null); }}>
+                </Button>
+                <p className="text-center text-body-small font-[350] text-muted-foreground">
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOtpSent(false);
+                      setInfo(null);
+                    }}
+                    className="font-[400] text-foreground underline-offset-2 hover:underline"
+                  >
                     Use a different number
                   </a>
                 </p>
               </>
             ) : (
-              <button className="btn btn-primary btn-block btn-lg" disabled={busy || phone.trim().length < 8}>
+              <Button size="lg" className="w-full" disabled={busy || phone.trim().length < 8}>
                 {busy ? "Sending..." : "Send code"}
-              </button>
+              </Button>
             )}
           </form>
         )}
-      </div>
+      </Card>
     </main>
   );
 }

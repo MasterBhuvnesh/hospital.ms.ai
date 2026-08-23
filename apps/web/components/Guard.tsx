@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import { api, tokenStore, ADMIN_ROLES, type ApiUser, type Role } from "@/lib/api";
 
 export default function Guard({
@@ -53,9 +54,9 @@ export default function Guard({
 
   if (state !== "ok") {
     return (
-      <div className="loading-pane">
-        <div className="spinner" />
-        <p className="small mt8">Checking your session&hellip;</p>
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-muted-foreground">
+        <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+        <p className="text-sm font-[350]">Checking your session&hellip;</p>
       </div>
     );
   }
