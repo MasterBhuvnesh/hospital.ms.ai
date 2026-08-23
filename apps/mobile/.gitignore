@@ -45,3 +45,4 @@ example
 .env.*
 !.env.example
 assets/candidates/
+assets/img/

@@ -15,7 +15,11 @@ import sharp from "sharp";
 
 const root = process.cwd();
 const CANDIDATES_DIR = path.join(root, "assets", "candidates");
-const IMAGES_DIR = path.join(root, "assets", "images");
+const IMG_DIR = path.join(root, "assets", "img");
+const SOURCE_DIRS = [CANDIDATES_DIR, IMG_DIR];
+const IMAGES_DIR = process.env.ICON_OUT_DIR
+  ? path.resolve(root, process.env.ICON_OUT_DIR)
+  : path.join(root, "assets", "images");
 const LABELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const BG = { r: 0x0e, g: 0x20, b: 0x38 };
 const TOLERANCE = 60;
@@ -23,13 +27,13 @@ const TOLERANCE = 60;
 const label = process.argv[2]?.toUpperCase();
 let file;
 if (label) {
-  file = path.join(CANDIDATES_DIR, `${label}.png`);
-  if (!existsSync(file)) die(`Candidate ${label}.png not found in ${CANDIDATES_DIR}`);
+  file = SOURCE_DIRS.map((d) => path.join(d, `${label}.png`)).find(existsSync);
+  if (!file) die(`Candidate ${label}.png not found in ${SOURCE_DIRS.join(" or ")}`);
 } else {
-  const found = LABELS.map((l) => path.join(CANDIDATES_DIR, `${l}.png`)).filter(existsSync);
+  const found = SOURCE_DIRS.flatMap((d) => LABELS.map((l) => path.join(d, `${l}.png`))).filter(existsSync);
   if (found.length === 0) {
     die(
-      `No candidates found in ${CANDIDATES_DIR}\n` +
+      `No candidates found in ${SOURCE_DIRS.join(" or ")}\n` +
         `Drop A1..C2.png there first (see docs/icon-candidates.md), then rerun.`,
     );
   }
