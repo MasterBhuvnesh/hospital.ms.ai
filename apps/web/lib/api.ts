@@ -72,11 +72,6 @@ export const tokenStore = {
     if (user) lsSet(K_USER, JSON.stringify(user));
     else lsRemove(K_USER);
   },
-  clear() {
-    lsRemove(K_ACCESS);
-    lsRemove(K_REFRESH);
-    lsRemove(K_USER);
-  },
 };
 
 /* ---------------- types ---------------- */
@@ -474,15 +469,18 @@ export const api = {
       return data.user;
     },
     async logout() {
+      // Clear local session first so the UI can navigate immediately;
+      // the server-side revoke is best-effort (works even when offline).
+      const refreshToken = tokenStore.getRefresh();
+      tokenStore.clear();
       try {
-        const refreshToken = tokenStore.getRefresh();
         await raw("/api/auth/logout", {
           method: "POST",
           body: JSON.stringify({ refreshToken }),
           auth: false,
         });
-      } finally {
-        tokenStore.clear();
+      } catch {
+        /* server revoke failed - local session is already gone */
       }
     },
     async devices(): Promise<DeviceRow[]> {

@@ -84,8 +84,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   }, []);
 
   async function signOut() {
-    await api.auth.logout().catch(() => {});
-    router.push("/login");
+    await api.auth.logout();
+    router.replace("/login");
+    router.refresh();
   }
 
   return (
