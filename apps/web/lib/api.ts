@@ -72,6 +72,11 @@ export const tokenStore = {
     if (user) lsSet(K_USER, JSON.stringify(user));
     else lsRemove(K_USER);
   },
+  clear() {
+    lsRemove(K_ACCESS);
+    lsRemove(K_REFRESH);
+    lsRemove(K_USER);
+  },
 };
 
 /* ---------------- types ---------------- */
