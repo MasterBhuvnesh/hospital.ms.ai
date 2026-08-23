@@ -62,6 +62,30 @@ Run `pnpm seed:rich` for a large demo world: **2 hospitals · 8 departments · 8
 
 > **Security note:** the credentials currently in `.env` were pasted into chat during development. Rotate them before any real use.
 
+### Twilio on a trial account — what works and what doesn't
+
+Recorded after live probes to an Indian mobile (`scripts/twilio-probe.mjs +918390545534`):
+
+| Attempt | Result |
+|---|---|
+| Free-form SMS from US long-code | ❌ `572006` — trial allows only predefined templates |
+| Verify number via Caller-ID API | ❌ `20003` — feature locked on trial |
+| WhatsApp free-form from own number | ❌ `21654` — sender not WhatsApp-enabled → ContentSid demanded |
+| **WhatsApp Sandbox** | ✅ works — free-form inside a 24h session |
+
+**WhatsApp sandbox recipe:** Console → Messaging → Try it out → Send a WhatsApp message. From the phone's WhatsApp, send the join code to `+1 415 523 8886`, then set:
+
+```env
+TWILIO_WHATSAPP_FROM=+14155238886   # sandbox sender, not your real number
+```
+
+**SMS to Indian numbers — hard reality:** US long-codes are dropped by Indian carrier **DLT filtering**, independent of trial status. Production options:
+
+1. Upgrade Twilio + register DLT templates and an Indian sender (weeks of paperwork), or
+2. Swap provider to **MSG91 / Gupshup** — config-only change through the driver abstraction (`SMS_PROVIDER` + keys); no app code touched.
+
+Either way, failed deliveries never break flows: every attempt is recorded per-channel in `notifications.deliveries[]`.
+
 ## Route map (all under `/api`)
 
 **identity.routes.ts**
