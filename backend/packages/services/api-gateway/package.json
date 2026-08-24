@@ -1,0 +1,22 @@
+{
+  "name": "@hms/api-gateway",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "tsx src/app.ts",
+    "start": "node dist/app.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "fastify": "^4.24.0",
+    "@fastify/helmet": "^11.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  }
+}
