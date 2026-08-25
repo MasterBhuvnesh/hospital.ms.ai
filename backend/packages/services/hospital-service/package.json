@@ -1,0 +1,13 @@
+{
+  "name": "@hms/hospital-service",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "tsx src/app.ts",
+    "start": "tsx src/app.ts"
+  },
+  "dependencies": {
+    "fastify": "^5.12.1",
+    "@fastify/helmet": "^13.1.1",
+    "dotenv": "^16.4.5"
+  }
+}

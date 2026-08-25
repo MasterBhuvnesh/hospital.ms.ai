@@ -97,5 +97,59 @@
       ]
     },
     "createdAt": "2026-08-23T06:35:17.366Z"
+  },
+  {
+    "id": "0a3c3135-36c9-4508-be0a-32b1f37e6386",
+    "consultationId": "42207da7-69e4-4f50-9676-d91229f4d2a0",
+    "tokenVersion": 1,
+    "patientId": "0d2bd2a1-85cb-4b78-b355-d27581784a2a",
+    "doctorId": "5cc57fe4-a096-4d42-bcda-cd71602e746c",
+    "sheet": {
+      "generatedAt": "2026-08-25T15:58:16.897Z",
+      "source": "deterministic",
+      "patient": {
+        "id": "0d2bd2a1-85cb-4b78-b355-d27581784a2a",
+        "fullName": "Reception Desk",
+        "dob": null,
+        "gender": null,
+        "bloodGroup": null,
+        "phone": null
+      },
+      "alerts": [],
+      "allergies": [],
+      "conditions": [],
+      "medications": [],
+      "recentVisits": [],
+      "recentLabs": [],
+      "recentPrescriptions": []
+    },
+    "createdAt": "2026-08-25T15:58:16.897Z"
+  },
+  {
+    "id": "282946a9-7f39-43f1-acbf-b4062d67cfdb",
+    "consultationId": "3e70b32f-cb91-4a33-b6fb-ab65a1cb29bb",
+    "tokenVersion": 1,
+    "patientId": "0d2bd2a1-85cb-4b78-b355-d27581784a2a",
+    "doctorId": "d65db70e-9aaf-4d2d-b697-102adcebb5ef",
+    "sheet": {
+      "generatedAt": "2026-08-25T16:13:07.150Z",
+      "source": "deterministic",
+      "patient": {
+        "id": "0d2bd2a1-85cb-4b78-b355-d27581784a2a",
+        "fullName": "Reception Desk",
+        "dob": null,
+        "gender": null,
+        "bloodGroup": null,
+        "phone": null
+      },
+      "alerts": [],
+      "allergies": [],
+      "conditions": [],
+      "medications": [],
+      "recentVisits": [],
+      "recentLabs": [],
+      "recentPrescriptions": []
+    },
+    "createdAt": "2026-08-25T16:13:07.150Z"
   }
 ]

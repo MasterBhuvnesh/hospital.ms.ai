@@ -88,5 +88,26 @@
     "revokedAt": null,
     "replacedByHash": null,
     "createdAt": "2026-08-23T10:46:39.556Z"
+  },
+  {
+    "id": "109411c3-7a14-44c6-b5fc-aa54db4718a1",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "familyId": "f91f662e-1b32-48db-b8d7-a286c4064f1f",
+    "tokenHash": "3ac3893ea0bb6718425fae89d1dbd1c84d0459becb7778e4700a0ecbec1bc04b",
+    "expiresAt": "2026-09-24T15:54:11.043Z",
+    "revokedAt": "2026-08-25T16:10:53.005Z",
+    "replacedByHash": "12cdafde0fd0e0dcb3072064d95383fb22f93ec0ac3ee6045f496d175383a840",
+    "createdAt": "2026-08-25T15:54:11.043Z",
+    "updatedAt": "2026-08-25T16:10:53.005Z"
+  },
+  {
+    "id": "dd877e8b-7c22-4a57-93e4-52d3c5cf52d0",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "familyId": "f91f662e-1b32-48db-b8d7-a286c4064f1f",
+    "tokenHash": "12cdafde0fd0e0dcb3072064d95383fb22f93ec0ac3ee6045f496d175383a840",
+    "expiresAt": "2026-09-24T16:10:53.005Z",
+    "revokedAt": null,
+    "replacedByHash": null,
+    "createdAt": "2026-08-25T16:10:53.005Z"
   }
 ]

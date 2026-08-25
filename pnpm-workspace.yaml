@@ -1,6 +1,8 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  - 'backend/packages/services/*'
+  - 'backend/packages/common/*'
   # Scaffolded by their own generators (create-next-app, create-expo,
   # create @quick-start/electron). Added back once those run, so the
   # generator is not fighting a manifest that already exists.
