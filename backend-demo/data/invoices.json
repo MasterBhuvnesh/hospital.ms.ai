@@ -665,11 +665,12 @@
     ],
     "total": 350,
     "currency": "INR",
-    "status": "UNPAID",
+    "status": "PAID",
     "pdfKey": null,
     "pdfUrl": null,
-    "paidAt": null,
-    "createdAt": "2026-08-22T18:50:38.908Z"
+    "paidAt": "2026-08-25T16:14:38.642Z",
+    "createdAt": "2026-08-22T18:50:38.908Z",
+    "updatedAt": "2026-08-25T16:14:38.642Z"
   },
   {
     "id": "903d6def-540a-4208-b68a-023eeba3984e",
@@ -785,11 +786,12 @@
     ],
     "total": 350,
     "currency": "INR",
-    "status": "UNPAID",
+    "status": "PAID",
     "pdfKey": null,
     "pdfUrl": null,
-    "paidAt": null,
-    "createdAt": "2026-08-22T18:50:38.909Z"
+    "paidAt": "2026-08-25T16:01:44.379Z",
+    "createdAt": "2026-08-22T18:50:38.909Z",
+    "updatedAt": "2026-08-25T16:01:44.379Z"
   },
   {
     "id": "ce2adbbd-1d47-4291-92be-23b148315ec7",

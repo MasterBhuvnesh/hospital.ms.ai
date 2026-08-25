@@ -136,5 +136,207 @@
         "error": "No Twilio trial phone number is assigned for messaging to this destination number. Please add the 'to' number as a verified recipient."
       }
     ]
+  },
+  {
+    "id": "71862079-b9bc-4f6b-b4fe-ce199797ed1e",
+    "createdAt": "2026-08-25T15:58:16.886Z",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "category": "APPOINTMENT",
+    "subject": "Appointment confirmed",
+    "body": "Your appointment with Dr. Imran Khan on 2026-08-25T04:30:00.000Z is confirmed.",
+    "meta": {
+      "appointmentId": "b012f0a1-0582-49c8-acfd-03fbeba8847c"
+    },
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-25T15:58:16.886Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "EMAIL",
+        "at": "2026-08-25T15:58:16.887Z",
+        "status": "FAILED",
+        "provider": "smtp",
+        "error": "SMTP not configured"
+      },
+      {
+        "channel": "SMS",
+        "at": "2026-08-25T15:58:16.887Z",
+        "status": "SKIPPED_NO_ADDRESS",
+        "provider": "sms"
+      }
+    ]
+  },
+  {
+    "id": "d0f25101-b7c8-40e9-a160-e3bc3c553d6e",
+    "createdAt": "2026-08-25T15:58:16.898Z",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "category": "QUEUE",
+    "subject": "Token #1",
+    "body": "Token 1 for Dr. Imran Khan. Approx wait 10 min.",
+    "link": "/queue/19c40bcb-195f-44c3-9cd6-f2421057a65e",
+    "meta": {
+      "tokenId": "19c40bcb-195f-44c3-9cd6-f2421057a65e"
+    },
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-25T15:58:16.898Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "SMS",
+        "at": "2026-08-25T15:58:16.898Z",
+        "status": "SKIPPED_NO_ADDRESS",
+        "provider": "sms"
+      }
+    ]
+  },
+  {
+    "id": "371c7782-8079-4562-8c62-9a54ae341c6a",
+    "createdAt": "2026-08-25T15:58:16.898Z",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "category": "QUEUE",
+    "subject": "Almost your turn",
+    "body": "You are 1 away. Please head to Dr. Imran Khan's area.",
+    "link": "/queue/19c40bcb-195f-44c3-9cd6-f2421057a65e",
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-25T15:58:16.898Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "SMS",
+        "at": "2026-08-25T15:58:16.898Z",
+        "status": "SKIPPED_NO_ADDRESS",
+        "provider": "sms"
+      }
+    ]
+  },
+  {
+    "id": "1397095f-748b-491b-b988-9cb3a7018625",
+    "createdAt": "2026-08-25T16:13:07.106Z",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "category": "APPOINTMENT",
+    "subject": "Appointment confirmed",
+    "body": "Your appointment with Dr. Neha Verma on 2026-08-25T03:30:00.000Z is confirmed.",
+    "meta": {
+      "appointmentId": "cf9f348c-1352-4ccc-9913-5cc48e08d090"
+    },
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-25T16:13:07.106Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "EMAIL",
+        "at": "2026-08-25T16:13:07.107Z",
+        "status": "FAILED",
+        "provider": "smtp",
+        "error": "SMTP not configured"
+      },
+      {
+        "channel": "SMS",
+        "at": "2026-08-25T16:13:07.107Z",
+        "status": "SKIPPED_NO_ADDRESS",
+        "provider": "sms"
+      }
+    ]
+  },
+  {
+    "id": "4cc4d40d-41a6-4769-977c-07b907f761d9",
+    "createdAt": "2026-08-25T16:13:07.150Z",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "category": "QUEUE",
+    "subject": "Token #1",
+    "body": "Token 1 for Dr. Neha Verma. Approx wait 10 min.",
+    "link": "/queue/a6a22dd0-97cc-48e3-b516-1822f3d6ea23",
+    "meta": {
+      "tokenId": "a6a22dd0-97cc-48e3-b516-1822f3d6ea23"
+    },
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-25T16:13:07.151Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "SMS",
+        "at": "2026-08-25T16:13:07.151Z",
+        "status": "SKIPPED_NO_ADDRESS",
+        "provider": "sms"
+      }
+    ]
+  },
+  {
+    "id": "09ae313b-d1cc-4453-9c76-7375b343b4b9",
+    "createdAt": "2026-08-25T16:13:07.151Z",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "category": "QUEUE",
+    "subject": "Almost your turn",
+    "body": "You are 1 away. Please head to Dr. Neha Verma's area.",
+    "link": "/queue/a6a22dd0-97cc-48e3-b516-1822f3d6ea23",
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-25T16:13:07.151Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "SMS",
+        "at": "2026-08-25T16:13:07.151Z",
+        "status": "SKIPPED_NO_ADDRESS",
+        "provider": "sms"
+      }
+    ]
+  },
+  {
+    "id": "902d9360-f29c-41f7-a3a0-a69b297d393c",
+    "createdAt": "2026-08-25T16:14:38.643Z",
+    "userId": "6e7ec8d8-12d4-4eb3-93b1-6711d9ec78bd",
+    "category": "BILLING",
+    "subject": "Payment received for INV-000028",
+    "body": "We received 350 INR. Thank you.",
+    "meta": {
+      "invoiceId": "46932e6a-65ab-45e4-8c23-430b40d627e7"
+    },
+    "readAt": null,
+    "deliveries": [
+      {
+        "channel": "INAPP",
+        "at": "2026-08-25T16:14:38.643Z",
+        "status": "DELIVERED",
+        "provider": "inapp"
+      },
+      {
+        "channel": "PUSH",
+        "at": "2026-08-25T16:14:39.173Z",
+        "status": "FAILED",
+        "provider": "expo-push",
+        "error": "\"ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]\" is not a registered push notification recipient or it is associated with a project that does not exist."
+      },
+      {
+        "channel": "EMAIL",
+        "at": "2026-08-25T16:14:39.174Z",
+        "status": "FAILED",
+        "provider": "smtp",
+        "error": "SMTP not configured"
+      }
+    ]
   }
 ]

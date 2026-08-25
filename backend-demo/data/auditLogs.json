@@ -438,5 +438,48 @@
     "ip": "127.0.0.1",
     "correlationId": "cid_0f3384dbbi",
     "createdAt": "2026-08-23T10:46:42.017Z"
+  },
+  {
+    "id": "a2364a06-064b-439c-b7fc-19aacd70254b",
+    "timestamp": "2026-08-25T15:54:11.043Z",
+    "actorId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "action": "auth.login",
+    "resource": "user",
+    "resourceId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "ip": "127.0.0.1",
+    "correlationId": "cid_a5n2pixszb",
+    "createdAt": "2026-08-25T15:54:11.043Z"
+  },
+  {
+    "id": "6ec79c3d-2ce3-46f7-930b-40dd239ea4f4",
+    "timestamp": "2026-08-25T16:01:44.379Z",
+    "actorId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "actorRole": "RECEPTIONIST",
+    "action": "commerce.payment_captured",
+    "resource": "payment",
+    "resourceId": "45546924-003f-4387-849e-1b4620a29ad1",
+    "after": {
+      "amount": 350,
+      "invoice": "INV-000033"
+    },
+    "ip": "127.0.0.1",
+    "correlationId": "cid_yx4y829fy2",
+    "createdAt": "2026-08-25T16:01:44.379Z"
+  },
+  {
+    "id": "6b87b577-756e-42ea-9d82-d9a59e7cf5a8",
+    "timestamp": "2026-08-25T16:14:38.643Z",
+    "actorId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "actorRole": "RECEPTIONIST",
+    "action": "commerce.payment_captured",
+    "resource": "payment",
+    "resourceId": "4a5f7e3d-0560-4a37-806f-316e4cf43c78",
+    "after": {
+      "amount": 350,
+      "invoice": "INV-000028"
+    },
+    "ip": "127.0.0.1",
+    "correlationId": "cid_hm4ruimri6",
+    "createdAt": "2026-08-25T16:14:38.643Z"
   }
 ]

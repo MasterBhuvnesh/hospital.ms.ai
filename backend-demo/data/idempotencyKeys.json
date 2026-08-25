@@ -1,0 +1,63 @@
+[
+  {
+    "id": "54c2d2ac-c550-4507-aff1-eb79a1ff221a",
+    "key": "1787673496831-ogdjwt9jxy",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "endpoint": "book-appointment",
+    "response": {
+      "status": "ok",
+      "code": "CREATED",
+      "data": {
+        "id": "b012f0a1-0582-49c8-acfd-03fbeba8847c",
+        "patientId": "0d2bd2a1-85cb-4b78-b355-d27581784a2a",
+        "doctorId": "5cc57fe4-a096-4d42-bcda-cd71602e746c",
+        "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+        "startsAt": "2026-08-25T04:30:00.000Z",
+        "date": "2026-08-25",
+        "status": "CONFIRMED",
+        "reason": "Fever",
+        "priority": null,
+        "feeSnapshot": {
+          "version": 1,
+          "amount": 350,
+          "currency": "INR",
+          "effectiveFrom": "2026-08-22T18:50:38.889Z"
+        },
+        "tokenId": "19c40bcb-195f-44c3-9cd6-f2421057a65e",
+        "createdAt": "2026-08-25T15:58:16.883Z",
+        "updatedAt": "2026-08-25T15:58:16.896Z"
+      }
+    },
+    "createdAt": "2026-08-25T15:58:16.885Z"
+  },
+  {
+    "id": "6c58943c-8b9b-4556-96f4-65d204b9de22",
+    "key": "1787674387096-n2d8ltjbps9",
+    "userId": "1d627df2-2452-43e9-b6a2-a9d01def735b",
+    "endpoint": "book-appointment",
+    "response": {
+      "status": "ok",
+      "code": "CREATED",
+      "data": {
+        "id": "cf9f348c-1352-4ccc-9913-5cc48e08d090",
+        "patientId": "0d2bd2a1-85cb-4b78-b355-d27581784a2a",
+        "doctorId": "d65db70e-9aaf-4d2d-b697-102adcebb5ef",
+        "hospitalId": "914f7ceb-41a4-44bb-ab54-de49b8a996ff",
+        "startsAt": "2026-08-25T03:30:00.000Z",
+        "date": "2026-08-25",
+        "status": "BOOKED",
+        "reason": "Routine Skin Checkup",
+        "priority": null,
+        "feeSnapshot": {
+          "version": 1,
+          "amount": 550,
+          "currency": "INR",
+          "effectiveFrom": "2026-08-22T18:50:38.889Z"
+        },
+        "tokenId": null,
+        "createdAt": "2026-08-25T16:13:07.105Z"
+      }
+    },
+    "createdAt": "2026-08-25T16:13:07.106Z"
+  }
+]
