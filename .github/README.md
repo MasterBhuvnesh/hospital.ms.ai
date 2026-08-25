@@ -527,6 +527,168 @@ Five flags carry the per-service differences, and they are the only reason the e
 | Resources | Requests and limits set on every container. CPU limits omitted deliberately on latency-sensitive services to avoid throttling; memory limits always set |
 | Rollout | `RollingUpdate` with `maxUnavailable: 0`, readiness-gated, `helm --wait --timeout 10m`, automatic rollback on failure |
 
+### The three probes, and what each one is allowed to check
+
+Getting this wrong is the most common way a healthy cluster takes itself down, so the split is deliberate.
+
+| Probe | Path | Answers | Failure means |
+|---|---|---|---|
+| `startupProbe` | `/health/live` | Has the process finished booting? | Keep waiting. 5s period, 30 failures, so a cold start has 150 seconds before anything else applies |
+| `livenessProbe` | `/health/live` | Is this process wedged? | Kill the container |
+| `readinessProbe` | `/health/ready` | Can this pod serve a request right now? | Take it out of the Service endpoints, leave it running |
+
+`/health/live` checks the process and nothing else. It never touches Postgres, Redis or RabbitMQ. A liveness probe that checks a dependency turns one slow database into a cluster-wide restart loop: every pod fails liveness, every pod is killed, none of them come back any faster, and now the database is being hammered by reconnecting replicas.
+
+`/health/ready` checks **this service's own** dependencies: Postgres and Redis for most, plus RabbitMQ where `needsBroker` is set. It does not check another service's health. If `clinical` is down, `commerce` is still ready, because `commerce` can still serve every request that does not involve `clinical`, and marking it unready would convert one service's outage into two.
+
+The startup probe existing is what lets the liveness probe be aggressive. Without it, the liveness threshold has to be loose enough to cover the slowest cold start, which means a genuinely wedged process sits wedged for a minute.
+
+### Zero-downtime rollout, and the two seconds that make it work
+
+```yaml
+strategy:
+  rollingUpdate:
+    maxUnavailable: 0     # never dip below the current replica count
+    maxSurge: 1
+terminationGracePeriodSeconds: 45
+lifecycle:
+  preStop:
+    exec:
+      command: ["sh", "-c", "sleep 5"]
+```
+
+`maxUnavailable: 0` makes a rollout slower and means capacity never drops mid-deploy. During a clinic morning that is the right trade every time.
+
+The `preStop` sleep is the part that is easy to omit and hard to diagnose. When a pod is deleted, two things happen in parallel and in no guaranteed order: the kubelet sends `SIGTERM`, and the endpoint controller removes the pod from the Service. If `SIGTERM` wins, the process stops accepting while ingress-nginx is still routing to it, and a patient checking their queue position gets a 502. Five seconds of doing nothing lets the endpoint removal propagate first. The 45-second grace period then covers draining in-flight WebSocket connections.
+
+`helm upgrade --atomic --wait --timeout 10m` gates the whole thing: if the new pods never reach ready, Helm rolls the release back on its own rather than leaving a half-migrated cluster for someone to find.
+
+### Autoscaling: two mechanisms, never on the same Deployment
+
+| Service | Scaled by | Signal |
+|---|---|---|
+| `scheduling` | KEDA `ScaledObject` | RabbitMQ queue depth on `queue.events`, target 100, plus CPU at 70% as a second trigger |
+| Everything else | HPA | CPU 70%, memory 80% |
+
+`hpa.yaml` renders only for services with no `keda` block. Two autoscalers pointed at one Deployment fight, and the symptom is a replica count that oscillates every polling interval while both controllers write the same field.
+
+CPU is the wrong signal for a queue consumer. A backlog of 4,000 unprocessed queue events sits at low CPU while every patient screen goes stale, and by the time CPU rises the waiting room has already noticed. KEDA reads the broker directly, which is also why it works identically on kind, on a hospital's k3s box and on EKS. A cloud metrics adapter would autoscale in one place and nowhere else.
+
+The scale behaviour is asymmetric on purpose:
+
+```yaml
+scaleUp:   { stabilizationWindowSeconds: 30,  policy: 100% / 30s }
+scaleDown: { stabilizationWindowSeconds: 300, policy: 1 pod / 120s }
+```
+
+A clinic opening is a step change, not a ramp, so scale-up is fast. A queue that empties for two minutes at lunch is not a reason to hand back capacity before the afternoon session, so scale-down is slow.
+
+### Placement, disruption, and what tolerates spot
+
+- **Topology spread** across `topology.kubernetes.io/zone` with `whenUnsatisfiable: ScheduleAnyway`. A single-AZ event costs capacity, not availability. `ScheduleAnyway` rather than `DoNotSchedule` because a hard constraint on a single-node k3s cluster is unsatisfiable, and the same chart has to apply there.
+- **PodDisruptionBudget** `minAvailable: 1` on `gateway` and `scheduling` only. A PDB on all eight turns a routine node drain into a manual operation, and the queue is the one place a momentary gap is visible to somebody standing in a corridor.
+- **Spot**: the `burst` node group is tainted `workload=burst:NoSchedule`. Only `scheduling` tolerates it. A spot reclamation mid-transaction on `identity` or `commerce` is not a trade worth making on the write path.
+- **The `system` group** is tainted `CriticalAddonsOnly`, so an application pod cannot crowd out ingress-nginx or the autoscaler on the nodes those depend on.
+
+### Migrations as a hook, not a startup step
+
+```yaml
+"helm.sh/hook": pre-install,pre-upgrade
+"helm.sh/hook-weight": "-5"
+"helm.sh/hook-delete-policy": before-hook-creation
+```
+
+One Job, one container per service that declares `migrate: true`, each running `prisma migrate deploy` against its own schema. Kubernetes runs those containers in parallel, which is safe precisely because the schemas are disjoint: one Postgres cluster, one schema per service, no cross-schema writes.
+
+Running migrations at service startup instead would mean eight replicas racing the same migration on every rollout. The failure is not a clean error, it is a half-applied schema. As a hook the Job either succeeds and the rollout proceeds, or fails and Helm never touches the running Deployments.
+
+### The network model
+
+Default-deny on both directions in every namespace, then four explicit allows:
+
+| Allow | From | To |
+|---|---|---|
+| DNS | every pod | `kube-system` CoreDNS, 53 UDP and TCP |
+| Ingress | `ingress-nginx` namespace | `gateway` only, port 4000 |
+| East-west | any pod labelled `app.kubernetes.io/name: hms` | any sibling service |
+| Scrape | `observability` namespace | every service port |
+
+Egress is written by port rather than by destination, which is what lets the identical rule cover in-cluster Postgres on the portable profile and RDS in a private data subnet on AWS: 5432, 6379, 5672, 9000, plus 443 and 587 for the provider APIs.
+
+The policies ship twice on purpose. The chart renders them for the release, and `infra/kubernetes/network-policies/` applies them to the namespace beforehand. The gap between namespace creation and the first `helm install` is a real window, and it is exactly when a misconfigured pod is reachable.
+
+The check that proves it works is a negative one, and it runs in CI:
+
+```bash
+kubectl run t --rm -it --image=curlimages/curl -- \
+  curl http://hms-clinical.hms-production:5004/health    # must fail to connect
+```
+
+### Pod hardening
+
+Every namespace is labelled `pod-security.kubernetes.io/enforce: restricted`. Every container runs:
+
+```yaml
+runAsNonRoot: true          # uid 1001
+readOnlyRootFilesystem: true
+allowPrivilegeEscalation: false
+capabilities: { drop: ["ALL"] }
+seccompProfile: { type: RuntimeDefault }
+```
+
+`readOnlyRootFilesystem` is the one that needs a corresponding change elsewhere: anything that writes needs an explicit mount, so each pod gets two size-limited `emptyDir` volumes at `/tmp` and `/app/.cache` and nothing else is writable. `automountServiceAccountToken` is false unless External Secrets needs it, because a token mounted into a pod that never calls the API server is only ever useful to an attacker.
+
+Namespace guardrails sit underneath: a `ResourceQuota` so a runaway autoscaler cannot starve the observability stack of schedulable capacity, and a `LimitRange` so a container that forgets its requests still gets sensible ones.
+
+### What lives outside the Helm release, and why
+
+| In the chart | Outside it, in `infra/kubernetes/` |
+|---|---|
+| Deployments, Services, HPA, ScaledObject, PDB, ServiceMonitor, migration Job | Namespaces, ResourceQuota, LimitRange |
+| Release-scoped NetworkPolicies | Namespace-scoped default-deny |
+| The ExternalSecret for this release | ClusterSecretStore definitions |
+
+The rule: anything cluster-scoped or longer-lived than a release stays out. A `helm uninstall` must never take the namespace, its quota, or its secret store with it.
+
+### Kubernetes day-2
+
+```bash
+# what is running, and on which SHA. All eight must report the same tag
+kubectl get deploy -n hms-production -o wide
+
+# events explain most failures. Logs explain the rest
+kubectl describe pod <pod> -n hms-production
+kubectl get events -n hms-production --sort-by=.lastTimestamp
+kubectl logs -f deploy/hms-scheduling -n hms-production
+
+# autoscaling, both kinds
+kubectl get hpa -n hms-production
+kubectl get scaledobject,triggerauthentication -n hms-production
+
+# is the policy doing what it claims
+kubectl get networkpolicy -n hms-production
+kubectl run t --rm -it --image=curlimages/curl -- curl http://hms-clinical.hms-production:5004/health
+
+# roll back. First move, not last
+helm history  hms -n hms-production
+helm rollback hms <revision> -n hms-production --wait
+
+# drain a node without breaking the PDB
+kubectl drain <node> --ignore-daemonsets --delete-emptydir-data
+```
+
+### Failure modes worth recognising on sight
+
+| Symptom | Usually |
+|---|---|
+| Every pod `CrashLoopBackOff` immediately after a first install | The `hms-env` Secret does not exist in the namespace. `zod` refuses to boot on a missing key, which is the intended behaviour |
+| Pods `Running` but never `Ready` | `/health/ready` cannot reach a dependency. Check the NetworkPolicy before checking the database |
+| `helm upgrade` times out with the Deployments untouched | The pre-upgrade migration Job failed. `kubectl logs job/hms-migrate` |
+| Replica count oscillating every 15 seconds | An HPA and a ScaledObject on the same Deployment |
+| 502s only during a rollout | A missing or too-short `preStop` on the service being rolled |
+| `ScaledObject` stuck at `minReplicaCount` | The `TriggerAuthentication` cannot read `RABBITMQ_URL` from the env secret |
+| Pod rejected at admission | Pod Security `restricted` and a container that wants to write to its root filesystem |
+
 ---
 
 ## 8. SECRETS
