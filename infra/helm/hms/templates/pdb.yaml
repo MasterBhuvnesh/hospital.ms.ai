@@ -1,0 +1,23 @@
+{{- $root := . -}}
+{{- range .Values.services }}
+{{- $svc := . -}}
+{{- $ctx := dict "root" $root "svc" $svc -}}
+{{- if $svc.pdb }}
+---
+# gateway and scheduling only. A PDB on every service turns a routine node
+# drain into a manual operation, and the queue is the only thing where a
+# momentary gap is actually visible to a patient standing in a corridor.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "hms.serviceName" $ctx }}
+  labels:
+    {{- include "hms.selectorLabels" $ctx | nindent 4 }}
+    {{- include "hms.commonLabels" $root | nindent 4 }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "hms.selectorLabels" $ctx | nindent 6 }}
+{{- end }}
+{{- end }}

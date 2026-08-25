@@ -1,0 +1,46 @@
+# Prometheus scrapes /metrics, and every service ships traces to Tempo and logs
+# through Alloy. Both directions need an explicit hole in a default-deny
+# namespace, and a missing scrape rule looks exactly like a broken exporter.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-scrape
+  namespace: hms-production
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hms
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - { protocol: TCP, port: 4000 }
+        - { protocol: TCP, port: 5001 }
+        - { protocol: TCP, port: 5002 }
+        - { protocol: TCP, port: 5003 }
+        - { protocol: TCP, port: 5004 }
+        - { protocol: TCP, port: 5005 }
+        - { protocol: TCP, port: 5006 }
+        - { protocol: TCP, port: 5007 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-telemetry-egress
+  namespace: hms-production
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hms
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - { protocol: TCP, port: 4317 }  # OTLP gRPC
+        - { protocol: TCP, port: 4318 }  # OTLP HTTP

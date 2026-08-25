@@ -1,0 +1,60 @@
+{{- $root := . -}}
+{{- if $root.Values.keda.enabled }}
+{{- range .Values.services }}
+{{- $svc := . -}}
+{{- $ctx := dict "root" $root "svc" $svc -}}
+{{- if $svc.keda }}
+---
+# KEDA reads RabbitMQ queue depth directly. It works on any cluster, which a
+# cloud-specific metrics adapter would not, so scheduling autoscales the same
+# way on kind, on a hospital's k3s box, and on EKS.
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ include "hms.serviceName" $ctx }}-broker-auth
+  labels:
+    {{- include "hms.commonLabels" $root | nindent 4 }}
+spec:
+  secretTargetRef:
+    - parameter: host
+      name: {{ $root.Values.envSecretName }}
+      key: {{ $root.Values.keda.brokerSecretKey }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "hms.serviceName" $ctx }}
+  labels:
+    {{- include "hms.selectorLabels" $ctx | nindent 4 }}
+    {{- include "hms.commonLabels" $root | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "hms.serviceName" $ctx }}
+  pollingInterval: {{ $root.Values.keda.pollingInterval }}
+  cooldownPeriod: {{ $root.Values.keda.cooldownPeriod }}
+  minReplicaCount: {{ $svc.keda.minReplicas | default 2 }}
+  maxReplicaCount: {{ $svc.keda.maxReplicas | default 20 }}
+  advanced:
+    restoreToOriginalReplicaCount: true
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 300
+  triggers:
+    - type: rabbitmq
+      metadata:
+        protocol: amqp
+        queueName: {{ $svc.keda.queue }}
+        mode: QueueLength
+        value: {{ $svc.keda.target | quote }}
+      authenticationRef:
+        name: {{ include "hms.serviceName" $ctx }}-broker-auth
+    # CPU stays as a second trigger. Queue depth alone misses the case where
+    # each message is expensive and the queue never grows.
+    - type: cpu
+      metricType: Utilization
+      metadata:
+        value: "70"
+{{- end }}
+{{- end }}
+{{- end }}

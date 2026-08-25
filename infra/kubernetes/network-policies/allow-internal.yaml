@@ -1,0 +1,53 @@
+# =============================================================================
+#  East-west traffic between the eight services, and egress to the data plane.
+#
+#  This is namespace-scoped and deliberately coarse: the fine-grained rule of
+#  which service may call which is enforced in code by the internal service
+#  token, not here. A NetworkPolicy per service pair is 56 policies that drift
+#  out of date within a month.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-internal
+  namespace: hms-production
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hms
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hms
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hms
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-data-plane-egress
+  namespace: hms-production
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hms
+  policyTypes: [Egress]
+  egress:
+    # In-cluster on the portable profile. On aws these same ports leave the
+    # cluster to RDS and ElastiCache in the private data subnets, and the rule
+    # does not change because it is written by port, not by destination.
+    - ports:
+        - { protocol: TCP, port: 5432 }
+        - { protocol: TCP, port: 6379 }
+        - { protocol: TCP, port: 5672 }
+        - { protocol: TCP, port: 9000 }
+    # Provider APIs: SMS, voice, WhatsApp, push, payments, LLM, object storage.
+    # SMTP on 587 for email.
+    - ports:
+        - { protocol: TCP, port: 443 }
+        - { protocol: TCP, port: 587 }

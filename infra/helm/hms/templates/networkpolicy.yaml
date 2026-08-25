@@ -1,0 +1,109 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- $root := . -}}
+# =============================================================================
+#  Default deny, then explicit allows.
+#
+#  The negative test this exists for: a curl pod inside the cluster must not be
+#  able to reach hms-clinical. That test runs in CI.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "hms.fullname" . }}-default-deny
+  labels:
+    {{- include "hms.commonLabels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "hms.fullname" . }}-allow-dns
+  labels:
+    {{- include "hms.commonLabels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicy.dnsNamespace }}
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+{{- range .Values.services }}
+{{- $svc := . -}}
+{{- $ctx := dict "root" $root "svc" $svc }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "hms.serviceName" $ctx }}
+  labels:
+    {{- include "hms.selectorLabels" $ctx | nindent 4 }}
+    {{- include "hms.commonLabels" $root | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "hms.selectorLabels" $ctx | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    {{- if $svc.public }}
+    # gateway is the only service the ingress controller may reach
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $root.Values.networkPolicy.ingressNamespace }}
+      ports:
+        - protocol: TCP
+          port: {{ $svc.port }}
+    {{- else }}
+    # everything else accepts traffic from gateway and from sibling services
+    # only. Nothing from outside the namespace, ever.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hms
+      ports:
+        - protocol: TCP
+          port: {{ $svc.port }}
+    {{- end }}
+    # Prometheus scrapes /metrics on the service port
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $root.Values.networkPolicy.observabilityNamespace }}
+      ports:
+        - protocol: TCP
+          port: {{ $svc.port }}
+  egress:
+    # sibling services
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hms
+    # data plane. Reached by hostname, which resolves in-cluster on portable
+    # and to an RDS or ElastiCache endpoint on aws. Same rule either way.
+    - ports:
+        - { protocol: TCP, port: 5432 }
+        - { protocol: TCP, port: 6379 }
+        - { protocol: TCP, port: 5672 }
+        - { protocol: TCP, port: 9000 }
+    # outbound HTTPS for the provider APIs: SMS, voice, WhatsApp, push,
+    # payments, LLM, and object storage where it is not in-cluster.
+    - ports:
+        - { protocol: TCP, port: 443 }
+        - { protocol: TCP, port: 587 }
+    # OTLP to Tempo and logs to Alloy
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $root.Values.networkPolicy.observabilityNamespace }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,75 @@
+# =============================================================================
+#  PORTABLE profile. THE DEFAULT.
+#
+#  Any conformant Kubernetes: k3s, kind, GKE, DigitalOcean, Hetzner, OpenShift,
+#  a cluster in a hospital basement. Everything runs in the cluster.
+#
+#  This is the default and aws is an override on top of it. If AWS were the
+#  default, this path would rot, because nobody would run it.
+#
+#  Deployed to kind in CI on every merge. That run is what keeps the
+#  cloud-independence claim true.
+# =============================================================================
+
+database:
+  urlFromSecret: true
+  # CloudNativePG publishes <cluster>-rw for the primary and <cluster>-ro for
+  # replicas. Writes go to -rw.
+  host: hms-postgres-rw
+  port: 5432
+  name: hms
+  user: hms
+  sslMode: prefer
+  poolMax: 10
+
+redis:
+  urlFromSecret: true
+  host: hms-redis-master
+  port: 6379
+  tls: false
+
+rabbitmq:
+  urlFromSecret: true
+  host: hms-rabbitmq
+  port: 5672
+
+storage:
+  endpoint: http://hms-minio:9000
+  region: us-east-1
+  forcePathStyle: true
+  buckets:
+    documents: hms-documents
+    prescriptions: hms-prescriptions
+    invoices: hms-invoices
+    lab: hms-lab
+
+config:
+  STORAGE_DRIVER: s3-compatible
+  EMAIL_DRIVER: smtp
+
+# Sealed Secrets, or External Secrets against Vault or the Kubernetes backend.
+# Never Secrets Manager here: a self-hosting hospital has no AWS account.
+externalSecret:
+  enabled: false
+  backend: kubernetes
+  secretStoreName: hms-store
+
+serviceAccount:
+  create: true
+  name: hms
+  annotations: {}
+
+# No storage class is named anywhere in this file. The cluster's default
+# provisioner is used, whatever it happens to be.
+persistence:
+  storageClass: ""
+
+ingress:
+  enabled: true
+  className: nginx
+  host: hms.local
+  tls:
+    enabled: false
+
+keda:
+  enabled: true

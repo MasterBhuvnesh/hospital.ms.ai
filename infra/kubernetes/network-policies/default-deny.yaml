@@ -1,0 +1,40 @@
+# =============================================================================
+#  Cluster-wide default deny, applied per namespace outside the Helm release.
+#
+#  The chart ships its own policies for the hms pods. This file exists so that
+#  a namespace is closed BEFORE the release is installed, rather than at the
+#  moment the release lands. The gap between those two is where a misconfigured
+#  pod is reachable, and it is a real gap during a first install.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: hms-production
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: hms-staging
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: hms-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress

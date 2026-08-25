@@ -1,0 +1,77 @@
+# =============================================================================
+#  Namespaces. Cluster-scoped, so they sit outside the Helm release: a
+#  `helm uninstall` must never take the namespace and its secrets with it.
+#
+#  Pod Security Admission is set to restricted everywhere. Every service runs
+#  non-root with a read-only root filesystem and all capabilities dropped, so
+#  restricted costs nothing and catches the one deployment that forgets.
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hms-dev
+  labels:
+    kubernetes.io/metadata.name: hms-dev
+    app.kubernetes.io/part-of: hms
+    atelier.health/environment: dev
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hms-staging
+  labels:
+    kubernetes.io/metadata.name: hms-staging
+    app.kubernetes.io/part-of: hms
+    atelier.health/environment: staging
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hms-production
+  labels:
+    kubernetes.io/metadata.name: hms-production
+    app.kubernetes.io/part-of: hms
+    atelier.health/environment: production
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+# A quota exists so a runaway HPA cannot starve the observability stack of
+# schedulable capacity. The numbers are headroom, not a target.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: hms-production-quota
+  namespace: hms-production
+spec:
+  hard:
+    requests.cpu: "24"
+    requests.memory: 48Gi
+    limits.memory: 96Gi
+    pods: "120"
+    persistentvolumeclaims: "12"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: hms-production-limits
+  namespace: hms-production
+spec:
+  limits:
+    - type: Container
+      default:
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 256Mi
+      max:
+        memory: 2Gi

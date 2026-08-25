@@ -1,0 +1,47 @@
+{{- if .Values.ingress.enabled }}
+{{- $root := . -}}
+{{- $gateway := "" -}}
+{{- range .Values.services }}{{- if .public }}{{- $gateway = . }}{{- end }}{{- end }}
+{{- if $gateway }}
+{{- $ctx := dict "root" $root "svc" $gateway -}}
+# =============================================================================
+#  One ingress. It reaches gateway and nothing else.
+#
+#  ingress-nginx on EVERY profile, AWS included. The AWS Load Balancer
+#  Controller would give us ALB integration and a pile of
+#  alb.ingress.kubernetes.io/* annotations baked into this template. One
+#  ingress path to test is worth more than the integration.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "hms.fullname" . }}
+  labels:
+    {{- include "hms.commonLabels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+    {{- if .Values.ingress.tls.enabled }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.tls.issuer }}
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Values.ingress.tls.secretName }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "hms.serviceName" $ctx }}
+                port:
+                  name: http
+{{- end }}
+{{- end }}

@@ -1,0 +1,303 @@
+# =============================================================================
+#  hms base values. CLOUD NEUTRAL.
+#
+#  No ARN, no cloud annotation, no cloud storage class, no cloud hostname may
+#  appear in this file or in any template. scripts/ci/check-portable-chart.sh
+#  renders the chart with values-portable.yaml and fails the build if one does.
+#
+#  Everything AWS lives in values-aws.yaml, which changes values only and never
+#  a template.
+# =============================================================================
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  registry: docker.io/atelierhealth
+  # Set by CI to the git SHA. The SAME tag for every service, because all nine
+  # images are built from one commit.
+  tag: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  # per-service -> registry/hms-<name>:tag      (default, what production runs)
+  # all-in-one  -> registry/hms-platform:tag    with SERVICE=<name>
+  mode: per-service
+
+# -----------------------------------------------------------------------------
+# The service list. Adding a service is one entry here plus one
+# apps/<name>/Dockerfile. It is not a new chart.
+# -----------------------------------------------------------------------------
+services:
+  - name: gateway
+    port: 4000
+    replicas: 2
+    public: true
+    pdb: true
+    resources:
+      requests: { cpu: 200m, memory: 256Mi }
+      limits: { memory: 512Mi }
+
+  - name: identity
+    port: 5001
+    replicas: 2
+    migrate: true
+    resources:
+      requests: { cpu: 150m, memory: 256Mi }
+      limits: { memory: 512Mi }
+
+  - name: directory
+    port: 5002
+    replicas: 2
+    migrate: true
+    resources:
+      requests: { cpu: 100m, memory: 224Mi }
+      limits: { memory: 448Mi }
+
+  - name: scheduling
+    port: 5003
+    replicas: 3
+    pdb: true
+    migrate: true
+    needsBroker: true
+    keda:
+      queue: queue.events
+      target: 100
+      minReplicas: 3
+      maxReplicas: 20
+    resources:
+      requests: { cpu: 300m, memory: 320Mi }
+      limits: { memory: 640Mi }
+
+  - name: clinical
+    port: 5004
+    replicas: 2
+    migrate: true
+    resources:
+      requests: { cpu: 150m, memory: 320Mi }
+      limits: { memory: 640Mi }
+
+  - name: commerce
+    port: 5005
+    replicas: 2
+    migrate: true
+    resources:
+      requests: { cpu: 150m, memory: 320Mi }
+      limits: { memory: 640Mi }
+
+  - name: comms
+    port: 5006
+    replicas: 2
+    migrate: true
+    needsBroker: true
+    resources:
+      requests: { cpu: 150m, memory: 256Mi }
+      limits: { memory: 512Mi }
+
+  - name: ai
+    port: 5007
+    replicas: 2
+    migrate: true
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits: { memory: 1Gi }
+
+# -----------------------------------------------------------------------------
+# Defaults applied to every service unless the entry overrides them
+# -----------------------------------------------------------------------------
+defaults:
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    # CPU limits are deliberately omitted on the request path. A throttled
+    # gateway looks exactly like a slow database and is far harder to diagnose.
+    limits: { memory: 512Mi }
+
+  probes:
+    liveness:
+      path: /health/live
+      initialDelaySeconds: 10
+      periodSeconds: 20
+      timeoutSeconds: 3
+      failureThreshold: 3
+    readiness:
+      path: /health/ready
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+    startup:
+      path: /health/live
+      periodSeconds: 5
+      failureThreshold: 30
+
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  strategy:
+    type: RollingUpdate
+    maxUnavailable: 0
+    maxSurge: 1
+
+  terminationGracePeriodSeconds: 45
+
+  # A single-AZ event should cost capacity, not availability.
+  topologySpread:
+    enabled: true
+    maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  privileged: false
+  capabilities:
+    drop: ["ALL"]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+priorityClassName: ""
+
+# -----------------------------------------------------------------------------
+# Configuration and secrets
+#
+# Every dependency is a URL or a secret reference. Never a provider name.
+# -----------------------------------------------------------------------------
+config:
+  NODE_ENV: production
+  LOG_LEVEL: info
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo.observability.svc.cluster.local:4318
+  OTEL_TRACES_SAMPLER: parentbased_traceidratio
+  OTEL_TRACES_SAMPLER_ARG: "0.1"
+  RABBITMQ_EXCHANGE: hms.events
+  RABBITMQ_DELAYED_EXCHANGE: hms.delayed
+  STORAGE_DRIVER: s3-compatible
+  EMAIL_DRIVER: smtp
+  SMS_DRIVER: msg91
+  VOICE_DRIVER: exotel
+  PUSH_DRIVER: expo
+  WHATSAPP_DRIVER: meta
+  PAYMENT_DRIVER: razorpay
+
+# Name of the Secret projected into every pod as envFrom. Created by
+# ExternalSecret, by Sealed Secrets, or by hand in kind.
+envSecretName: hms-env
+
+externalSecret:
+  enabled: false
+  # kubernetes | vault | aws | gcp | azure
+  backend: kubernetes
+  secretStoreName: hms-store
+  refreshInterval: 1h
+  remoteKeyPrefix: hms
+
+serviceAccount:
+  create: true
+  name: hms
+  # Filled in by values-aws.yaml with the IRSA role. Empty here on purpose.
+  annotations: {}
+
+# -----------------------------------------------------------------------------
+# Networking
+# -----------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  host: hms.local
+  tls:
+    enabled: false
+    secretName: hms-tls
+    issuer: letsencrypt-prod
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 12m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+
+networkPolicy:
+  enabled: true
+  # Default deny, then explicit allows. See templates/networkpolicy.yaml.
+  ingressNamespace: ingress-nginx
+  observabilityNamespace: observability
+  dnsNamespace: kube-system
+
+# -----------------------------------------------------------------------------
+# Data plane. Portable defaults. values-aws.yaml swaps the endpoints.
+# -----------------------------------------------------------------------------
+database:
+  # A full URL wins. Otherwise the parts below are assembled, with the password
+  # read from envSecretName.
+  urlFromSecret: true
+  host: hms-postgres-rw
+  port: 5432
+  name: hms
+  user: hms
+  sslMode: prefer
+  poolMax: 10
+  statementTimeout: 15s
+
+redis:
+  urlFromSecret: true
+  host: hms-redis-master
+  port: 6379
+  tls: false
+
+rabbitmq:
+  # In-cluster on EVERY profile including aws. Amazon MQ cannot run
+  # rabbitmq_delayed_message_exchange and every scheduled job depends on it.
+  urlFromSecret: true
+  host: hms-rabbitmq
+  port: 5672
+  managementPort: 15672
+
+storage:
+  # S3 API. The same four keys address MinIO, S3, R2 and Ceph.
+  endpoint: http://hms-minio:9000
+  region: us-east-1
+  forcePathStyle: true
+  buckets:
+    documents: hms-documents
+    prescriptions: hms-prescriptions
+    invoices: hms-invoices
+    lab: hms-lab
+
+# -----------------------------------------------------------------------------
+# Migrations. A pre-upgrade Job, never on service startup: eight replicas
+# racing prisma migrate deploy is a bad afternoon.
+# -----------------------------------------------------------------------------
+migration:
+  enabled: true
+  backoffLimit: 1
+  activeDeadlineSeconds: 900
+  ttlSecondsAfterFinished: 3600
+  resources:
+    requests: { cpu: 200m, memory: 512Mi }
+    limits: { memory: 1Gi }
+
+keda:
+  enabled: false
+  pollingInterval: 15
+  cooldownPeriod: 120
+  # Read from envSecretName. KEDA works on any cluster; a cloud metrics
+  # adapter would not.
+  brokerSecretKey: RABBITMQ_URL
+
+monitoring:
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    path: /metrics
+    labels:
+      release: kube-prometheus-stack

@@ -1,0 +1,25 @@
+{{- $root := . -}}
+{{- range .Values.services }}
+{{- $svc := . -}}
+{{- $ctx := dict "root" $root "svc" $svc -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "hms.serviceName" $ctx }}
+  labels:
+    {{- include "hms.selectorLabels" $ctx | nindent 4 }}
+    {{- include "hms.commonLabels" $root | nindent 4 }}
+spec:
+  # ClusterIP for every service, gateway included. The ingress reaches gateway;
+  # nothing reaches anything else from outside the cluster. There is no
+  # LoadBalancer type anywhere in this chart, on any profile.
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ $svc.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "hms.selectorLabels" $ctx | nindent 4 }}
+{{- end }}

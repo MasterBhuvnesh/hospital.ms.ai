@@ -1,0 +1,140 @@
+{{- $root := . -}}
+{{- range .Values.services }}
+{{- $svc := . -}}
+{{- $ctx := dict "root" $root "svc" $svc -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hms.serviceName" $ctx }}
+  labels:
+    {{- include "hms.selectorLabels" $ctx | nindent 4 }}
+    {{- include "hms.commonLabels" $root | nindent 4 }}
+spec:
+  replicas: {{ $svc.replicas | default 2 }}
+  revisionHistoryLimit: 5
+  strategy:
+    type: {{ $root.Values.defaults.strategy.type }}
+    {{- if eq $root.Values.defaults.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      # maxUnavailable 0 means a rollout never reduces capacity below the
+      # current replica count. Slower, and the queue does not stall.
+      maxUnavailable: {{ $root.Values.defaults.strategy.maxUnavailable }}
+      maxSurge: {{ $root.Values.defaults.strategy.maxSurge }}
+    {{- end }}
+  selector:
+    matchLabels:
+      {{- include "hms.selectorLabels" $ctx | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "hms.selectorLabels" $ctx | nindent 8 }}
+        {{- include "hms.commonLabels" $root | nindent 8 }}
+      annotations:
+        # Roll the pods when config changes. Without this a ConfigMap edit
+        # applies to new pods only, and the fleet quietly runs two configs.
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $root | sha256sum }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ $svc.port | quote }}
+        prometheus.io/path: /metrics
+    spec:
+      serviceAccountName: {{ include "hms.serviceAccountName" $root }}
+      automountServiceAccountToken: {{ if $root.Values.externalSecret.enabled }}true{{ else }}false{{ end }}
+      terminationGracePeriodSeconds: {{ $root.Values.defaults.terminationGracePeriodSeconds }}
+      {{- with $root.Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $root.Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $root.Values.podSecurityContext | nindent 8 }}
+      {{- with $root.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or $root.Values.tolerations $svc.tolerations }}
+      tolerations:
+        {{- toYaml (default $root.Values.tolerations $svc.tolerations) | nindent 8 }}
+      {{- end }}
+      {{- with $root.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if $root.Values.defaults.topologySpread.enabled }}
+      topologySpreadConstraints:
+        - maxSkew: {{ $root.Values.defaults.topologySpread.maxSkew }}
+          topologyKey: {{ $root.Values.defaults.topologySpread.topologyKey }}
+          whenUnsatisfiable: {{ $root.Values.defaults.topologySpread.whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "hms.selectorLabels" $ctx | nindent 14 }}
+      {{- end }}
+      containers:
+        - name: {{ $svc.name }}
+          image: {{ include "hms.image" $ctx }}
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $svc.port }}
+              protocol: TCP
+          env:
+            {{- include "hms.commonEnv" $ctx | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "hms.fullname" $root }}-config
+            # Connection strings and provider credentials. Delivered by
+            # ExternalSecret, Sealed Secrets, or kubectl create secret in kind.
+            - secretRef:
+                name: {{ $root.Values.envSecretName }}
+          livenessProbe:
+            httpGet:
+              path: {{ $root.Values.defaults.probes.liveness.path }}
+              port: http
+            initialDelaySeconds: {{ $root.Values.defaults.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ $root.Values.defaults.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ $root.Values.defaults.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ $root.Values.defaults.probes.liveness.failureThreshold }}
+          readinessProbe:
+            # /health/ready checks this service's own dependencies: Postgres and
+            # Redis for most, plus RabbitMQ for comms and scheduling. It does
+            # not check anyone else's, or one slow database takes out the fleet.
+            httpGet:
+              path: {{ $root.Values.defaults.probes.readiness.path }}
+              port: http
+            initialDelaySeconds: {{ $root.Values.defaults.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ $root.Values.defaults.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ $root.Values.defaults.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ $root.Values.defaults.probes.readiness.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: {{ $root.Values.defaults.probes.startup.path }}
+              port: http
+            periodSeconds: {{ $root.Values.defaults.probes.startup.periodSeconds }}
+            failureThreshold: {{ $root.Values.defaults.probes.startup.failureThreshold }}
+          lifecycle:
+            preStop:
+              exec:
+                # Let the endpoint controller remove this pod before the process
+                # stops accepting. Without the pause, in-flight requests 502.
+                command: ["sh", "-c", "sleep 5"]
+          resources:
+            {{- include "hms.resources" $ctx | nindent 12 }}
+          securityContext:
+            {{- toYaml $root.Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            # readOnlyRootFilesystem is on, so anything that writes needs an
+            # explicit mount. These two are all that do.
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /app/.cache
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
+        - name: cache
+          emptyDir:
+            sizeLimit: 128Mi
+{{- end }}

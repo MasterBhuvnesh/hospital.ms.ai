@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hms
+  namespace: hms-staging
+  labels:
+    app.kubernetes.io/part-of: hms
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 12m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+    # Staging carries a copy of production shaped data. It is not public.
+    nginx.ingress.kubernetes.io/whitelist-source-range: "10.60.0.0/16"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [staging-api.atelier.health]
+      secretName: hms-tls
+  rules:
+    - host: staging-api.atelier.health
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hms-gateway
+                port:
+                  number: 4000

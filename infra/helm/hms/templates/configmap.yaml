@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hms.fullname" . }}-config
+  labels:
+    {{- include "hms.commonLabels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  RABBITMQ_HOST: {{ .Values.rabbitmq.host | quote }}
+  RABBITMQ_PORT: {{ .Values.rabbitmq.port | quote }}
+  DATABASE_SSL_MODE: {{ .Values.database.sslMode | quote }}
+  REDIS_TLS: {{ .Values.redis.tls | quote }}
+  # Nothing sensitive belongs in this object. Connection strings with
+  # credentials live in the Secret named by envSecretName, never here.

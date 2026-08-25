@@ -1,0 +1,49 @@
+# =============================================================================
+#  Production ingress.
+#
+#  ingress-nginx behind a plain NLB. No ALB controller, so this manifest is
+#  byte-identical in shape to the one a hospital applies on their own cluster.
+#  The only difference between this file and hms-dev.yaml is the hostname, the
+#  TLS block and the rate limits.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hms
+  namespace: hms-production
+  labels:
+    app.kubernetes.io/part-of: hms
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/proxy-body-size: 12m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+    # A coarse edge limit. The real per-user and per-endpoint limits live in
+    # gateway, because they must apply identically on the single-host profile
+    # where there is no ingress controller at all.
+    nginx.ingress.kubernetes.io/limit-rps: "50"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains";
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [api.atelier.health]
+      secretName: hms-tls
+  rules:
+    - host: api.atelier.health
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hms-gateway
+                port:
+                  number: 4000

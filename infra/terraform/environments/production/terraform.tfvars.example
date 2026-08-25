@@ -1,0 +1,57 @@
+# =============================================================================
+#  Copy to terraform.tfvars and fill in. terraform.tfvars is git-ignored.
+#
+#  NO SECRET BELONGS IN THIS FILE OR IN terraform.tfvars. A value passed in
+#  here ends up in the state file in plaintext, and the state file outlives the
+#  credential. Provider tokens and the JWT signing key are written directly to
+#  Secrets Manager, out of band. See envs/CATALOGUE.md.
+# =============================================================================
+
+region             = "ap-south-1"
+dr_region          = "ap-southeast-1"
+vpc_cidr           = "10.60.0.0/16"
+kubernetes_version = "1.33"
+
+# The API server endpoint allowlist. Never 0.0.0.0/0; a validation block
+# rejects it.
+operator_cidrs = [
+  "203.0.113.0/24", # office
+  "198.51.100.0/24", # CI runners
+]
+
+rds_instance_class = "db.m7g.large"
+cache_node_type    = "cache.t4g.medium"
+
+domain         = "atelier.health"
+hosted_zone_id = "Z0000000000000000000"
+acme_email     = "ops@atelier.health"
+
+# Empty on the first apply. Read the NLB back from the ingress-nginx Service
+# afterwards and apply again:
+#   kubectl get svc -n ingress-nginx ingress-nginx-controller \
+#     -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+ingress_lb_hostname = ""
+ingress_lb_zone_id  = ""
+
+# The only principal permitted to push an image.
+ci_role_arns = [
+  "arn:aws:iam::000000000000:role/atelier-gha-deploy",
+]
+
+# SSO permission sets. Access entries, not the aws-auth ConfigMap.
+access_entries = {
+  platform_admin = {
+    principal_arn = "arn:aws:iam::000000000000:role/AWSReservedSSO_PlatformAdmin_0000000000000000"
+    policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+    scope_type    = "cluster"
+  }
+
+  # Read-only, scoped to one namespace. An on-call engineer needs to read
+  # events and logs during an incident, not to edit a Deployment.
+  oncall_viewer = {
+    principal_arn = "arn:aws:iam::000000000000:role/AWSReservedSSO_Engineer_0000000000000000"
+    policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
+    scope_type    = "namespace"
+    namespaces    = ["hms-production"]
+  }
+}

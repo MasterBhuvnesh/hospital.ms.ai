@@ -1,0 +1,37 @@
+hms {{ .Chart.AppVersion }} deployed to namespace {{ .Release.Namespace }}.
+
+  image mode : {{ .Values.image.mode }}
+  image tag  : {{ .Values.image.tag | default (printf "%s (chart appVersion)" .Chart.AppVersion) }}
+  registry   : {{ .Values.image.registry }}
+  services   : {{ len .Values.services }}
+  secret     : {{ .Values.envSecretName }}{{ if .Values.externalSecret.enabled }} (via ExternalSecret, backend {{ .Values.externalSecret.backend }}){{ end }}
+
+Check the rollout:
+
+  kubectl get deploy -n {{ .Release.Namespace }} -o wide
+  kubectl get pods  -n {{ .Release.Namespace }} -w
+
+All {{ len .Values.services }} deployments must report the SAME image tag. If they
+do not, a partial rollout is in progress or someone deployed by hand.
+
+{{ if .Values.ingress.enabled -}}
+Reach the platform:
+
+  curl -H 'Host: {{ .Values.ingress.host }}' http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}/health/ready
+
+The ingress reaches gateway and nothing else. Every other service is ClusterIP.
+{{- end }}
+
+Roll back, which is the first move and not the last:
+
+  helm history  hms -n {{ .Release.Namespace }}
+  helm rollback hms <revision> -n {{ .Release.Namespace }} --wait
+
+{{ if not .Values.externalSecret.enabled -}}
+NOTE: externalSecret is disabled, so the Secret "{{ .Values.envSecretName }}" must
+already exist in this namespace. Without it every pod CrashLoopBackOffs on a
+missing environment variable and the events say nothing useful.
+
+  kubectl create secret generic {{ .Values.envSecretName }} -n {{ .Release.Namespace }} \
+    --from-env-file=envs/.env.container
+{{- end }}

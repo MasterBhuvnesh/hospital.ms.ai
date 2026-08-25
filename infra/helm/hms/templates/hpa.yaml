@@ -1,0 +1,53 @@
+{{- $root := . -}}
+{{- range .Values.services }}
+{{- $svc := . -}}
+{{- $ctx := dict "root" $root "svc" $svc -}}
+{{/* KEDA owns the scale of any service that declares a queue trigger. Two
+     autoscalers fighting over one Deployment is a well-known way to flap. */}}
+{{- if and $root.Values.defaults.hpa.enabled (not $svc.keda) }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "hms.serviceName" $ctx }}
+  labels:
+    {{- include "hms.selectorLabels" $ctx | nindent 4 }}
+    {{- include "hms.commonLabels" $root | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "hms.serviceName" $ctx }}
+  minReplicas: {{ max ($svc.replicas | default 2) $root.Values.defaults.hpa.minReplicas }}
+  maxReplicas: {{ $root.Values.defaults.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $root.Values.defaults.hpa.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $root.Values.defaults.hpa.targetMemoryUtilizationPercentage }}
+  behavior:
+    scaleUp:
+      # A clinic opening is a step change, not a ramp. Scale up fast.
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+    scaleDown:
+      # Scale down slowly. A queue that empties for two minutes at lunch is
+      # not a reason to give back capacity before the afternoon session.
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+{{- end }}
+{{- end }}

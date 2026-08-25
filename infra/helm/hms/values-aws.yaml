@@ -1,0 +1,101 @@
+# =============================================================================
+#  AWS profile. Overrides on top of values-portable.yaml.
+#
+#  This file changes VALUES ONLY. It changes no template. If a feature needs a
+#  template change to work on AWS, the feature is wrong, not the chart.
+#
+#  Note what is NOT here:
+#    - no ALB controller annotations. ingress-nginx runs on AWS too, behind a
+#      plain NLB, so there is one ingress path to test rather than two
+#    - no Amazon MQ. RabbitMQ stays in-cluster because Amazon MQ cannot run
+#      the delayed-message plugin every scheduled job depends on
+#    - no CloudWatch. Prometheus and Loki run here exactly as they do off AWS
+#
+#  Placeholders below are rendered by Terraform output or set with --set at
+#  deploy time. Nothing sensitive is committed.
+# =============================================================================
+
+image:
+  registry: 000000000000.dkr.ecr.ap-south-1.amazonaws.com
+  pullPolicy: IfNotPresent
+  mode: per-service
+
+database:
+  urlFromSecret: true
+  host: hms-production.cluster-xxxxxxxx.ap-south-1.rds.amazonaws.com
+  port: 5432
+  name: hms
+  user: hms
+  # RDS terminates TLS. Verify it rather than merely accepting it.
+  sslMode: verify-full
+  poolMax: 20
+
+redis:
+  urlFromSecret: true
+  host: hms-production.xxxxxx.ng.0001.aps1.cache.amazonaws.com
+  port: 6379
+  tls: true
+
+# In-cluster on AWS too. This is the one row of the capability matrix where
+# the managed service was rejected on a technical constraint, not a preference.
+rabbitmq:
+  urlFromSecret: true
+  host: hms-rabbitmq
+  port: 5672
+
+storage:
+  # The generic S3-compatible client addresses Amazon S3 unchanged. The AWS SDK
+  # is not involved and packages/platform-aws is not loaded.
+  endpoint: https://s3.ap-south-1.amazonaws.com
+  region: ap-south-1
+  forcePathStyle: false
+  buckets:
+    documents: hms-documents-prod
+    prescriptions: hms-prescriptions-prod
+    invoices: hms-invoices-prod
+    lab: hms-lab-prod
+
+config:
+  STORAGE_DRIVER: s3-compatible
+  # SES through its SMTP endpoint, so EmailProvider stays a plain SMTP client
+  # and a hospital can point it at their own relay by changing one URL.
+  EMAIL_DRIVER: smtp
+  SMTP_HOST: email-smtp.ap-south-1.amazonaws.com
+  SMTP_PORT: "587"
+
+externalSecret:
+  enabled: true
+  backend: aws
+  secretStoreName: hms-aws-store
+  remoteKeyPrefix: hms/production
+  refreshInterval: 1h
+
+serviceAccount:
+  create: true
+  name: hms
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::000000000000:role/hms-production-storage
+
+persistence:
+  storageClass: gp3
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.atelier.health
+  tls:
+    enabled: true
+    secretName: hms-tls
+    issuer: letsencrypt-prod
+
+# The burst node group is spot. Only scheduling tolerates it: a spot
+# reclamation mid-transaction on identity or commerce is not a trade worth
+# making.
+tolerations: []
+
+keda:
+  enabled: true
+
+monitoring:
+  serviceMonitor:
+    enabled: true

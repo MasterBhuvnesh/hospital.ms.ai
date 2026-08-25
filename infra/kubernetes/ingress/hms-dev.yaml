@@ -1,0 +1,28 @@
+# Dev ingress. Routes to gateway only, which is the rule on every environment.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hms
+  namespace: hms-dev
+  labels:
+    app.kubernetes.io/part-of: hms
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 12m
+    # WebSocket fanout for the live queue. Without the long read timeout the
+    # connection drops every 60 seconds and every patient screen reconnects.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: hms.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hms-gateway
+                port:
+                  number: 4000

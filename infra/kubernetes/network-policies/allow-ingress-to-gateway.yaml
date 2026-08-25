@@ -1,0 +1,22 @@
+# The ingress controller may reach gateway. It may not reach anything else.
+#
+# The negative test: a curl pod from outside the namespace hitting
+# hms-clinical.hms-production:5004 must fail to connect. That runs in CI.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-gateway
+  namespace: hms-production
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: hms
+      app.kubernetes.io/component: gateway
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - { protocol: TCP, port: 4000 }

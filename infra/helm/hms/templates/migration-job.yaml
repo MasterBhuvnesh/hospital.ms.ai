@@ -1,0 +1,68 @@
+{{- if .Values.migration.enabled }}
+{{- $root := . -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "hms.fullname" . }}-migrate
+  labels:
+    {{- include "hms.commonLabels" . | nindent 4 }}
+    app.kubernetes.io/component: migration
+  annotations:
+    # A pre-upgrade hook, NEVER a startup step in the service itself. Eight
+    # replicas racing prisma migrate deploy is a bad afternoon, and the failure
+    # mode is a half-applied schema rather than an error.
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: {{ .Values.migration.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.migration.activeDeadlineSeconds }}
+  ttlSecondsAfterFinished: {{ .Values.migration.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        {{- include "hms.commonLabels" $root | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "hms.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        {{- range .Values.services }}
+        {{- $svc := . -}}
+        {{- if $svc.migrate }}
+        {{- $ctx := dict "root" $root "svc" $svc }}
+        # One init-style container per owning service. Each service owns exactly
+        # one Postgres schema and migrates only that schema. Kubernetes runs
+        # these in parallel, which is safe because they touch disjoint schemas.
+        - name: migrate-{{ $svc.name }}
+          image: {{ include "hms.image" $ctx }}
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          command: ["pnpm", "--filter", "@hms/{{ $svc.name }}", "exec", "prisma", "migrate", "deploy", "--config", "prisma.config.ts"]
+          env:
+            - name: SERVICE
+              value: {{ $svc.name }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "hms.fullname" $root }}-config
+            - secretRef:
+                name: {{ $root.Values.envSecretName }}
+          resources:
+            {{- toYaml $root.Values.migration.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml $root.Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+        {{- end }}
+        {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 128Mi
+{{- end }}
