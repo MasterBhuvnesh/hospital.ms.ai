@@ -297,13 +297,17 @@ infra/terraform/
 │       ├── cloudfront/             desktop update feed only
 │       └── kms/                    customer-managed keys, per data class
 │
-└── environments/
-    ├── local-kind/                 modules/kubernetes only
-    ├── portable-example/           modules/kubernetes only, against any kubeconfig
-    ├── dev/                        aws + kubernetes
-    ├── staging/                    aws + kubernetes
-    └── production/                 aws + kubernetes
+└── environments/                   each: main.tf, variables.tf, outputs.tf, versions.tf
+    ├── local-kind/                 modules/kubernetes only. Local state, no aws provider
+    ├── portable-example/           modules/kubernetes only, against any kubeconfig.
+    │                               Backend left unconfigured on purpose
+    ├── dev/                        aws + kubernetes, plus backend.tf
+    ├── staging/                    aws + kubernetes, plus backend.tf
+    └── production/                 aws + kubernetes, plus backend.tf
+                                    and terraform.tfvars.example
 ```
+
+`portable-example` ships without a backend block. Hardcoding an S3 backend there would put the one AWS dependency into the environment whose entire purpose is not having one, so the customer picks: a local file, their own S3-compatible store, Postgres, Consul, or Terraform Cloud.
 
 ### Why the split is the whole point
 
@@ -325,7 +329,9 @@ terraform {
 }
 ```
 
-`modules/kubernetes/*/versions.tf` declares **only** `kubernetes` and `helm`. An `aws` provider block in that layer fails review, and CI greps for it.
+`modules/kubernetes/*/versions.tf` declares only cluster-facing providers: `kubernetes`, `helm`, and where a module applies a CRD before its operator has converged, `kubectl` and `random`. **No `aws` provider block exists anywhere in that layer.** One appearing fails review, and CI greps for it.
+
+The seam is worth naming, because it is the thing that keeps the agnostic layer honest. A module that needs something cloud-shaped takes it as an opaque string. `cert-manager` accepts `solver_role_arn` and passes it to the DNS-01 solver without knowing what an ARN is. `ingress-nginx` accepts `service_annotations`, which is where the AWS environments put their NLB hints. Neither module has an `aws` provider, so both apply unchanged to k3s, GKE or OpenShift.
 
 ### State
 
@@ -457,14 +463,20 @@ One chart renders all eight services from a values list. Adding a service is one
 ```
 infra/helm/hms/
 ├── templates/
+│   ├── _helpers.tpl          image resolution, labels, shared env
 │   ├── deployment.yaml       loops .Values.services
-│   ├── service.yaml
-│   ├── hpa.yaml
+│   ├── service.yaml          ClusterIP for all eight, gateway included
+│   ├── configmap.yaml        non-sensitive config. Checksummed onto the pod
+│   ├── serviceaccount.yaml   IRSA annotation lands here on aws, nowhere else
+│   ├── ingress.yaml          gateway alone
+│   ├── hpa.yaml              skipped for any service KEDA owns
 │   ├── scaledobject.yaml     KEDA, scheduling only
-│   ├── migration-job.yaml    pre-upgrade hook
-│   ├── networkpolicy.yaml
-│   ├── pdb.yaml
-│   └── servicemonitor.yaml
+│   ├── migration-job.yaml    pre-upgrade hook, one container per owning service
+│   ├── networkpolicy.yaml    default deny, then explicit allows
+│   ├── pdb.yaml              gateway and scheduling only
+│   ├── externalsecret.yaml   a reference to a store, never a value
+│   ├── servicemonitor.yaml
+│   └── NOTES.txt
 ├── values.yaml               base, cloud-neutral. No ARN, no annotation, no storage class
 ├── values-portable.yaml      in-cluster postgres, redis, minio
 └── values-aws.yaml           RDS, ElastiCache, S3, IRSA, gp3
@@ -479,19 +491,25 @@ image:
                            # all-in-one  -> registry/hms-platform:tag with SERVICE=<name>
 
 services:
-  - { name: gateway,    port: 4000, replicas: 2, public: true }
-  - { name: identity,   port: 5001, replicas: 2 }
-  - { name: directory,  port: 5002, replicas: 2 }
-  - { name: scheduling, port: 5003, replicas: 3, keda: { queue: queue.events, target: 100 } }
-  - { name: clinical,   port: 5004, replicas: 2 }
-  - { name: commerce,   port: 5005, replicas: 2 }
-  - { name: comms,      port: 5006, replicas: 2 }
-  - { name: ai,         port: 5007, replicas: 2 }
+  - { name: gateway,    port: 4000, replicas: 2, public: true, pdb: true }
+  - { name: identity,   port: 5001, replicas: 2, migrate: true }
+  - { name: directory,  port: 5002, replicas: 2, migrate: true }
+  - { name: scheduling, port: 5003, replicas: 3, migrate: true, pdb: true,
+      needsBroker: true, keda: { queue: queue.events, target: 100 } }
+  - { name: clinical,   port: 5004, replicas: 2, migrate: true }
+  - { name: commerce,   port: 5005, replicas: 2, migrate: true }
+  - { name: comms,      port: 5006, replicas: 2, migrate: true, needsBroker: true }
+  - { name: ai,         port: 5007, replicas: 2, migrate: true }
 
-externalSecretBackend: kubernetes    # kubernetes | vault | aws | gcp | azure
+# every dependency is a URL or a secret reference, never a provider name
+externalSecret:
+  enabled: false
+  backend: kubernetes    # kubernetes | vault | aws | gcp | azure
 ```
 
-`values-aws.yaml` adds only what AWS changes: the RDS and ElastiCache endpoints, the S3 bucket and region, the IRSA service-account annotation, the `gp3` storage class, and `externalSecretBackend: aws`. **It changes no template.** That is what the chart lint in section 3 protects.
+Five flags carry the per-service differences, and they are the only reason the eight entries are not identical. `public` puts a service behind the ingress, and only `gateway` has it. `pdb` is `gateway` and `scheduling` alone, because a PDB on all eight turns a routine node drain into a manual operation. `migrate` adds a container to the pre-upgrade Job. `needsBroker` extends the readiness check to RabbitMQ. `keda` hands the service's scale to a queue-depth trigger, and the HPA template skips any service that declares one, so two autoscalers never fight over one Deployment.
+
+`values-aws.yaml` adds only what AWS changes: the RDS and ElastiCache endpoints, the S3 bucket and region, the IRSA service-account annotation, the `gp3` storage class, and `externalSecret.backend: aws`. **It changes no template.** That is what the chart lint in section 3 protects.
 
 ### Cluster conventions
 
